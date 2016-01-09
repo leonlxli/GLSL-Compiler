@@ -66,9 +66,18 @@ static void DoBeforeEachAction();
 ">="							{ return T_GreaterEqual; }
 "=="							{ return T_Equal; }
 "!="							{ return T_NotEqual; }
+
 "&&"							{ return T_And; }
 "||"							{ return T_Or; }
-"[]"							{ return T_NewArray; }
+
+"[]"							{ return T_Dims; }
+
+"extends"						{ return T_Extends; }
+"this"							{ return T_This; }
+"implements"					{ return T_Implements; }
+"interface"						{ return T_Interface; }
+"new"							{ return T_New; }
+
 
 %%
 /* The closing %% above marks the end of the Rules section and the beginning
