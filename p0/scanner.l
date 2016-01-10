@@ -93,8 +93,10 @@ static void DoBeforeEachAction();
 "int"							{ return T_Int; }
 "void"							{ return T_Void; }
 "bool"							{ return T_Bool; }
-"true"							{ yylval.boolConstant = true; return T_BoolConstant; }
-"false"							{ yylval.boolConstant = false; return T_BoolConstant; }
+"true"							{ yylval.boolConstant = true; 
+								  return T_BoolConstant; }
+"false"							{ yylval.boolConstant = false; 
+								  return T_BoolConstant; }
 "mat2"							{ return T_Mat2; }
 "mat3"							{ return T_Mat3; }
 "mat4"							{ return T_Mat4; }
@@ -112,6 +114,13 @@ static void DoBeforeEachAction();
 "uvec4"							{ return T_UVec4; }
 "uint"							{ return T_UInt; }
 "struct"						{ return T_Struct; }
+
+[_a-zA-Z][_a-zA-Z0-9]			{ memcpy(yylval.identifier, yytext, MaxIdentLen+1);
+								  if(strlen(yytext) > 1024) {
+								  	/* do error reporting */
+								  } else {
+								    return T_Ident;
+								  } }
 
 %%
 /* The closing %% above marks the end of the Rules section and the beginning
