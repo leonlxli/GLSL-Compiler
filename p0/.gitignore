@@ -1,3 +1,4 @@
 *.o
 glc
 lex.yy.c
+*.swp
