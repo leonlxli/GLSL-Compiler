@@ -163,7 +163,6 @@ void InitScanner()
 	SetDebugForKey("lex", true);
     PrintDebug("lex", "Initializing scanner");
     yy_flex_debug = false;
-
     Reset( &yylloc );
 }
 
@@ -176,5 +175,5 @@ void InitScanner()
 static void DoBeforeEachAction()
 {
   yylloc.first_column = yylloc.last_column;
-  yylloc.last_column += yyleng;
+  yylloc.last_column += yyleng-1;
 }
