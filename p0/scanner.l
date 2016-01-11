@@ -68,6 +68,9 @@ static void DoBeforeEachAction();
 "=="							{ return T_Equal; }
 "!="							{ return T_NotEqual; }
 
+"++"							{ return T_Inc; }
+"--"							{ return T_Dec; }
+
 "&&"							{ return T_And; }
 "||"							{ return T_Or; }
 
@@ -121,6 +124,15 @@ static void DoBeforeEachAction();
 								  } else {
 								    return T_Ident;
 								  } }
+
+^(\+|-)?\d+$					{ yylval.integerConstant = atoi(yytext); 
+								  return T_IntConstant; }
+
+[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?	{ yylval.floatConstant = atof(yytext);
+										  return T_FloatConstant; }
+
+\"(\\.|[^\\"])*\"				{ yylval.stringConstant = yytext;
+								  return T_StringConstant; }
 
 %%
 /* The closing %% above marks the end of the Rules section and the beginning
