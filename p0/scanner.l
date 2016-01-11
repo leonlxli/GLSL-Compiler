@@ -64,7 +64,7 @@ static void DoBeforeEachAction();
 
 \n							{ AdvanceLines(&yylloc, 1); }
 [ ]							{ yylloc.last_column++; }
-\t							{ yylloc.last_column++; }
+\t							{ yylloc.last_column=yylloc.last_column+8; }
 
 [\+\-\*/%<>=!;,\.\[\]\(\)\{\}]	{ return yytext[0]; }
 "<="							{ return T_LessEqual; }
@@ -164,7 +164,7 @@ void InitScanner()
     PrintDebug("lex", "Initializing scanner");
     yy_flex_debug = false;
 
-    Reset( yylloc );
+    Reset( &yylloc );
 }
 
 
@@ -175,5 +175,6 @@ void InitScanner()
  */
 static void DoBeforeEachAction()
 {
+  yylloc.first_column = yylloc.last_column;
   yylloc.last_column += yyleng;
 }

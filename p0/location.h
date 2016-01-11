@@ -56,23 +56,24 @@ inline yyltype Join(yyltype *firstPtr, yyltype *lastPtr)
 }
 
 /* reset location */
-inline yyltype Reset( yyltype loc ) {
-  loc.first_line = 1;
-  loc.first_column = 1;
+inline yyltype Reset( yyltype * loc ) {
+  loc->first_line = 1;
+  loc->first_column = 1;
 
-  loc.last_line = 1;
-  loc.last_column = 1;
+  loc->last_line = 1;
+  loc->last_column = 1;
 
-  printf("-------------------------------------im here %d\n", loc.first_line);
-  return loc;
+  printf("-------------------------------------im here %d\n", loc->first_line);
+  return *loc;
 }
 
-/* advance line num */
-inline yyltype AdvanceLines( yyltype loc, int n ) {
-  loc.last_column = 1;
-  loc.last_line += n;
 
-  return loc;
+/* advance line num */
+inline yyltype AdvanceLines( yyltype * loc, int n ) {
+  loc->last_column = 1;
+  loc->first_line += n;
+
+  return *loc;
 }
 
 /* move first cursor to last position */
