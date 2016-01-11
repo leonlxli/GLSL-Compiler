@@ -1,3 +1,4 @@
+#include <stdio.h>
 /* File: location.h
  * ----------------
  * This file just contains features relative to the location structure
@@ -52,6 +53,34 @@ inline yyltype Join(yyltype first, yyltype last)
 inline yyltype Join(yyltype *firstPtr, yyltype *lastPtr)
 {
   return Join(*firstPtr, *lastPtr);
+}
+
+/* reset location */
+inline yyltype Reset( yyltype loc ) {
+  loc.first_line = 1;
+  loc.first_column = 1;
+
+  loc.last_line = 1;
+  loc.last_column = 1;
+
+  printf("-------------------------------------im here %d\n", loc.first_line);
+  return loc;
+}
+
+/* advance line num */
+inline yyltype AdvanceLines( yyltype loc, int n ) {
+  loc.last_column = 1;
+  loc.last_line += n;
+
+  return loc;
+}
+
+/* move first cursor to last position */
+inline yyltype Restart( yyltype loc ) {
+  loc.first_column = loc.last_column;
+  loc.first_line = loc.last_line;
+
+  return loc;
 }
 
 

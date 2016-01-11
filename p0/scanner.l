@@ -61,10 +61,12 @@ static void DoBeforeEachAction();
  /* All patterns and actions should be placed between the start and stop
   * %% markers which delimit the Rules section. 
   */
-\n							{ yylval.lineNumber++; yylval.colNum=1; }
-[ ]+ 							{ /*ignore white space */}
-\t							{ yylval.colNum++;}
-[\+\-\*/%<>=!;,\.\[\]\(\)\{\}]				{ return yytext[0]; }
+
+\n							{ AdvanceLines(&yylloc, 1); }
+[ ]							{ yylloc.last_column++; }
+\t							{ yylloc.last_column++; }
+
+[\+\-\*/%<>=!;,\.\[\]\(\)\{\}]	{ return yytext[0]; }
 "<="							{ return T_LessEqual; }
 ">="							{ return T_GreaterEqual; }
 "=="							{ return T_Equal; }
@@ -120,7 +122,7 @@ static void DoBeforeEachAction();
 "uint"							{ return T_UInt; }
 "struct"						{ return T_Struct; }
 
-[_a-zA-Z][_a-zA-Z0-9]			{ memcpy(yylval.identifier, yytext, MaxIdentLen+1);
+[_a-zA-Z][_a-zA-Z0-9]+			{ memcpy(yylval.identifier, yytext, MaxIdentLen+1);
 								  if(strlen(yytext) > 1024) {
 								  	/* do error reporting */
 								  } else {
@@ -158,8 +160,11 @@ static void DoBeforeEachAction();
  */
 void InitScanner()
 {
+	SetDebugForKey("lex", true);
     PrintDebug("lex", "Initializing scanner");
     yy_flex_debug = false;
+
+    Reset( yylloc );
 }
 
 
@@ -170,4 +175,5 @@ void InitScanner()
  */
 static void DoBeforeEachAction()
 {
+  yylloc.last_column += yyleng;
 }
