@@ -61,8 +61,10 @@ static void DoBeforeEachAction();
  /* All patterns and actions should be placed between the start and stop
   * %% markers which delimit the Rules section. 
   */
-
-[\+\-\*/%<>=!;,\.\[\]\(\)\{\}]	{ return yytext[0]; }
+\n							{ yylval.lineNumber++; yylval.colNum=1; }
+[ ]+ 							{ /*ignore white space */}
+\t							{ yylval.colNum++;}
+[\+\-\*/%<>=!;,\.\[\]\(\)\{\}]				{ return yytext[0]; }
 "<="							{ return T_LessEqual; }
 ">="							{ return T_GreaterEqual; }
 "=="							{ return T_Equal; }

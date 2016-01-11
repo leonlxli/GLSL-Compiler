@@ -69,6 +69,8 @@ typedef union {
     bool boolConstant;
     char *stringConstant;
     float floatConstant;
+    int lineNumber;
+    int colNum;
     char identifier[MaxIdentLen+1]; // +1 for terminating null
 } YYSTYPE;
 
