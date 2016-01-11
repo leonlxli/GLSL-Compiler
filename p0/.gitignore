@@ -2,3 +2,5 @@
 glc
 lex.yy.c
 *.swp
+*.swo
+*.swn
