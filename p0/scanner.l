@@ -71,7 +71,7 @@ static void DoBeforeEachAction();
 <comment>"*"+[^*/\n]*   {/* eat up '*'s not followed by '/'s */}
 <comment>\n             { yylloc.first_line+= 1;}
 <comment>"*"+"/"        {BEGIN(done);}
-
+<comment><<EOF>>        {BEGIN(done); ReportError::UntermComment();}
 \n							{ AdvanceLines(&yylloc, 1);  }
 [ ]							{ }
 \t							{ yylloc.last_column+=7;}
