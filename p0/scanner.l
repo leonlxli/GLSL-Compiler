@@ -62,9 +62,9 @@ static void DoBeforeEachAction();
   * %% markers which delimit the Rules section. 
   */
 
-\n							{ AdvanceLines(&yylloc, 1); }
-[ ]							{ yylloc.last_column++; }
-\t							{ yylloc.last_column=yylloc.last_column+8; }
+\n							{ AdvanceLines(&yylloc, 1);  }
+[ ]							{ }
+\t							{ yylloc.last_column=yylloc.last_column+8;}
 
 [\+\-\*/%<>=!;,\.\[\]\(\)\{\}]	{ return yytext[0]; }
 "<="							{ return T_LessEqual; }
@@ -174,6 +174,8 @@ void InitScanner()
  */
 static void DoBeforeEachAction()
 {
-  yylloc.first_column = yylloc.last_column;
-  yylloc.last_column += yyleng-1;
+  yylloc.first_column = yylloc.last_column+1;
+  yylloc.last_column += yyleng;
+  //
+  //printf("length of: %d  ", yyleng);
 }
