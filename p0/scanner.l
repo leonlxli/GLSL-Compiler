@@ -132,11 +132,13 @@ static void DoBeforeEachAction();
 ^(\+|-)?\d+$					{ yylval.integerConstant = atoi(yytext); 
 								  return T_IntConstant; }
 
-[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?	{ yylval.floatConstant = atof(yytext);
+[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?f?	{ yylval.floatConstant = atof(yytext);
 										  return T_FloatConstant; }
 
 \"(\\.|[^\\"])*\"				{ yylval.stringConstant = yytext;
 								  return T_StringConstant; }
+
+\/\/.*            { }
 
 %%
 /* The closing %% above marks the end of the Rules section and the beginning
