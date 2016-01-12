@@ -61,8 +61,8 @@ static void DoBeforeEachAction();
   */
 
 INLINECOMMENT                       (\/\/.*)
-INTEGERS                            (^(\+|-)?\d+$)
-FLOATS                              ([-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?f?)
+INTEGERS                            (^(\+|-)?[0-9]+)
+FLOATS                              ([-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?f?)
 IDENTIFIER                          ([_a-zA-Z][_a-zA-Z0-9]*)
 COMMENT_START                       ("/*")
 COMMENT_END                         ("*/")
@@ -143,7 +143,7 @@ COMMENT_END                         ("*/")
                     								  if(strlen(yytext) > 1024) {
                     								  	ReportError::LongIdentifier(&yylloc, yylval.identifier);
                     								  } else {
-                    								    return T_Ident;
+                    								    return T_Identifier;
                     								  } }
 
 {INTEGERS}					                { yylval.integerConstant = atoi(yytext); 
