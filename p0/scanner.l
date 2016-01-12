@@ -61,8 +61,8 @@ static void DoBeforeEachAction();
   */
 
 INLINECOMMENT                       (\/\/.*)
-FLOATS                              ([-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?f?)
 INTEGERS                            (^(\+|-)?\d+$)
+FLOATS                              ([-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?f?)
 IDENTIFIER                          ([_a-zA-Z][_a-zA-Z0-9]*)
 COMMENT_START                       ("/*")
 COMMENT_END                         ("*/")
@@ -83,6 +83,7 @@ COMMENT_END                         ("*/")
 [ ]							                    { }
 \t							                    { yylloc.last_column+=7;}
 [\+\-\*/%<>=!;,\.\[\]\(\)\{\}]	    { return yytext[0]; }
+[@#"]                               { ReportError::UnrecogChar(&yylloc, yytext[0]); }
 "<="							                  { return T_LessEqual; }
 ">="							                  { return T_GreaterEqual; }
 "=="							                  { return T_Equal; }
@@ -112,8 +113,8 @@ COMMENT_END                         ("*/")
 "in"							                  { return T_In; }
 "out"							                  { return T_Out; }
 "inout"							                { return T_InOut; }
+"int"                               { return T_Int; }
 "float"							                { return T_Float; }
-"int"							                  { return T_Int; }
 "void"							                { return T_Void; }
 "bool"							                { return T_Bool; }
 "true"							                { yylval.boolConstant = true; 
