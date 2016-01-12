@@ -61,7 +61,8 @@ static void DoBeforeEachAction();
   */
 
 INLINECOMMENT                       (\/\/.*)
-INTEGERS                            (^(\+|-)?\d+$)
+DIGIT                               ([0-9])
+INTEGERS                            ([-+]?{DIGIT}+)
 FLOATS                              ([-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?f?)
 IDENTIFIER                          ([_a-zA-Z][_a-zA-Z0-9]*)
 COMMENT_START                       ("/*")
@@ -113,8 +114,8 @@ COMMENT_END                         ("*/")
 "in"							                  { return T_In; }
 "out"							                  { return T_Out; }
 "inout"							                { return T_InOut; }
-"int"                               { return T_Int; }
 "float"							                { return T_Float; }
+"int"							                  { return T_Int; }
 "void"							                { return T_Void; }
 "bool"							                { return T_Bool; }
 "true"							                { yylval.boolConstant = true; 
