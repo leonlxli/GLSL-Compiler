@@ -140,7 +140,8 @@ COMMENT_END                         ("*/")
 "uint"							                { return T_UInt; }
 "struct"						                { return T_Struct; }
 
-{IDENTIFIER}			                  { memcpy(yylval.identifier, yytext, MaxIdentLen);
+{IDENTIFIER}			                  { memcpy(yylval.identifier, yytext, MaxIdentLen - 1);
+                                      memset(yylval.identifier+MaxIdentLen, '\0', 1);
                     								  if(strlen(yytext) > 1024) {
                     								  	ReportError::LongIdentifier(&yylloc, yylval.identifier);
                     								  } else {
