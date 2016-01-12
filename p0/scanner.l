@@ -64,7 +64,7 @@ static void DoBeforeEachAction();
 
 \n							{ AdvanceLines(&yylloc, 1);  }
 [ ]							{ }
-\t							{ yylloc.last_column=yylloc.last_column+8;}
+\t							{ yylloc.last_column+=7;}
 
 [\+\-\*/%<>=!;,\.\[\]\(\)\{\}]	{ return yytext[0]; }
 "<="							{ return T_LessEqual; }
@@ -122,7 +122,7 @@ static void DoBeforeEachAction();
 "uint"							{ return T_UInt; }
 "struct"						{ return T_Struct; }
 
-[_a-zA-Z][_a-zA-Z0-9]+			{ memcpy(yylval.identifier, yytext, MaxIdentLen+1);
+[_a-zA-Z][_a-zA-Z0-9]*			{ memcpy(yylval.identifier, yytext, MaxIdentLen+1);
 								  if(strlen(yytext) > 1024) {
 								  	/* do error reporting */
 								  } else {
@@ -176,6 +176,4 @@ static void DoBeforeEachAction()
 {
   yylloc.first_column = yylloc.last_column+1;
   yylloc.last_column += yyleng;
-  //
-  //printf("length of: %d  ", yyleng);
 }

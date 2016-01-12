@@ -1,7 +1,8 @@
-extend <= this [] h
+extend   <= this [] h hello h9
 
 
-true
+		true
+        true
 123
 "hello world"
 12.3
