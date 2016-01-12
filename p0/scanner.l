@@ -122,9 +122,9 @@ static void DoBeforeEachAction();
 "uint"							{ return T_UInt; }
 "struct"						{ return T_Struct; }
 
-[_a-zA-Z][_a-zA-Z0-9]*			{ memcpy(yylval.identifier, yytext, MaxIdentLen+1);
+[_a-zA-Z][_a-zA-Z0-9]*			{ memcpy(yylval.identifier, yytext, MaxIdentLen);
 								  if(strlen(yytext) > 1024) {
-								  	/* do error reporting */
+								  	ReportError::LongIdentifier(&yylloc, yylval.identifier);
 								  } else {
 								    return T_Ident;
 								  } }
