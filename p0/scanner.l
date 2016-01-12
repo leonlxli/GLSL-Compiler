@@ -49,6 +49,10 @@ static void DoBeforeEachAction();
 
 %}
 
+%s done
+%x comment
+
+
  /* The section before the first %% is the Definitions section of the lex
   * input file. Here is where you set options for the scanner, define lex
   * states, and can set up definitions to give names to regular expressions
@@ -62,10 +66,16 @@ static void DoBeforeEachAction();
   * %% markers which delimit the Rules section. 
   */
 
+"/*"                    {BEGIN(comment);}
+     
+<comment>[^*\n]*        {/* eat anything that's not a '*' */}
+<comment>"*"+[^*/\n]*   {/* eat up '*'s not followed by '/'s */}
+<comment>\n             { yylloc.first_line+= 1;}
+<comment>"*"+"/"        {BEGIN(done);}
+
 \n							{ AdvanceLines(&yylloc, 1);  }
 [ ]							{ }
 \t							{ yylloc.last_column+=7;}
-
 [\+\-\*/%<>=!;,\.\[\]\(\)\{\}]	{ return yytext[0]; }
 "<="							{ return T_LessEqual; }
 ">="							{ return T_GreaterEqual; }
@@ -137,6 +147,7 @@ static void DoBeforeEachAction();
 
 \"(\\.|[^\\"])*\"				{ yylval.stringConstant = yytext;
 								  return T_StringConstant; }
+
 
 %%
 /* The closing %% above marks the end of the Rules section and the beginning
