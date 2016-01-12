@@ -144,7 +144,7 @@ COMMENT_END                         ("*/")
                     								  if(strlen(yytext) > 1024) {
                     								  	ReportError::LongIdentifier(&yylloc, yylval.identifier);
                     								  } else {
-                    								    return T_Ident;
+                    								    return T_Identifier;
                     								  } }
 
 {INTEGERS}					                { yylval.integerConstant = atoi(yytext); 
