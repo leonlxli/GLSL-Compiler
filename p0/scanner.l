@@ -67,7 +67,6 @@ static void DoBeforeEachAction();
   */
 
 "/*"                    {BEGIN(comment);}
-     
 <comment>[^*\n]*        {/* eat anything that's not a '*' */}
 <comment>"*"+[^*/\n]*   {/* eat up '*'s not followed by '/'s */}
 <comment>\n             { yylloc.first_line+= 1;}
@@ -132,9 +131,9 @@ static void DoBeforeEachAction();
 "uint"							{ return T_UInt; }
 "struct"						{ return T_Struct; }
 
-[_a-zA-Z][_a-zA-Z0-9]*			{ memcpy(yylval.identifier, yytext, MaxIdentLen+1);
+[_a-zA-Z][_a-zA-Z0-9]*			{ memcpy(yylval.identifier, yytext, MaxIdentLen);
 								  if(strlen(yytext) > 1024) {
-								  	/* do error reporting */
+								  	ReportError::LongIdentifier(&yylloc, yylval.identifier);
 								  } else {
 								    return T_Ident;
 								  } }
@@ -142,12 +141,13 @@ static void DoBeforeEachAction();
 ^(\+|-)?\d+$					{ yylval.integerConstant = atoi(yytext); 
 								  return T_IntConstant; }
 
-[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?	{ yylval.floatConstant = atof(yytext);
+[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?f?	{ yylval.floatConstant = atof(yytext);
 										  return T_FloatConstant; }
 
 \"(\\.|[^\\"])*\"				{ yylval.stringConstant = yytext;
 								  return T_StringConstant; }
 
+\/\/.*            { }
 
 %%
 /* The closing %% above marks the end of the Rules section and the beginning
