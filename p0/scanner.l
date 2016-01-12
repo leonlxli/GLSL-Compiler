@@ -72,10 +72,14 @@ static void DoBeforeEachAction();
 <comment>\n             { yylloc.first_line+= 1;}
 <comment>"*"+"/"        {BEGIN(done);}
 <comment><<EOF>>        {BEGIN(done); ReportError::UntermComment();}
+
 \n							{ AdvanceLines(&yylloc, 1);  }
 [ ]							{ }
 \t							{ yylloc.last_column+=7;}
+
 [\+\-\*/%<>=!;,\.\[\]\(\)\{\}]	{ return yytext[0]; }
+[@#"]           { ReportError::UnrecogChar(&yylloc, yytext[0]); }
+
 "<="							{ return T_LessEqual; }
 ">="							{ return T_GreaterEqual; }
 "=="							{ return T_Equal; }
@@ -143,9 +147,6 @@ static void DoBeforeEachAction();
 
 [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?f?	{ yylval.floatConstant = atof(yytext);
 										  return T_FloatConstant; }
-
-\"(\\.|[^\\"])*\"				{ yylval.stringConstant = yytext;
-								  return T_StringConstant; }
 
 \/\/.*            { }
 
