@@ -4,3 +4,4 @@ lex.yy.c
 *.swp
 *.swo
 *.swn
+sftp-config.json
