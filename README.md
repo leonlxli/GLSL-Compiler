@@ -25,3 +25,7 @@ Some parts of the lexer rules are pretty self explanatory (keywords, integer con
 	This does not result in a memory error because memcpy considers the size of the dest/src arrays and copies no more than the min of the two.
 
 4. LINE AND COLUMN NUMBERS
+
+5. UNRECOGNIZED CHARACTERS
+
+	For unrecognized characters, we made a capture group that captures any single character not caught by our other rules. Then we reported the unrecognized character error.
