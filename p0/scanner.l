@@ -113,7 +113,7 @@ COMMENT_END                         ("*/")
 "else"							                { return T_Else; }
 "in"							                  { return T_In; }
 "out"							                  { return T_Out; }
-"inout"							                { return T_InOut; }
+"inout"							                { return T_Inout; }
 "float"							                { return T_Float; }
 "int"							                  { return T_Int; }
 "void"							                { return T_Void; }
@@ -128,16 +128,16 @@ COMMENT_END                         ("*/")
 "vec2"							                { return T_Vec2; }
 "vec3"							                { return T_Vec3; }
 "vec4"							                { return T_Vec4; }
-"ivec2"							                { return T_IVec2; }
-"ivec3"							                { return T_IVec3; }
-"ivec4"							                { return T_IVec4; }
-"bvec2"							                { return T_BVec2; }
-"bvec3"							                { return T_BVec3; }
-"bvec4"							                { return T_BVec4; }
-"uvec2"							                { return T_UVec2; }
-"uvec3"							                { return T_UVec3; }
-"uvec4"							                { return T_UVec4; }
-"uint"							                { return T_UInt; }
+"ivec2"							                { return T_Ivec2; }
+"ivec3"							                { return T_Ivec3; }
+"ivec4"							                { return T_Ivec4; }
+"bvec2"							                { return T_Bvec2; }
+"bvec3"							                { return T_Bvec3; }
+"bvec4"							                { return T_Bvec4; }
+"uvec2"							                { return T_Uvec2; }
+"uvec3"							                { return T_Uvec3; }
+"uvec4"							                { return T_Uvec4; }
+"uint"							                { return T_Uint; }
 "struct"						                { return T_Struct; }
 
 {IDENTIFIER}			                  { memcpy(yylval.identifier, yytext, MaxIdentLen - 1);
