@@ -1,0 +1,12 @@
++++ (lex): Initializing scanner
+consts       line 1 cols 1-6 is T_Identifier 
+ints         line 2 cols 1-4 is T_Identifier 
+jflkasdjfk   line 3 cols 1-10 is T_Identifier 
+_hello       line 5 cols 1-6 is T_Identifier 
+-            line 6 cols 1-1 is '-' 
+BrianSoe     line 6 cols 2-9 is T_Identifier 
+1            line 8 cols 1-1 is T_IntConstant (value = 1)
+Million      line 8 cols 2-8 is T_Identifier 
+Brian        line 10 cols 1-5 is T_Identifier 
+*            line 10 cols 6-6 is '*' 
+Soe          line 10 cols 7-9 is T_Identifier 

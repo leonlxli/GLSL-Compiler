@@ -1,0 +1,56 @@
+
+*** Error line 1.
+*** Unrecognized char: '''
+
+
+*** Error line 1.
+*** Unrecognized char: '''
+
+
+*** Error line 1.
+*** Unrecognized char: '"'
+
+
+*** Error line 1.
+*** Unrecognized char: '"'
+
+true         line 1 cols 7-10 is T_BoolConstant (value = true)
+
+*** Error line 1.
+*** Unrecognized char: '"'
+
+
+*** Error line 2.
+*** Unrecognized char: '''
+
+
+*** Error line 3.
+*** Unrecognized char: '''
+
+true         line 5 cols 1-4 is T_BoolConstant (value = true)
+
+*** Error line 7.
+*** Unrecognized char: '"'
+
+
+*** Error line 7.
+*** Unrecognized char: '"'
+
+false        line 9 cols 1-5 is T_BoolConstant (value = false)
+
+*** Error line 10.
+*** Unrecognized char: '\'
+
+
+*** Error line 11.
+*** Unrecognized char: '$'
+
+
+*** Error line 12.
+*** Unrecognized char: '#'
+
+
+*** Error line 13.
+*** Unrecognized char: '@'
+
+*            line 14 cols 1-1 is '*' 
