@@ -76,14 +76,5 @@ inline yyltype AdvanceLines( yyltype * loc, int n ) {
   return *loc;
 }
 
-/* move first cursor to last position */
-inline yyltype Restart( yyltype loc ) {
-  loc.first_column = loc.last_column;
-  loc.first_line = loc.last_line;
-
-  return loc;
-}
-
-
 #endif
 
