@@ -1,0 +1,28 @@
+1            line 1 cols 1-1 is T_IntConstant (value = 1)
++            line 1 cols 2-2 is '+' 
+1            line 1 cols 3-3 is T_IntConstant (value = 1)
+1            line 2 cols 1-1 is T_IntConstant (value = 1)
+-            line 2 cols 2-2 is '-' 
+1            line 2 cols 3-3 is T_IntConstant (value = 1)
+1            line 3 cols 1-1 is T_IntConstant (value = 1)
+++           line 3 cols 2-3 is T_Inc 
+1            line 3 cols 4-4 is T_IntConstant (value = 1)
+1            line 4 cols 1-1 is T_IntConstant (value = 1)
++            line 4 cols 3-3 is '+' 
+1            line 4 cols 5-5 is T_IntConstant (value = 1)
+1            line 5 cols 1-1 is T_IntConstant (value = 1)
+-            line 5 cols 3-3 is '-' 
+1            line 5 cols 5-5 is T_IntConstant (value = 1)
+1            line 6 cols 1-1 is T_IntConstant (value = 1)
++            line 6 cols 3-3 is '+' 
+=            line 6 cols 4-4 is '=' 
+1            line 6 cols 6-6 is T_IntConstant (value = 1)
++            line 6 cols 8-8 is '+' 
+1            line 6 cols 9-9 is T_IntConstant (value = 1)
++            line 6 cols 11-11 is '+' 
+-            line 6 cols 13-13 is '-' 
+1            line 6 cols 14-14 is T_IntConstant (value = 1)
+1            line 7 cols 1-1 is T_IntConstant (value = 1)
++            line 7 cols 2-2 is '+' 
++            line 7 cols 4-4 is '+' 
+1            line 7 cols 5-5 is T_IntConstant (value = 1)

@@ -11,7 +11,6 @@
 #include <stdio.h>
 using namespace std;
 
-
 int ReportError::numErrors = 0;
 
  

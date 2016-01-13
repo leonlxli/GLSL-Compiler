@@ -1,0 +1,12 @@
+true         line 4 cols 15-18 is T_BoolConstant (value = true)
+a            line 6 cols 1-1 is T_Identifier 
+sentence     line 8 cols 1-8 is T_Identifier 
+has          line 8 cols 25-27 is T_Identifier 
+spaces       line 8 cols 54-59 is T_Identifier 
+and          line 8 cols 77-79 is T_Identifier 
+tabs         line 8 cols 81-84 is T_Identifier 
+False        line 10 cols 1-5 is T_Identifier 
+
+*** Error.
+*** Input ends with unterminated comment
+
