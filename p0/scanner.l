@@ -44,6 +44,7 @@ struct yyltype yylloc; // manually dclared for pp1, later Yacc provides
  * be called once for each pattern scanned from the file, before
  * executing its action.
  */
+static int tabSize = 7;
 static void DoBeforeEachAction(); 
 #define YY_USER_ACTION DoBeforeEachAction();
 
@@ -80,19 +81,23 @@ COMMENT_END                         ("*/")
 <comment>\n                         { yylloc.first_line+= 1;}
 <comment>"*"+"/"                    {BEGIN(done);}
 <comment><<EOF>>                    {BEGIN(done); ReportError::UntermComment();}
+
+
 \n							                    { AdvanceLines(&yylloc, 1);  }
 [ ]							                    { }
-\t							                    { yylloc.last_column+=7;}
+\t							                    { yylloc.last_column+=tabSize;}
 [\+\-\*/%<>=!;,\.\[\]\(\)\{\}]	    { return yytext[0]; }
+
+
+
+
 [@#"]                               { ReportError::UnrecogChar(&yylloc, yytext[0]); }
 "<="							                  { return T_LessEqual; }
 ">="							                  { return T_GreaterEqual; }
 "=="							                  { return T_Equal; }
 "!="							                  { return T_NotEqual; }
-
 "++"							                  { return T_Inc; }
 "--"							                  { return T_Dec; }
-
 "&&"							                  { return T_And; }
 "||"							                  { return T_Or; }
 
@@ -178,7 +183,7 @@ COMMENT_END                         ("*/")
  */
 void InitScanner()
 {
-	SetDebugForKey("lex", true);
+	SetDebugForKey("lex", false);
     PrintDebug("lex", "Initializing scanner");
     yy_flex_debug = false;
     Reset( &yylloc );
