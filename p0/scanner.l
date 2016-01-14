@@ -88,10 +88,8 @@ COMMENT_END                         ("*/")
 \t							                    { yylloc.last_column+=tabSize;}
 [\+\-\*/%<>=!;,\.\[\]\(\)\{\}]	    { return yytext[0]; }
 
-
-
-
 [@#"]                               { ReportError::UnrecogChar(&yylloc, yytext[0]); }
+
 "<="							                  { return T_LessEqual; }
 ">="							                  { return T_GreaterEqual; }
 "=="							                  { return T_Equal; }
@@ -160,6 +158,8 @@ COMMENT_END                         ("*/")
 										                  return T_FloatConstant; } 
 
 {INLINECOMMENT}                     { } //inline comment
+
+.{1}                                { ReportError::UnrecogChar(&yylloc, yytext[0]); }
 
 %%
 /* The closing %% above marks the end of the Rules section and the beginning
