@@ -63,7 +63,7 @@ static void DoBeforeEachAction();
 
 INLINECOMMENT                       (\/\/.*)
 DIGIT                               ([0-9])
-INTEGERS                            ({DIGIT}+u?)
+INTEGERS                            ({DIGIT}+)
 FLOATS                              ((([0-9]+\.?[0-9]*)|([0-9]*\.?[0-9]+))f?)
 IDENTIFIER                          ([_a-zA-Z][_a-zA-Z0-9]*)
 COMMENT_START                       ("/*")
