@@ -46,6 +46,10 @@ void yyerror(const char *msg); // standard error-handling routine
     char identifier[MaxIdentLen+1]; // +1 for terminating null
     Decl *decl;
     List<Decl*> *declList;
+    Type *type;
+    VarDecl *varDecl;
+    Identifier *identObj;
+
 }
 
 
@@ -80,6 +84,11 @@ void yyerror(const char *msg); // standard error-handling routine
  */
 %type <declList>  DeclList 
 %type <decl>      Decl
+%type <type>      Type
+%type <varDecl>   Variable
+%type <varDecl>   VariableDecl
+%type <identObj>  Identifier
+
 
 %%
 /* Rules
@@ -88,26 +97,40 @@ void yyerror(const char *msg); // standard error-handling routine
  * %% markers which delimit the Rules section.
 	 
  */
-Program   :    DeclList            { 
+Program           :    DeclList            { 
                                       @1; 
                                       /* pp2: The @1 is needed to convince 
                                        * yacc to set up yylloc. You can remove 
                                        * it once you have other uses of @n*/
                                       Program *program = new Program($1);
+                                      program->SetParent(NULL);
                                       // if no errors, advance to next phase
                                       if (ReportError::NumErrors() == 0) 
                                           program->Print(0);
                                     }
-          ;
+                  ;
 
-DeclList  :    DeclList Decl        { ($$=$1)->Append($2); }
-          |    Decl                 { ($$ = new List<Decl*>)->Append($1); }
-          ;
+DeclList          :    DeclList Decl        { ($$=$1)->Append($2); }
+                  |    Decl                 { ($$ = new List<Decl*>)->Append($1); }
+                  ;
 
-Decl      :    T_Void               { $$ = new VarDecl(); /* pp2: test only. Replace with correct rules  */ } 
-          ;
+Decl              :    T_Void               { $$ = new VarDecl(); } 
+                  |    VariableDecl         { $$ = $1; }
+                  ;
           
+VariableDecl      :     Variable ';'            { $$ = $1; }
+                  ;
 
+Variable          :     Type Identifier         { $$ = new VarDecl($2, $1); }
+                  ;
+
+
+Type              :     T_Int                   { $$ = Type::intType; }
+                  |     T_Bool                  { $$ = Type::boolType; }
+                  ;
+
+Identifier        :     T_Identifier            { $$ = new Identifier(@1, $1); }
+                  ;
 
 %%
 
