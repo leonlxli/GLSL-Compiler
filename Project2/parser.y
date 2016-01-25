@@ -45,53 +45,11 @@ void yyerror(const char *msg); // standard error-handling routine
   double doubleConstant;
   char identifier[MaxIdentLen+1]; // +1 for terminating null
   Node *node;
-  Identifier *ident;
-  Error *error;
+  Expr *expr;
+  Type *type;
   Decl *decl;
   List<Decl*> *declList;
-  VarDecl *varDecl;
-  List<VarDecl*> *varDeclList;
-  VarDeclError *varDeclError;
   FnDecl *fnDecl;
-  FormalsError *formalsError;
-  Expr *expr;
-  ExprError *exprError;
-  EmptyExpr *emptyExpr;
-  IntConstant *intConst;
-  FloatConstant *floatConst;
-  BoolConstant *boolConst;
-  Operator *_operator;
-  CompoundExpr *compoundExpr;
-  ArithmeticExpr *arithmeticExpr;
-  RelationalExpr *relationalExpr;
-  EqualityExpr *equalityExpr;
-  LogicalExpr *logicalExpr;
-  AssignExpr *assignExpr;
-  PostfixExpr *postfixExpr;
-  LValue *lValue;
-  ArrayAccess *arrayAccess;
-  FieldAccess *fieldAccess;
-  Call *call;
-  ActualsError *actualsError;
-  Program *program;
-  Stmt *stmt;
-  StmtBlock *stmtBlock;
-  ConditionalStmt *conditionalStmt;
-  LoopStmt *loopStmt;
-  ForStmt *forStmt;
-  WhileStmt *whileStmt;
-  IfStmt *ifStmt;
-  IfStmtExprError *ifStmtExprError;
-  BreakStmt *breakStmt;
-  ReturnStmt *returnStmt;
-  SwitchLabel *switchLabel;
-  Case *caseStmts;
-  Default *_default;
-  SwitchStmt *switchStmt;
-  SwitchStmtError *switchStmtError;
-  Type *type;
-  NamedType *namedType;
-  ArrayType *arrayType;
 }
 
 
@@ -182,7 +140,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <node> Struct_Declr
 %type <node> Init
 %type <node> Decl_Stmt
-%type <node> Stmt
+%type <stmt> Stmt
 %type <node> Simple_Stmt
 %type <node> Compd_Stmt
 %type <node> Stmt_List
