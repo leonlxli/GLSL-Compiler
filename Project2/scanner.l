@@ -144,6 +144,12 @@ SINGLE_COMMENT    ("//"[^\n]*)
 
 
  /* -------------------- Identifiers --------------------------- */
+("."{IDENTIFIER})   { if (strlen(yytext) > MaxIdentLen)
+                         ReportError::LongIdentifier(&yylloc, yytext);
+                       strncpy(yylval.field, yytext, MaxIdentLen);
+                       yylval.field[MaxIdentLen] = '\0';
+                       return T_FieldSelection; }
+
 {IDENTIFIER}        { if (strlen(yytext) > MaxIdentLen)
                          ReportError::LongIdentifier(&yylloc, yytext);
                        strncpy(yylval.identifier, yytext, MaxIdentLen);
