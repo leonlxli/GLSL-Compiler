@@ -93,6 +93,31 @@ SINGLE_COMMENT    ("//"[^\n]*)
 "case"              { return T_Case;        }
 "default"           { return T_Default;     }
 
+"mat2"              { return T_Mat2; }
+"mat3"              { return T_Mat3; }
+"mat4"              { return T_Mat4; }
+"vec2"              { return T_Vec2; }
+"vec3"              { return T_Vec3; }
+"vec4"              { return T_Vec4; }
+"ivec2"             { return T_Ivec2; }
+"ivec3"             { return T_Ivec3; }
+"ivec4"             { return T_Ivec4; }
+"bvec2"             { return T_Bvec2; }
+"bvec3"             { return T_Bvec3; }
+"bvec4"             { return T_Bvec4; }
+"uvec2"             { return T_Uvec2; }
+"uvec3"             { return T_Uvec3; }
+"uvec4"             { return T_Uvec4; }
+"uint"              { return T_Uint; }
+"struct"            { return T_Struct; }
+"const"             { return T_Const; }
+"uniform"           { return T_Uniform; }
+"layout"            { return T_Layout; }
+"continue"          { return T_Continue; }
+"do"                { return T_Do; }
+"in"                { return T_In; }
+"out"               { return T_Out; }
+"inout"             { return T_Inout; }
 
 
  /* -------------------- Operators ----------------------------- */
