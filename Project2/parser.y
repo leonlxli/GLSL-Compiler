@@ -77,7 +77,6 @@ void yyerror(const char *msg); // standard error-handling routine
 %token   <floatConstant> T_FloatConstant
 %token   <boolConstant> T_BoolConstant
 %token   T_Inc T_Dec T_LessEqual T_GreaterEqual T_Equal T_NotEqual
-%token   T_Mul_Assign T_Div_Assign T_Add_Assign T_Sub_Assign
 
 
 
