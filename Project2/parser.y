@@ -39,20 +39,59 @@ void yyerror(const char *msg); // standard error-handling routine
  *      attributes to your non-terminal symbols.
  */
 %union {
-    Program *program;
-    FnDecl *fnDecl;
-    Expr* expr;
-    int integerConstant;
-    bool boolConstant;
-    char *stringConstant;
-    double doubleConstant;
-    char identifier[MaxIdentLen+1]; // +1 for terminating null
-    Decl *decl;
-    List<Decl*> *declList;
-    Type *type;
-    VarDecl *varDecl;
-    Identifier *identObj;
-
+  int integerConstant;
+  bool boolConstant;
+  char *stringConstant;
+  double doubleConstant;
+  char identifier[MaxIdentLen+1]; // +1 for terminating null
+  Node *node;
+  Identifier *ident;
+  Error *error;
+  Decl *decl;
+  List<Decl*> *declList;
+  VarDecl *varDecl;
+  List<VarDecl*> *varDeclList;
+  VarDeclError *varDeclError;
+  FnDecl *fnDecl;
+  FormalsError *formalsError;
+  Expr *expr;
+  ExprError *exprError;
+  EmptyExpr *emptyExpr;
+  IntConstant *intConst;
+  FloatConstant *floatConst;
+  BoolConstant *boolConst;
+  Operator *_operator;
+  CompoundExpr *compoundExpr;
+  ArithmeticExpr *arithmeticExpr;
+  RelationalExpr *relationalExpr;
+  EqualityExpr *equalityExpr;
+  LogicalExpr *logicalExpr;
+  AssignExpr *assignExpr;
+  PostfixExpr *postfixExpr;
+  LValue *lValue;
+  ArrayAccess *arrayAccess;
+  FieldAccess *fieldAccess;
+  Call *call;
+  ActualsError *actualsError;
+  Program *program;
+  Stmt *stmt;
+  StmtBlock *stmtBlock;
+  ConditionalStmt *conditionalStmt;
+  LoopStmt *loopStmt;
+  ForStmt *forStmt;
+  WhileStmt *whileStmt;
+  IfStmt *ifStmt;
+  IfStmtExprError *ifStmtExprError;
+  BreakStmt *breakStmt;
+  ReturnStmt *returnStmt;
+  SwitchLabel *switchLabel;
+  Case *caseStmts;
+  Default *_default;
+  SwitchStmt *switchStmt;
+  SwitchStmtError *switchStmtError;
+  Type *type;
+  NamedType *namedType;
+  ArrayType *arrayType;
 }
 
 
@@ -93,12 +132,75 @@ void yyerror(const char *msg); // standard error-handling routine
  * pp2: You'll need to add many of these of your own.
  */
 
-%type <declList>  DeclList 
-%type <decl>      Decl
-%type <type>      Type
-%type <varDecl>   Variable
-%type <varDecl>   VariableDecl
-%type <identObj>  Identifier
+
+%type <expr> Pri_Expr
+%type <postfixExpr> Pst_Expr
+%type <expr> Int_Expr
+%type <node> Func_Call
+%type <node> Func_Call_Head_NoPrm
+%type <node> Func_Call_Head_Prm
+%type <node> Func_Call_header
+%type <node> Func_Ident
+%type <expr> Unary_Expr
+%type <node> Unary_Op
+%type <expr> Mult_Expr
+%type <expr> Add_Expr
+%type <expr> Rel_Expr
+%type <expr> Eq_Expr
+%type <expr> Log_And_Expr
+%type <expr> Log_Or_Expr
+%type <expr> Cond_Expr
+%type <assignExpr> Assign_Expr
+%type <node> Assign_Op
+%type <expr> Expr
+%type <expr> Const_Expr
+%type <decl> Decl
+%type <node> Ident_List
+%type <node> Func_Proto
+%type <node> Func_Declr
+%type <node> Func_Hdr
+%type <node> Func_Hdr_With_Param
+%type <node> Param_Declr
+%type <node> Param_Decl
+%type <node> Param_Type_Spec
+%type <node> Init_Decl_List
+%type <node> Single_Decl
+%type <node> Fully_Spec_Type
+%type <node> Layout_Qual
+%type <node> Layout_ID_List
+%type <node> Layout_ID
+%type <node> Type_Qual
+%type <node> Single_Type_Qual
+%type <node> Storage_Qual
+%type <node> Type_Spec
+%type <node> Arr_Spec
+%type <node> Type_Spec_Nonarr
+%type <node> Struct_Spec
+%type <node> Struct_Decl_List
+%type <node> Struct_Decl
+%type <node> Struct_Declr_List    
+%type <node> Struct_Declr
+%type <node> Init
+%type <node> Decl_Stmt
+%type <node> Stmt
+%type <node> Simple_Stmt
+%type <node> Compd_Stmt
+%type <node> Stmt_List
+%type <node> Expr_Stmt
+%type <node> Select_Stmt
+%type <node> Select_Rest_Stmt
+%type <node> Cond
+%type <node> Switch_Stmt
+%type <node> Switch_Stmt_List
+%type <caseStmts> Case_Label
+%type <node> Iter_Stmt
+%type <node> For_Init_Stmt
+%type <node> For_Rest_Stmt
+%type <node> Jump_Stmt
+%type <declList> Trans_Unit
+%type <decl> Ext_Decl
+%type <fnDecl> Func_Def
+%type <program> Program
 
 
 
@@ -110,41 +212,359 @@ void yyerror(const char *msg); // standard error-handling routine
  * %% markers which delimit the Rules section.
 	 
  */
-Program           :    DeclList            { 
-                                      @1; 
-                                      /* pp2: The @1 is needed to convince 
-                                       * yacc to set up yylloc. You can remove 
-                                       * it once you have other uses of @n*/
-                                      Program *program = new Program($1);
-                                      program->SetParent(NULL);
-                                      // if no errors, advance to next phase
-                                      if (ReportError::NumErrors() == 0) 
-                                          program->Print(0);
-                                    }
+Program           : Trans_Unit                  { 
+                                                  @1; 
+                                                  /* pp2: The @1 is needed to convince 
+                                                   * yacc to set up yylloc. You can remove 
+                                                   * it once you have other uses of @n*/
+                                                  Program *program = new Program($1);
+                                                  program->SetParent(NULL);
+                                                  // if no errors, advance to next phase
+                                                  if (ReportError::NumErrors() == 0) 
+                                                      program->Print(0);
+                                                }
                   ;
 
-DeclList          :    DeclList Decl        { ($$=$1)->Append($2); }
-                  |    Decl                 { ($$ = new List<Decl*>)->Append($1); }
+Var_Ident         : T_Identifier                {}
                   ;
 
-Decl              :    T_Void               { $$ = new VarDecl(); } 
-                  |    VariableDecl         { $$ = $1; }
-                  ;
-          
-VariableDecl      :     Variable ';'            { $$ = $1; }
-                  ;
-
-Variable          :     Type Identifier         { $$ = new VarDecl($2, $1); }
+Pri_Expr          : Var_Ident                   {}
+                  | T_IntConstant               {}
+                  | T_FloatConstant             {}
+                  | T_BoolConstant              {}
+                  | '(' Expr ')'                {}
                   ;
 
-
-Type              :     T_Int                   { $$ = Type::intType; }
-                  |     T_Bool                  { $$ = Type::boolType; }
+Pst_Expr          : Pri_Expr                    {}
+                  | Pri_Expr '[' Int_Expr ']'    {}
+                  | Func_Call                   {}
+                  | Pst_Expr '.' T_FieldSelection {}
+                  | Pst_Expr T_Inc           {}
+                  | Pst_Expr T_Dec           {}
                   ;
 
-Identifier        :     T_Identifier            { $$ = new Identifier(@1, $1); }
+Int_Expr          : Expr                        {}
                   ;
 
+Func_Call         : Func_Call_or_Mtd            {}
+                  ;
+
+Func_Call_or_Mtd  : Func_Call_Gen               {}
+                  ;
+
+Func_Call_Gen     : Func_Call_Head_Prm ')'         {}
+                  | Func_Call_Head_NoPrm ')'       {}
+                  ;
+
+Func_Call_Head_NoPrm : Func_Call_header T_Void     {}
+                     | Func_Call_header            {}
+                     ;
+
+Func_Call_Head_Prm  : Func_Call_header Assign_Expr       {}
+                    | Func_Call_Head_Prm ',' Assign_Expr {}
+                    ;
+
+Func_Call_header    : Func_Ident '('             {}
+                    ;
+
+Func_Ident          : Type_Spec                  {}
+                    | Pst_Expr                   {}
+                    ;
+
+Unary_Expr          : Pst_Expr                   {}
+                    | T_Inc Unary_Expr           {}
+                    | T_Dec Unary_Expr           {}
+                    | Unary_Op Unary_Expr        {}
+                    ;
+
+Unary_Op            : '+'                        {}
+                    | '-'                        {}
+                    ;
+
+Mult_Expr           : Unary_Expr                 {}
+                    | Mult_Expr '*' Unary_Expr   {}
+                    | Mult_Expr '/' Unary_Expr   {}
+                    | Mult_Expr '%' Unary_Expr   {}
+                    ;
+
+Add_Expr            : Mult_Expr                  {}
+                    | Add_Expr '+' Mult_Expr     {}
+                    | Add_Expr '-' Mult_Expr     {}
+                    ;
+
+Shift_Expr          : Add_Expr                    {}
+                    | Shift_Expr '<' '<' Add_Expr {}
+                    | Shift_Expr '>' '>' Add_Expr {}
+                    ;
+
+Rel_Expr            : Shift_Expr                  {}
+                    | Rel_Expr '<' Shift_Expr     {}
+                    | Rel_Expr '>' Shift_Expr     {}
+                    | Rel_Expr T_LessEqual Shift_Expr     {}
+                    | Rel_Expr T_GreaterEqual Shift_Expr     {}
+                    ;
+
+Eq_Expr             : Rel_Expr                    {}
+                    | Eq_Expr T_Equal Rel_Expr    {}
+                    | Eq_Expr T_NotEqual Rel_Expr {}
+                    ;
+
+And_Expr            : Eq_Expr                     {}
+                    | And_Expr '&' Eq_Expr        {}
+                    ;
+
+Xor_Expr            : And_Expr                    {}
+                    | Xor_Expr '^' And_Expr       {}
+                    ;
+
+Inc_Or_Expr         : Xor_Expr                    {}
+                    | Inc_Or_Expr '|' Xor_Expr    {}
+                    ;
+
+Log_And_Expr        : Inc_Or_Expr                 {}
+                    | Log_And_Expr T_And Inc_Or_Expr  {}
+                    ;
+
+Log_Or_Expr         : Log_And_Expr                {}
+                    | Log_Or_Expr T_Or Log_And_Expr {}
+                    ;
+
+Cond_Expr           : Log_Or_Expr                 {}
+                    ;
+
+Assign_Expr         : Cond_Expr                   {}
+                    | Unary_Expr Assign_Op Assign_Expr {}
+                    ;
+
+Assign_Op           : '='                         {}
+                    | T_Mul_Assign                {}
+                    | T_Div_Assign                {}
+                    | T_Add_Assign                {}
+                    | T_Sub_Assign                {}
+                    ;
+
+Expr                : Assign_Expr                 {}
+                    | Expr ',' Assign_Expr        {}
+                    ;
+
+Const_Expr          : Cond_Expr                   {}
+                    ;
+
+Decl                : Init_Decl_List ';'          {}
+                    | Type_Qual ';'               {}
+                    | Type_Qual T_Identifier ';'  {}
+                    | Type_Qual T_Identifier Ident_List ';' {}
+                    ;
+
+Ident_List          : ',' T_Identifier            {}
+                    | Ident_List ',' T_Identifier {}
+                    ;
+
+Func_Proto          : Func_Declr ')'              {}
+                    ;
+
+Func_Declr          : Func_Hdr                    {}
+                    | Func_Hdr_With_Param         {}
+                    ;
+
+Func_Hdr            : Fully_Spec_Type T_Identifier '(' {}
+                    ;
+
+Func_Hdr_With_Param : Func_Hdr Param_Decl         {}
+                    | Func_Hdr_With_Param ',' Param_Decl {}
+                    ;
+
+Param_Declr         : Type_Spec T_Identifier      {}
+                    | Type_Spec T_Identifier Arr_Spec {}
+                    ;
+
+Param_Decl          : Type_Qual Param_Declr       {}
+                    | Param_Declr                 {}
+                    | Type_Qual Param_Type_Spec   {}
+                    | Param_Type_Spec             {}
+                    ;
+
+
+Param_Type_Spec     : Type_Spec {}
+                    ;
+
+Init_Decl_List      : Single_Decl {}
+                    | Init_Decl_List ',' T_Identifier {}
+                    | Init_Decl_List ',' T_Identifier Arr_Spec {}
+                    | Init_Decl_List ',' T_Identifier Arr_Spec '=' Init {}
+                    | Init_Decl_List ',' T_Identifier '=' Init {}
+                    ;
+
+Single_Decl         : Fully_Spec_Type {}
+                    | Fully_Spec_Type T_Identifier {}
+                    | Fully_Spec_Type T_Identifier Arr_Spec {} 
+                    | Fully_Spec_Type T_Identifier Arr_Spec '=' Init {}
+                    | Fully_Spec_Type T_Identifier '=' Init {} 
+                    ;
+
+Fully_Spec_Type     : Type_Spec {}
+                    | Type_Qual Type_Spec {}
+                    ;
+
+Layout_Qual : T_Layout '(' Layout_ID_List ')' {}
+         ;
+
+Layout_ID_List : Layout_ID {}
+               | Layout_ID_List ',' Layout_ID {}
+               ;
+
+Layout_ID : T_Identifier {}
+          | T_Identifier '=' T_IntConstant {}
+          ;
+
+Type_Qual : Single_Type_Qual {}
+       | Type_Qual Single_Type_Qual {}
+       ;
+
+Single_Type_Qual   : Storage_Qual {}
+                | Layout_Qual     {}
+                ;
+
+Storage_Qual       : T_Const {}
+                | T_In {}
+                | T_Out {}
+                | T_InOut {}
+                | T_Uniform {}
+                ;
+
+Type_Spec       : Type_Spec_Nonarr    {}
+                | Type_Spec_Nonarr Arr_Spec {}
+                ;
+
+Arr_Spec        : '[' ']' {}
+                | '[' Const_Expr ']' {}
+                | Arr_Spec '[' ']' {}
+                | Arr_Spec '[' Const_Expr ']' {}
+                ;
+
+Type_Spec_Nonarr : T_Void {}
+                 | T_Float {}
+                 | T_Int {}
+                 | T_Bool {}
+                 | T_Vec2 {}
+                 | T_Vec3 {}
+                 | T_Vec4 {}
+                 | T_BVec2 {}
+                 | T_BVec3 {}
+                 | T_BVec4 {}
+                 | T_IVec2 {}
+                 | T_IVec3 {}
+                 | T_IVec4 {}
+                 | T_UVec2 {}
+                 | T_UVec3 {}
+                 | T_UVec4 {}
+                 | T_Mat2 {}
+                 | T_Mat3 {}
+                 | T_Mat4 {}
+                 | Struct_Spec {}
+                 ;
+
+Struct_Spec : T_Struct T_Identifier '{' Struct_Decl_List '}' {}
+            | T_Struct '{' Struct_Decl_List '}' {}
+            ;
+
+Struct_Decl_List : Struct_Decl {}
+                 | Struct_Decl_List Struct_Decl {}
+                 ;
+
+Struct_Decl : Type_Spec Struct_Declr_List ';' {}
+            | Type_Qual Type_Spec Struct_Declr_List ';' {}
+            ;
+
+Struct_Declr_List : Struct_Declr {}
+                  | Struct_Declr_List ',' Struct_Declr {}
+                  ;
+
+Struct_Declr : T_Identifier {}
+             | T_Identifier Arr_Spec {}
+             ;
+
+Init : Assign_Expr {}
+     ;
+
+Decl_Stmt   : Decl {}
+            ;
+
+Stmt        : Compd_Stmt {}
+            | Simple_Stmt {}
+            ;
+
+Simple_Stmt : Decl_Stmt {}
+            | Expr_Stmt {}
+            | Select_Stmt {}
+            | Switch_Stmt {}
+            | Case_Label {}
+            | Iter_Stmt {}
+            | Jump_Stmt {}
+            ;
+
+Compd_Stmt  : '{' '}' {}
+            | '{' Stmt_List '}' {}
+            ;
+
+Stmt_List   : Stmt {}
+            | Stmt_List Stmt {}
+            ;
+
+Expr_Stmt   : ';' {}
+            | Expr ';' {}
+            ;
+
+Select_Stmt : T_If '(' Expr ')' Select_Rest_Stmt {}
+            ;
+
+Select_Rest_Stmt : Stmt T_Else Stmt {}
+                 | Stmt {}
+                 ;
+
+Cond    : Expr {}
+        | Fully_Spec_Type T_Identifier T_Equal Init {}
+        ;
+
+Switch_Stmt : T_Switch '(' Expr ')' '{' Switch_Stmt_List '}' {}
+            ;
+
+Switch_Stmt_List : Stmt_List {}
+                 ;
+
+Case_Label  : T_Case Expr ':' {}
+            | T_Default ':' {}
+            ;
+
+Iter_Stmt   : T_While '(' Cond ')' Stmt {}
+            | T_Do Stmt T_While '(' Expr ')' ';' {}
+            | T_For '(' For_Init_Stmt For_Rest_Stmt ')' Stmt {}
+            ;
+
+For_Init_Stmt   : Expr_Stmt {}
+                | Decl_Stmt {}
+                ;
+
+For_Rest_Stmt   : Cond ';' {}
+                | Cond ';' Expr {}
+                ;
+
+Jump_Stmt   : T_Continue ';' {}
+            | T_Break ';' {}
+            | T_Return ';' {}
+            | T_Return Expr ';' {}
+            ;
+
+Trans_Unit : Trans_Unit Ext_Decl    { }
+           | Ext_Decl               { }
+           ;
+
+Ext_Decl  : Func_Def                {  }
+          | Decl                  {  }
+          ;
+
+Func_Def : Func_Proto Compd_Stmt {}
+      
 
 %%
 
@@ -159,7 +579,7 @@ Identifier        :     T_Identifier            { $$ = new Identifier(@1, $1); }
  * This function will be called before any calls to yyparse().  It is designed
  * to give you an opportunity to do anything that must be done to initialize
  * the parser (set global variables, configure starting state, etc.). One
- * thing it already does for you is assign the value of the global variable
+ * thing it already does for you is assign the value of the global varAt the top level, the program is composed of a series of declarations (a declList).  We have the declaration of global, and then the declaration of main.  The problem is, the declaration of global also involved an assignment.  Because a program must be a series of declarations, it seems that "int global = 5;" must produce a declaration that is somehow composed of an assignment.  How do we approach this?iable
  * yydebug that controls whether yacc prints debugging information about
  * parser actions (shift/reduce) and contents of state stack during parser.
  * If set to false, no information is printed. Setting it to true will give
