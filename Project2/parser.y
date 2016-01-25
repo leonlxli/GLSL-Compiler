@@ -44,6 +44,7 @@ void yyerror(const char *msg); // standard error-handling routine
   char *stringConstant;
   double doubleConstant;
   char identifier[MaxIdentLen+1]; // +1 for terminating null
+  char field[MaxIdentLen+1];
   Node *node;
   Expr *expr;
   Type *type;
