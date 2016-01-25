@@ -113,7 +113,6 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <expr> Expr
 %type <expr> Const_Expr
 %type <decl> Decl
-%type <node> Ident_List
 %type <node> Func_Proto
 %type <node> Func_Declr
 %type <node> Func_Hdr
@@ -131,18 +130,13 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <node> Single_Type_Qual
 %type <node> Storage_Qual
 %type <node> Type_Spec
-%type <node> Arr_Spec
 %type <node> Type_Spec_Nonarr
-%type <node> Struct_Spec
-%type <node> Struct_Decl_List
-%type <node> Struct_Decl
-%type <node> Struct_Declr_List    
-%type <node> Struct_Declr
 %type <node> Init
 %type <node> Decl_Stmt
 %type <stmt> Stmt
 %type <node> Simple_Stmt
-%type <node> Compd_Stmt
+%type <node> Compd_Stmt_With_Scope
+%type <node> Compd_Stmt_No_New_Scope
 %type <node> Stmt_List
 %type <node> Expr_Stmt
 %type <node> Select_Stmt
@@ -154,7 +148,6 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <node> Iter_Stmt
 %type <node> For_Init_Stmt
 %type <node> For_Rest_Stmt
-%type <node> Jump_Stmt
 %type <declList> Trans_Unit
 %type <decl> Ext_Decl
 %type <fnDecl> Func_Def
@@ -194,7 +187,6 @@ Pri_Expr          : Var_Ident                   {}
                   ;
 
 Pst_Expr          : Pri_Expr                    {}
-                  | Pri_Expr '[' Int_Expr ']'    {}
                   | Func_Call                   {}
                   | Pst_Expr '.' T_FieldSelection {}
                   | Pst_Expr T_Inc           {}
@@ -242,7 +234,6 @@ Unary_Op            : '+'                        {}
 Mult_Expr           : Unary_Expr                 {}
                     | Mult_Expr '*' Unary_Expr   {}
                     | Mult_Expr '/' Unary_Expr   {}
-                    | Mult_Expr '%' Unary_Expr   {}
                     ;
 
 Add_Expr            : Mult_Expr                  {}
@@ -251,8 +242,6 @@ Add_Expr            : Mult_Expr                  {}
                     ;
 
 Shift_Expr          : Add_Expr                    {}
-                    | Shift_Expr '<' '<' Add_Expr {}
-                    | Shift_Expr '>' '>' Add_Expr {}
                     ;
 
 Rel_Expr            : Shift_Expr                  {}
@@ -268,23 +257,22 @@ Eq_Expr             : Rel_Expr                    {}
                     ;
 
 And_Expr            : Eq_Expr                     {}
-                    | And_Expr '&' Eq_Expr        {}
                     ;
 
 Xor_Expr            : And_Expr                    {}
-                    | Xor_Expr '^' And_Expr       {}
                     ;
 
 Inc_Or_Expr         : Xor_Expr                    {}
-                    | Inc_Or_Expr '|' Xor_Expr    {}
                     ;
 
 Log_And_Expr        : Inc_Or_Expr                 {}
                     | Log_And_Expr T_And Inc_Or_Expr  {}
                     ;
 
-Log_Or_Expr         : Log_And_Expr                {}
-                    | Log_Or_Expr T_Or Log_And_Expr {}
+Log_Xor_Expr        : Log_And_Expr                {}
+
+Log_Or_Expr         : Log_Xor_Expr                {}
+                    | Log_Or_Expr T_Or Log_Xor_Expr {}
                     ;
 
 Cond_Expr           : Log_Or_Expr                 {}
@@ -302,20 +290,14 @@ Assign_Op           : '='                         {}
                     ;
 
 Expr                : Assign_Expr                 {}
-                    | Expr ',' Assign_Expr        {}
                     ;
 
 Const_Expr          : Cond_Expr                   {}
                     ;
 
-Decl                : Init_Decl_List ';'          {}
-                    | Type_Qual ';'               {}
+Decl                : Func_Proto ';'              {}
+                    | Init_Decl_List ';'          {}
                     | Type_Qual T_Identifier ';'  {}
-                    | Type_Qual T_Identifier Ident_List ';' {}
-                    ;
-
-Ident_List          : ',' T_Identifier            {}
-                    | Ident_List ',' T_Identifier {}
                     ;
 
 Func_Proto          : Func_Declr ')'              {}
@@ -325,20 +307,18 @@ Func_Declr          : Func_Hdr                    {}
                     | Func_Hdr_With_Param         {}
                     ;
 
-Func_Hdr            : Fully_Spec_Type T_Identifier '(' {}
-                    ;
-
 Func_Hdr_With_Param : Func_Hdr Param_Decl         {}
                     | Func_Hdr_With_Param ',' Param_Decl {}
                     ;
 
-Param_Declr         : Type_Spec T_Identifier      {}
-                    | Type_Spec T_Identifier Arr_Spec {}
+Func_Hdr            : Fully_Spec_Type T_Identifier '(' {}
                     ;
 
-Param_Decl          : Type_Qual Param_Declr       {}
-                    | Param_Declr                 {}
-                    | Type_Qual Param_Type_Spec   {}
+
+Param_Declr         : Type_Spec T_Identifier      {}
+                    ;
+
+Param_Decl          : Param_Declr                 {}
                     | Param_Type_Spec             {}
                     ;
 
@@ -347,17 +327,9 @@ Param_Type_Spec     : Type_Spec {}
                     ;
 
 Init_Decl_List      : Single_Decl {}
-                    | Init_Decl_List ',' T_Identifier {}
-                    | Init_Decl_List ',' T_Identifier Arr_Spec {}
-                    | Init_Decl_List ',' T_Identifier Arr_Spec '=' Init {}
-                    | Init_Decl_List ',' T_Identifier '=' Init {}
                     ;
 
-Single_Decl         : Fully_Spec_Type {}
-                    | Fully_Spec_Type T_Identifier {}
-                    | Fully_Spec_Type T_Identifier Arr_Spec {} 
-                    | Fully_Spec_Type T_Identifier Arr_Spec '=' Init {}
-                    | Fully_Spec_Type T_Identifier '=' Init {} 
+Single_Decl         : Fully_Spec_Type T_Identifier {}
                     ;
 
 Fully_Spec_Type     : Type_Spec {}
@@ -368,12 +340,10 @@ Layout_Qual : T_Layout '(' Layout_ID_List ')' {}
          ;
 
 Layout_ID_List : Layout_ID {}
-               | Layout_ID_List ',' Layout_ID {}
                ;
 
-Layout_ID : T_Identifier {}
-          | T_Identifier '=' T_IntConstant {}
-          ;
+Layout_ID  : T_Identifier '=' T_IntConstant {}
+           ;
 
 Type_Qual : Single_Type_Qual {}
        | Type_Qual Single_Type_Qual {}
@@ -383,7 +353,7 @@ Single_Type_Qual   : Storage_Qual {}
                 | Layout_Qual     {}
                 ;
 
-Storage_Qual       : T_Const {}
+Storage_Qual    : T_Const {}
                 | T_In {}
                 | T_Out {}
                 | T_InOut {}
@@ -391,13 +361,6 @@ Storage_Qual       : T_Const {}
                 ;
 
 Type_Spec       : Type_Spec_Nonarr    {}
-                | Type_Spec_Nonarr Arr_Spec {}
-                ;
-
-Arr_Spec        : '[' ']' {}
-                | '[' Const_Expr ']' {}
-                | Arr_Spec '[' ']' {}
-                | Arr_Spec '[' Const_Expr ']' {}
                 ;
 
 Type_Spec_Nonarr : T_Void {}
@@ -407,40 +370,10 @@ Type_Spec_Nonarr : T_Void {}
                  | T_Vec2 {}
                  | T_Vec3 {}
                  | T_Vec4 {}
-                 | T_BVec2 {}
-                 | T_BVec3 {}
-                 | T_BVec4 {}
-                 | T_IVec2 {}
-                 | T_IVec3 {}
-                 | T_IVec4 {}
-                 | T_UVec2 {}
-                 | T_UVec3 {}
-                 | T_UVec4 {}
                  | T_Mat2 {}
                  | T_Mat3 {}
                  | T_Mat4 {}
-                 | Struct_Spec {}
                  ;
-
-Struct_Spec : T_Struct T_Identifier '{' Struct_Decl_List '}' {}
-            | T_Struct '{' Struct_Decl_List '}' {}
-            ;
-
-Struct_Decl_List : Struct_Decl {}
-                 | Struct_Decl_List Struct_Decl {}
-                 ;
-
-Struct_Decl : Type_Spec Struct_Declr_List ';' {}
-            | Type_Qual Type_Spec Struct_Declr_List ';' {}
-            ;
-
-Struct_Declr_List : Struct_Declr {}
-                  | Struct_Declr_List ',' Struct_Declr {}
-                  ;
-
-Struct_Declr : T_Identifier {}
-             | T_Identifier Arr_Spec {}
-             ;
 
 Init : Assign_Expr {}
      ;
@@ -448,9 +381,17 @@ Init : Assign_Expr {}
 Decl_Stmt   : Decl {}
             ;
 
-Stmt        : Compd_Stmt {}
+Stmt        : Compd_Stmt_With_Scope {}
             | Simple_Stmt {}
             ;
+
+Stmt_No_New_Scope  : Compd_Stmt_No_New_Scope {}
+                   | Simple_Stmt {}
+                   ;
+
+Stmt_With_Scope  : Compd_Stmt_No_New_Scope {}
+                 | Simple_Stmt {}
+                 ;
 
 Simple_Stmt : Decl_Stmt {}
             | Expr_Stmt {}
@@ -458,12 +399,15 @@ Simple_Stmt : Decl_Stmt {}
             | Switch_Stmt {}
             | Case_Label {}
             | Iter_Stmt {}
-            | Jump_Stmt {}
             ;
 
-Compd_Stmt  : '{' '}' {}
-            | '{' Stmt_List '}' {}
-            ;
+Compd_Stmt_With_Scope   : '{' '}' {}
+                        | '{' Stmt_List '}' {}
+                        ;
+
+Compd_Stmt_No_New_Scope : '{' '}' {}
+                        | '{' Stmt_List '}' {}
+                        ;
 
 Stmt_List   : Stmt {}
             | Stmt_List Stmt {}
@@ -476,8 +420,8 @@ Expr_Stmt   : ';' {}
 Select_Stmt : T_If '(' Expr ')' Select_Rest_Stmt {}
             ;
 
-Select_Rest_Stmt : Stmt T_Else Stmt {}
-                 | Stmt {}
+Select_Rest_Stmt : Stmt_With_Scope T_Else Stmt_With_Scope {}
+                 | Stmt_With_Scope {}
                  ;
 
 Cond    : Expr {}
@@ -494,24 +438,20 @@ Case_Label  : T_Case Expr ':' {}
             | T_Default ':' {}
             ;
 
-Iter_Stmt   : T_While '(' Cond ')' Stmt {}
-            | T_Do Stmt T_While '(' Expr ')' ';' {}
-            | T_For '(' For_Init_Stmt For_Rest_Stmt ')' Stmt {}
+Iter_Stmt   : T_While '(' Cond ')' Stmt_No_New_Scope {}
+            | T_For '(' For_Init_Stmt For_Rest_Stmt ')' Stmt_No_New_Scope {}
             ;
 
 For_Init_Stmt   : Expr_Stmt {}
                 | Decl_Stmt {}
                 ;
 
+Cond_Opt : Cond {}
+         ;
+
 For_Rest_Stmt   : Cond ';' {}
                 | Cond ';' Expr {}
                 ;
-
-Jump_Stmt   : T_Continue ';' {}
-            | T_Break ';' {}
-            | T_Return ';' {}
-            | T_Return Expr ';' {}
-            ;
 
 Trans_Unit : Trans_Unit Ext_Decl    { }
            | Ext_Decl               { }
@@ -521,7 +461,7 @@ Ext_Decl  : Func_Def                {  }
           | Decl                  {  }
           ;
 
-Func_Def : Func_Proto Compd_Stmt {}
+Func_Def : Func_Proto Compd_Stmt_No_New_Scope {}
       
 
 %%
