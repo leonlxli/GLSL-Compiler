@@ -61,7 +61,7 @@ void yyerror(const char *msg); // standard error-handling routine
  * in the generated y.tab.h header file.
  */
 %token   T_Void T_Bool T_Float T_Int T_UInt
-%token   T_BVec2 T_BVec3 T_BVec4 T_IVec2 T_IVec3 T_IVec4 T_UVec2 T_UVec3 T_UVec4 T_Vec2 T_Vec3 T_Vec4 T_Dims
+%token   T_Vec2 T_Vec3 T_Vec4 T_Dims
 %token   T_Mat2 T_Mat3 T_Mat4
 %token   T_Struct T_FieldSelection
 %token   T_In T_Out T_InOut
