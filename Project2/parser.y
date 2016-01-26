@@ -229,8 +229,8 @@ Unary_Expr          : Pst_Expr                   {}
                     | Unary_Op Unary_Expr        {}
                     ;
 
-Unary_Op            : '+'                        {}
-                    | '-'                        {}
+Unary_Op            : '+'                        { $$ = new Operator(@1, yytext); }
+                    | '-'                        { $$ = new Operator(@1, yytext); }
                     ;
 
 Mult_Expr           : Unary_Expr                 {}
@@ -284,11 +284,11 @@ Assign_Expr         : Cond_Expr                   {}
                     | Unary_Expr Assign_Op Assign_Expr {}
                     ;
 
-Assign_Op           : '='                         {}
-                    | T_Mul_Assign                {}
-                    | T_Div_Assign                {}
-                    | T_Add_Assign                {}
-                    | T_Sub_Assign                {}
+Assign_Op           : '='                         { $$ = new Operator(@1, yytext); }
+                    | T_Mul_Assign                { $$ = new Operator(@1, yytext); }
+                    | T_Div_Assign                { $$ = new Operator(@1, yytext); }
+                    | T_Add_Assign                { $$ = new Operator(@1, yytext); }
+                    | T_Sub_Assign                { $$ = new Operator(@1, yytext); }
                     ;
 
 Expr                : Assign_Expr                 {}
