@@ -16,7 +16,13 @@
  */
 
 Type *Type::intType    = new Type("int");
-Type *Type::doubleType = new Type("double");
+Type *Type::floatType  = new Type("float");
+Type *Type::vec2Type  = new Type("vec2");
+Type *Type::vec3Type  = new Type("vec3");
+Type *Type::vec4Type  = new Type("vec4");
+Type *Type::mat2Type  = new Type("mat2");
+Type *Type::mat3Type  = new Type("mat3");
+Type *Type::mat4Type  = new Type("mat4");
 Type *Type::voidType   = new Type("void");
 Type *Type::boolType   = new Type("bool");
 Type *Type::nullType   = new Type("null");

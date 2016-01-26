@@ -42,9 +42,10 @@ void yyerror(const char *msg); // standard error-handling routine
   int integerConstant;
   bool boolConstant;
   char *stringConstant;
-  double doubleConstant;
+  float floatConstant;
   char identifier[MaxIdentLen+1]; // +1 for terminating null
   char field[MaxIdentLen+1];
+  Operator *_operator;
   Node *node;
   Expr *expr;
   Type *type;
@@ -91,7 +92,6 @@ void yyerror(const char *msg); // standard error-handling routine
  * pp2: You'll need to add many of these of your own.
  */
 
-
 %type <expr> Pri_Expr
 %type <postfixExpr> Pst_Expr
 %type <expr> Int_Expr
@@ -137,12 +137,15 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <stmt> Stmt
 %type <node> Simple_Stmt
 %type <node> Compd_Stmt_With_Scope
+%type <node> Stmt_With_Scope
+%type <node> Stmt_No_New_Scope
 %type <node> Compd_Stmt_No_New_Scope
 %type <node> Stmt_List
 %type <node> Expr_Stmt
 %type <node> Select_Stmt
 %type <node> Select_Rest_Stmt
 %type <node> Cond
+%type <node> Cond_Opt
 %type <node> Switch_Stmt
 %type <node> Switch_Stmt_List
 %type <caseStmts> Case_Label
@@ -180,11 +183,11 @@ Program           : Trans_Unit                  {
 Var_Ident         : T_Identifier                {}
                   ;
 
-Pri_Expr          : Var_Ident                   {}
-                  | T_IntConstant               {}
-                  | T_FloatConstant             {}
-                  | T_BoolConstant              {}
-                  | '(' Expr ')'                {}
+Pri_Expr          : Var_Ident                   {  }
+                  | T_IntConstant               {  }
+                  | T_FloatConstant             {  }
+                  | T_BoolConstant              {  }
+                  | '(' Expr ')'                {  }
                   ;
 
 Pst_Expr          : Pri_Expr                    {}
@@ -218,7 +221,7 @@ Func_Call_Head_Prm  : Func_Call_header Assign_Expr       {}
 Func_Call_header    : Func_Ident '('             {}
                     ;
 
-Func_Ident          : Type_Spec                  {}
+Func_Ident          : Type_Spec                  {$$=$1;}
                     | Pst_Expr                   {}
                     ;
 
@@ -324,26 +327,26 @@ Param_Decl          : Param_Declr                 {}
                     ;
 
 
-Param_Type_Spec     : Type_Spec {}
+Param_Type_Spec     : Type_Spec                   {}
                     ;
 
-Init_Decl_List      : Single_Decl {}
+Init_Decl_List      : Single_Decl                 {}
                     ;
 
 Single_Decl         : Fully_Spec_Type T_Identifier {}
                     ;
 
-Fully_Spec_Type     : Type_Spec {}
-                    | Type_Qual Type_Spec {}
+Fully_Spec_Type     : Type_Spec                   {}
+                    | Type_Qual Type_Spec         {}
                     ;
 
-Layout_Qual : T_Layout '(' Layout_ID_List ')' {}
+Layout_Qual : T_Layout '(' Layout_ID_List ')'     {}
          ;
 
-Layout_ID_List : Layout_ID {}
+Layout_ID_List : Layout_ID                        {}
                ;
 
-Layout_ID  : T_Identifier '=' T_IntConstant {}
+Layout_ID  : T_Identifier '=' T_IntConstant       {}
            ;
 
 Type_Qual : Single_Type_Qual {}
@@ -364,16 +367,16 @@ Storage_Qual    : T_Const {}
 Type_Spec       : Type_Spec_Nonarr    {}
                 ;
 
-Type_Spec_Nonarr : T_Void {}
-                 | T_Float {}
-                 | T_Int {}
-                 | T_Bool {}
-                 | T_Vec2 {}
-                 | T_Vec3 {}
-                 | T_Vec4 {}
-                 | T_Mat2 {}
-                 | T_Mat3 {}
-                 | T_Mat4 {}
+Type_Spec_Nonarr : T_Void  { $$ = Type::voidType; }
+                 | T_Float { $$ = Type::floatType;}
+                 | T_Int   { $$ = Type::intType;}
+                 | T_Bool  { $$ = Type::boolType;}
+                 | T_Vec2  { $$ = Type::vec2Type;}
+                 | T_Vec3  { $$ = Type::vec3Type;}
+                 | T_Vec4  { $$ = Type::vec4Type;}
+                 | T_Mat2  { $$ = Type::mat2Type;}
+                 | T_Mat3  { $$ = Type::mat3Type;}
+                 | T_Mat4  { $$ = Type::mat4Type;}
                  ;
 
 Init : Assign_Expr {}
@@ -450,8 +453,8 @@ For_Init_Stmt   : Expr_Stmt {}
 Cond_Opt : Cond {}
          ;
 
-For_Rest_Stmt   : Cond ';' {}
-                | Cond ';' Expr {}
+For_Rest_Stmt   : Cond_Opt ';' {}
+                | Cond_Opt ';' Expr {}
                 ;
 
 Trans_Unit : Trans_Unit Ext_Decl    { }
@@ -459,7 +462,7 @@ Trans_Unit : Trans_Unit Ext_Decl    { }
            ;
 
 Ext_Decl  : Func_Def                {  }
-          | Decl                  {  }
+          | Decl                    {  }
           ;
 
 Func_Def : Func_Proto Compd_Stmt_No_New_Scope {}
