@@ -180,13 +180,13 @@ Program           : Trans_Unit                  {
                                                 }
                   ;
 
-Var_Ident         : T_Identifier                {}
+Var_Ident         : T_Identifier                { $$ = new Identifier(@1, $1); }
                   ;
 
-Pri_Expr          : Var_Ident                   {  }
-                  | T_IntConstant               {  }
-                  | T_FloatConstant             {  }
-                  | T_BoolConstant              {  }
+Pri_Expr          : Var_Ident                   { $$ = $1; }
+                  | T_IntConstant               { $$ = new IntConstant(@1, $1); }
+                  | T_FloatConstant             { $$ = new FloatConstant(@1, $1); }
+                  | T_BoolConstant              { $$ = new BoolConstant(@1, $1); }
                   | '(' Expr ')'                {  }
                   ;
 
@@ -364,7 +364,7 @@ Storage_Qual    : T_Const {}
                 | T_Uniform {}
                 ;
 
-Type_Spec       : Type_Spec_Nonarr    {}
+Type_Spec       : Type_Spec_Nonarr    { $$ = $1; }
                 ;
 
 Type_Spec_Nonarr : T_Void  { $$ = Type::voidType; }
