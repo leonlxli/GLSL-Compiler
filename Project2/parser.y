@@ -46,6 +46,7 @@ void yyerror(const char *msg); // standard error-handling routine
   char identifier[MaxIdentLen+1]; // +1 for terminating null
   char field[MaxIdentLen+1];
   Operator *_operator;
+  Identifier *id;
   Node *node;
   Expr *expr;
   Type *type;
@@ -92,7 +93,8 @@ void yyerror(const char *msg); // standard error-handling routine
  * pp2: You'll need to add many of these of your own.
  */
 
-%type <expr> Pri_Expr
+%type <id> Var_Ident
+%type <node> Pri_Expr
 %type <postfixExpr> Pst_Expr
 %type <expr> Int_Expr
 %type <node> Func_Call
@@ -168,10 +170,6 @@ void yyerror(const char *msg); // standard error-handling routine
 	 
  */
 Program           : Trans_Unit                  { 
-                                                  @1; 
-                                                  /* pp2: The @1 is needed to convince 
-                                                   * yacc to set up yylloc. You can remove 
-                                                   * it once you have other uses of @n*/
                                                   Program *program = new Program($1);
                                                   program->SetParent(NULL);
                                                   // if no errors, advance to next phase
@@ -457,8 +455,8 @@ For_Rest_Stmt   : Cond_Opt ';' {}
                 | Cond_Opt ';' Expr {}
                 ;
 
-Trans_Unit : Trans_Unit Ext_Decl    { }
-           | Ext_Decl               { }
+Trans_Unit : Trans_Unit Ext_Decl    { ($$=$1)->Append($2); }
+           | Ext_Decl               { ($$ = new List<Decl*>)->Append($1); }
            ;
 
 Ext_Decl  : Func_Def                {  }
