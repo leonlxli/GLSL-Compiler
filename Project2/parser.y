@@ -171,12 +171,6 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <node> Init_Decl_List
 %type <node> Single_Decl
 %type <node> Fully_Spec_Type
-%type <node> Layout_Qual
-%type <node> Layout_ID_List
-%type <id> Layout_ID
-%type <node> Type_Qual
-%type <node> Single_Type_Qual
-%type <node> Storage_Qual
 %type <node> Type_Spec
 %type <node> Type_Spec_Nonarr
 %type <node> Init
@@ -344,7 +338,6 @@ Const_Expr          : Cond_Expr                   {}
 
 Decl                : Func_Proto ';'              {}
                     | Init_Decl_List ';'          {}
-                    | Type_Qual T_Identifier ';'  {}
                     ;
 
 Func_Proto          : Func_Declr ')'              {}
@@ -380,32 +373,9 @@ Single_Decl         : Fully_Spec_Type T_Identifier {}
                     ;
 
 Fully_Spec_Type     : Type_Spec                   {}
-                    | Type_Qual Type_Spec         {}
                     ;
 
-Layout_Qual : T_Layout '(' Layout_ID_List ')'     {}
-         ;
 
-Layout_ID_List : Layout_ID                        {}
-               ;
-
-Layout_ID  : T_Identifier '=' T_IntConstant       {}
-           ;
-
-Type_Qual : Single_Type_Qual                      {}
-       | Type_Qual Single_Type_Qual               {}
-       ;
-
-Single_Type_Qual   : Storage_Qual                 {}
-                | Layout_Qual                     {}
-                ;
-
-Storage_Qual    : T_Const {}
-                | T_In {}
-                | T_Out {}
-                | T_InOut {}
-                | T_Uniform {}
-                ;
 
 Type_Spec       : Type_Spec_Nonarr                { $$ = $1; }
                 ;
@@ -471,11 +441,12 @@ Select_Rest_Stmt : Stmt_With_Scope T_Else Stmt_With_Scope {}
                  | Stmt_With_Scope                { $$=$1; }
                  ;
 
-Cond    : Expr                                    {  }
+Cond    : Expr                                    { $$=$1; }
         | Fully_Spec_Type T_Identifier T_Equal Init {}
         ;
 
-Switch_Stmt : T_Switch '(' Expr ')' '{' Switch_Stmt_List '}' {}
+Switch_Stmt :                        {}
+            | T_Switch '(' Expr ')' '{' Switch_Stmt_List '}' {}
             ;
 
 Switch_Stmt_List : Stmt_List                      {$$=$1;}
@@ -493,7 +464,8 @@ For_Init_Stmt   : Expr_Stmt                       {$$=$1;}
                 | Decl_Stmt                       {$$=$1;}
                 ;
 
-Cond_Opt : Cond                                   { }
+Cond_Opt : Cond                                   {  }
+         |                                        {}
          ;
 
 For_Rest_Stmt   : Cond_Opt ';'                    {}
