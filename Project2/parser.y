@@ -54,7 +54,7 @@ void yyerror(const char *msg); // standard error-handling routine
   VarDecl *varDecl;
   List<VarDecl*> *varDeclList;
   VarDeclError *varDeclError;
-  FnDecl *fnDecl;
+  FnDecl *funcDecl;
   FormalsError *formalsError;
   Expr *expr;
   ExprError *exprError;
@@ -77,6 +77,7 @@ void yyerror(const char *msg); // standard error-handling routine
   ActualsError *actualsError;
   Program *program;
   Stmt *stmt;
+  List<Stmt*> *stmts;
   StmtBlock *stmtBlock;
   ConditionalStmt *conditionalStmt;
   LoopStmt *loopStmt;
@@ -165,8 +166,8 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <expr> Expr
 %type <expr> Const_Expr
 %type <decl> Decl
-%type <node> Func_Proto
-%type <node> Func_Declr
+%type <funcDecl> Func_Proto
+%type <funcDecl> Func_Declr
 %type <node> Func_Hdr
 %type <node> Func_Hdr_With_Param
 %type <node> Param_Declr
@@ -185,21 +186,21 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <stmt> Stmt_With_Scope
 %type <stmt> Stmt_No_New_Scope
 %type <stmt> Compd_Stmt_No_New_Scope
-%type <node> Stmt_List
+%type <stmts> Stmt_List
 %type <stmt> Expr_Stmt
 %type <stmt> Select_Stmt
 %type <stmt> Select_Rest_Stmt
 %type <node> Cond
 %type <op> Cond_Opt
 %type <stmt> Switch_Stmt
-%type <node> Switch_Stmt_List
+%type <stmts> Switch_Stmt_List
 %type <caseStmts> Case_Label
 %type <stmt> Iter_Stmt
 %type <stmt> For_Init_Stmt
 %type <stmt> For_Rest_Stmt
 %type <declList> Trans_Unit
 %type <decl> Ext_Decl
-%type <fnDecl> Func_Def
+%type <funcDecl> Func_Def
 %type <program> Program
 
 
@@ -430,8 +431,8 @@ Compd_Stmt_No_New_Scope : '{' '}'                 {}
                         | '{' Stmt_List '}'       {}
                         ;
 
-Stmt_List   : Stmt                                {}
-            | Stmt_List Stmt                      {}
+Stmt_List   : Stmt                                { ($$ = new List<Stmt*>)->Append($1); }
+            | Stmt_List Stmt                      { ($$ = $1)->Append($2); }
             ;
 
 Expr_Stmt   : ';'                                 {$$ = new EmptyExpr();}
@@ -484,7 +485,7 @@ Ext_Decl  : Func_Def                              { $$=$1; }
           | Decl                                  { $$=$1; }
           ;
 
-Func_Def : Func_Proto Compd_Stmt_No_New_Scope     {}
+Func_Def : Func_Proto Compd_Stmt_No_New_Scope     { ($$ = $1)->SetFunctionBody($2); }
       
 
 %%
