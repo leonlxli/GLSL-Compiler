@@ -137,15 +137,10 @@ void yyerror(const char *msg); // standard error-handling routine
  */
 
 %type <id> Var_Ident
+%type <id> Identifier
 %type <expr> Pri_Expr
 %type <expr> Pst_Expr
 %type <expr> Int_Expr
-%type <call> Func_Call
-%type <call> Func_Call_or_Mtd
-%type <call> Func_Call_Gen
-%type <call> Func_Call_Head_NoPrm
-%type <call> Func_Call_Head_Prm
-%type <call> Func_Call_header
 %type <id> Func_Ident
 %type <expr> Unary_Expr
 %type <op> Unary_Op
@@ -168,8 +163,8 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <decl> Decl
 %type <funcDecl> Func_Proto
 %type <funcDecl> Func_Declr
-%type <node> Func_Hdr
-%type <node> Func_Hdr_With_Param
+%type <funcDecl> Func_Hdr
+%type <funcDecl> Func_Hdr_With_Param
 %type <node> Param_Declr
 %type <node> Param_Decl
 %type <node> Param_Type_Spec
@@ -233,7 +228,6 @@ Pri_Expr          : Var_Ident                      { $$ = new FieldAccess(NULL, 
                   ;
 
 Pst_Expr          : Pri_Expr                       { $$ = $1; }
-                  | Func_Call                      { $$ = $1; }
                   | Pst_Expr '.' T_FieldSelection  { $$ = new FieldAccess($1, new Identifier(@3, $3)); }
                   | Pst_Expr T_Inc                 { $$ = new PostfixExpr($1, new Operator(@2, "++")); }
                   | Pst_Expr T_Dec                 { $$ = new PostfixExpr($1, new Operator(@2, "--")); }
@@ -242,29 +236,8 @@ Pst_Expr          : Pri_Expr                       { $$ = $1; }
 Int_Expr          : Expr                           { $$=$1; }
                   ;
 
-Func_Call         : Func_Call_or_Mtd               { $$=$1; }
-                  ;
-
-Func_Call_or_Mtd  : Func_Call_Gen                  { }
-                  ;
-
-Func_Call_Gen     : Func_Call_Head_Prm ')'         { }
-                  | Func_Call_Head_NoPrm ')'       { }
-                  ;
-
-Func_Call_Head_NoPrm : Func_Call_header T_Void     { }
-                     | Func_Call_header            { }
-                     ;
-
-Func_Call_Head_Prm  : Func_Call_header Assign_Expr       {}
-                    | Func_Call_Head_Prm ',' Assign_Expr {}
-                    ;
-
-Func_Call_header    : Func_Ident '('             {}
-                    ;
-
-Func_Ident          : Type_Spec                  {}
-                    | Pst_Expr                   {  }
+Func_Ident          : Type_Spec_Nonarr           { $$ = $1; }
+                    | Pst_Expr                   { $$ = $1; }
                     ;
 
 Unary_Expr          : Pst_Expr                   { $$ = $1; }
@@ -348,7 +321,7 @@ Decl                : Func_Proto ';'              {}
 Func_Proto          : Func_Declr ')'              {}
                     ;
 
-Func_Declr          : Func_Hdr                    {}
+Func_Declr          : Func_Hdr                    {$$=$1;}
                     | Func_Hdr_With_Param         {}
                     ;
 
@@ -356,7 +329,9 @@ Func_Hdr_With_Param : Func_Hdr Param_Decl         {}
                     | Func_Hdr_With_Param ',' Param_Decl {}
                     ;
 
-Func_Hdr            : Fully_Spec_Type T_Identifier '(' {}
+Func_Hdr            : Fully_Spec_Type Identifier '(' { $$ = new FnDecl($2, $1, new List<VarDecl*>()); }
+                    ;
+Identifier          : T_Identifier                {$$ = new Identifier(@1, $1);}
                     ;
 
 
@@ -403,31 +378,31 @@ Init            : Assign_Expr                     {}
 Decl_Stmt       : Decl                            {}
                 ;
 
-Stmt            : Compd_Stmt_With_Scope           {}
-                | Simple_Stmt                     {}
+Stmt            : Compd_Stmt_With_Scope           {$$=$1;}
+                | Simple_Stmt                     {$$=$1;}
                 ;
 
-Stmt_No_New_Scope  : Compd_Stmt_No_New_Scope      {}
-                   | Simple_Stmt                  {}
+Stmt_No_New_Scope  : Compd_Stmt_No_New_Scope      {$$=$1;}
+                   | Simple_Stmt                  {$$=$1;}
                    ;
 
-Stmt_With_Scope  : Compd_Stmt_No_New_Scope        {}
-                 | Simple_Stmt                    {}
+Stmt_With_Scope  : Compd_Stmt_No_New_Scope        {$$=$1;}
+                 | Simple_Stmt                    {$$=$1;}
                  ;
 
-Simple_Stmt : Decl_Stmt                           {}
-            | Expr_Stmt                           {}
-            | Select_Stmt                         {}
-            | Switch_Stmt                         {}
+Simple_Stmt : Decl_Stmt                           {$$=$1;}
+            | Expr_Stmt                           {$$=$1;}
+            | Select_Stmt                         {$$=$1;}
+            | Switch_Stmt                         {$$=$1;}
             | Case_Label                          {}
-            | Iter_Stmt                           {}
+            | Iter_Stmt                           {$$=$1;}
             ;
 
-Compd_Stmt_With_Scope   : '{' '}'                 {}
-                        | '{' Stmt_List '}'       {}
+Compd_Stmt_With_Scope   : '{' '}'                 {$$ = new StmtBlock(new List<VarDecl*>(), new List<Stmt*>());}
+                        | '{' Stmt_List '}'       { }
                         ;
 
-Compd_Stmt_No_New_Scope : '{' '}'                 {}
+Compd_Stmt_No_New_Scope : '{' '}'                 { $$ = new StmtBlock(new List<VarDecl*>(), new List<Stmt*>()); }
                         | '{' Stmt_List '}'       {}
                         ;
 
