@@ -160,7 +160,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <expr> Log_Or_Expr
 %type <expr> Log_Xor_Expr
 %type <expr> Cond_Expr
-%type <assignExpr> Assign_Expr
+%type <expr> Assign_Expr
 %type <op> Assign_Op
 %type <expr> Expr
 %type <expr> Const_Expr
@@ -329,8 +329,8 @@ Log_Or_Expr         : Log_Xor_Expr                { $$ = $1; }
 Cond_Expr           : Log_Or_Expr                 { $$ = $1; }
                     ;
 
-Assign_Expr         : Cond_Expr                   {}
-                    | Unary_Expr Assign_Op Assign_Expr {}
+Assign_Expr         : Cond_Expr                   { $$ = $1; }
+                    | Unary_Expr Assign_Op Assign_Expr { $$ = new AssignExpr($1, $2, $3); }
                     ;
 
 Assign_Op           : '='                         { $$ = new Operator(@1, yytext); }
