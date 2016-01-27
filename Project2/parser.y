@@ -267,10 +267,10 @@ Func_Ident          : Type_Spec                  {}
                     | Pst_Expr                   {  }
                     ;
 
-Unary_Expr          : Pst_Expr                   {}
-                    | T_Inc Unary_Expr           {}
-                    | T_Dec Unary_Expr           {}
-                    | Unary_Op Unary_Expr        {}
+Unary_Expr          : Pst_Expr                   { $$ = $1; }
+                    | T_Inc Unary_Expr           { $$ = new CompoundExpr(new Operator(@1, "++"), $2); }
+                    | T_Dec Unary_Expr           { $$ = new CompoundExpr(new Operator(@1, "--"), $2); }
+                    | Unary_Op Unary_Expr        { $$ = new CompoundExpr($1, $2); }
                     ;
 
 Unary_Op            : '+'                        { $$ = new Operator(@1, yytext); }

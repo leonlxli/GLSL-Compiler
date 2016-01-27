@@ -96,6 +96,7 @@ class CompoundExpr : public Expr
     CompoundExpr(Expr *lhs, Operator *op, Expr *rhs); // for binary
     CompoundExpr(Operator *op, Expr *rhs);             // for unary
     CompoundExpr(Expr *lhs, Operator *op);             // for unary
+    const char *GetPrintNameForNode() { return "CompoundExpr"; }
     void PrintChildren(int indentLevel);
 };
 
