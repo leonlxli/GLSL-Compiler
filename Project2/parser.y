@@ -113,7 +113,6 @@ void yyerror(const char *msg); // standard error-handling routine
 
 %token   T_And T_Or 
 %token   T_While T_Break T_Continue T_Do T_Else T_For T_If T_Return T_Switch T_Case T_Default 
-%token   <identifier> T_Identifier
 %token   <integerConstant> T_IntConstant
 %token   <floatConstant> T_FloatConstant
 %token   <boolConstant> T_BoolConstant
@@ -121,6 +120,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %token   T_Mul_Assign T_Div_Assign T_Add_Assign T_Sub_Assign
 
 %token   <identifier> T_FieldSelection
+%token   <identifier> T_Identifier
 
 
 
@@ -173,11 +173,11 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <node> Param_Declr
 %type <node> Param_Decl
 %type <node> Param_Type_Spec
-%type <node> Init_Decl_List
-%type <node> Single_Decl
-%type <node> Fully_Spec_Type
-%type <node> Type_Spec
-%type <node> Type_Spec_Nonarr
+%type <varDecl> Init_Decl_List
+%type <varDecl> Single_Decl
+%type <type> Fully_Spec_Type
+%type <type> Type_Spec
+%type <type> Type_Spec_Nonarr
 %type <node> Init
 %type <stmt> Decl_Stmt
 %type <stmt> Stmt
@@ -342,7 +342,7 @@ Const_Expr          : Cond_Expr                   {}
                     ;
 
 Decl                : Func_Proto ';'              {}
-                    | Init_Decl_List ';'          {}
+                    | Init_Decl_List ';'          {$$=$1;}
                     ;
 
 Func_Proto          : Func_Declr ')'              {}
@@ -371,13 +371,13 @@ Param_Decl          : Param_Declr                 {}
 Param_Type_Spec     : Type_Spec                   {}
                     ;
 
-Init_Decl_List      : Single_Decl                 {}
+Init_Decl_List      : Single_Decl                 {$$=$1;}
                     ;
 
-Single_Decl         : Fully_Spec_Type T_Identifier {}
+Single_Decl         : Fully_Spec_Type T_Identifier { $$ = new VarDecl(new Identifier(@2, $2), $1); }
                     ;
 
-Fully_Spec_Type     : Type_Spec                   {}
+Fully_Spec_Type     : Type_Spec                   {$$=$1;}
                     ;
 
 
