@@ -15,6 +15,7 @@ int foo3(float param1, int param2) {
      * comment
      */
   int i; // This is a comment
+  i=1;
   bool b;
 }
 

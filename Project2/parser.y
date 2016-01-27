@@ -140,7 +140,6 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <id> Identifier
 %type <expr> Pri_Expr
 %type <expr> Pst_Expr
-%type <expr> Int_Expr
 %type <id> Func_Ident
 %type <expr> Unary_Expr
 %type <op> Unary_Op
@@ -159,7 +158,6 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <expr> Assign_Expr
 %type <op> Assign_Op
 %type <expr> Expr
-%type <expr> Const_Expr
 %type <decl> Decl
 %type <funcDecl> Func_Proto
 %type <funcDecl> Func_Declr
@@ -173,7 +171,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <type> Fully_Spec_Type
 %type <type> Type_Spec
 %type <type> Type_Spec_Nonarr
-%type <node> Init
+%type <expr> Init
 %type <stmt> Decl_Stmt
 %type <stmt> Stmt
 %type <stmt> Simple_Stmt
@@ -233,8 +231,6 @@ Pst_Expr          : Pri_Expr                       { $$ = $1; }
                   | Pst_Expr T_Dec                 { $$ = new PostfixExpr($1, new Operator(@2, "--")); }
                   ;
 
-Int_Expr          : Expr                           { $$=$1; }
-                  ;
 
 Func_Ident          : Type_Spec_Nonarr           { $$ = $1; }
                     | Pst_Expr                   { $$ = $1; }
@@ -301,6 +297,9 @@ Assign_Expr         : Cond_Expr                   { $$ = $1; }
                     | Unary_Expr Assign_Op Assign_Expr { $$ = new AssignExpr($1, $2, $3); }
                     ;
 
+Init                : Assign_Expr                     { $$=$1;}
+                    ;
+
 Assign_Op           : '='                         { $$ = new Operator(@1, yytext); }
                     | T_Mul_Assign                { $$ = new Operator(@1, yytext); }
                     | T_Div_Assign                { $$ = new Operator(@1, yytext); }
@@ -308,13 +307,12 @@ Assign_Op           : '='                         { $$ = new Operator(@1, yytext
                     | T_Sub_Assign                { $$ = new Operator(@1, yytext); }
                     ;
 
-Expr                : Assign_Expr                 {}
+Expr                : Assign_Expr                 { $$=$1;  }
                     ;
 
-Const_Expr          : Cond_Expr                   {}
-                    ;
 
-Decl                : Func_Proto ';'              {}
+
+Decl                : Func_Proto ';'              { $$=$1; }
                     | Init_Decl_List ';'          {$$=$1;}
                     ;
 
@@ -322,7 +320,7 @@ Func_Proto          : Func_Declr ')'              {}
                     ;
 
 Func_Declr          : Func_Hdr                    {$$=$1;}
-                    | Func_Hdr_With_Param         {}
+                    | Func_Hdr_With_Param         {  }
                     ;
 
 Func_Hdr_With_Param : Func_Hdr Param_Decl         {}
@@ -372,9 +370,6 @@ Type_Spec_Nonarr : T_Void                         { $$ = Type::voidType; }
                  | T_Mat4                         { $$ = Type::mat4Type;}
                  ;
 
-Init            : Assign_Expr                     {}
-                ;
-
 Decl_Stmt       : Decl                            {}
                 ;
 
@@ -422,7 +417,9 @@ Select_Rest_Stmt : Stmt_With_Scope T_Else Stmt_With_Scope {}
                  ;
 
 Cond    : Expr                                    { $$=$1; }
-        | Fully_Spec_Type T_Identifier T_Equal Init {}
+        | Fully_Spec_Type Identifier T_Equal Init {    Expr* exp = new FieldAccess(NULL, $2);
+                                                       $$ = new AssignExpr( exp , new Operator(@3, "=="), $4 ); 
+                                                    }
         ;
 
 Switch_Stmt :                        {}
