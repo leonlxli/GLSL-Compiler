@@ -347,12 +347,12 @@ Layout_ID_List : Layout_ID                        {}
 Layout_ID  : T_Identifier '=' T_IntConstant       {}
            ;
 
-Type_Qual : Single_Type_Qual {}
-       | Type_Qual Single_Type_Qual {}
+Type_Qual : Single_Type_Qual                      {}
+       | Type_Qual Single_Type_Qual               {}
        ;
 
-Single_Type_Qual   : Storage_Qual {}
-                | Layout_Qual     {}
+Single_Type_Qual   : Storage_Qual                 {}
+                | Layout_Qual                     {}
                 ;
 
 Storage_Qual    : T_Const {}
@@ -362,108 +362,108 @@ Storage_Qual    : T_Const {}
                 | T_Uniform {}
                 ;
 
-Type_Spec       : Type_Spec_Nonarr    { $$ = $1; }
+Type_Spec       : Type_Spec_Nonarr                { $$ = $1; }
                 ;
 
-Type_Spec_Nonarr : T_Void  { $$ = Type::voidType; }
-                 | T_Float { $$ = Type::floatType;}
-                 | T_Int   { $$ = Type::intType;}
-                 | T_Bool  { $$ = Type::boolType;}
-                 | T_Vec2  { $$ = Type::vec2Type;}
-                 | T_Vec3  { $$ = Type::vec3Type;}
-                 | T_Vec4  { $$ = Type::vec4Type;}
-                 | T_Mat2  { $$ = Type::mat2Type;}
-                 | T_Mat3  { $$ = Type::mat3Type;}
-                 | T_Mat4  { $$ = Type::mat4Type;}
+Type_Spec_Nonarr : T_Void                         { $$ = Type::voidType; }
+                 | T_Float                        { $$ = Type::floatType;}
+                 | T_Int                          { $$ = Type::intType;}
+                 | T_Bool                         { $$ = Type::boolType;}
+                 | T_Vec2                         { $$ = Type::vec2Type;}
+                 | T_Vec3                         { $$ = Type::vec3Type;}
+                 | T_Vec4                         { $$ = Type::vec4Type;}
+                 | T_Mat2                         { $$ = Type::mat2Type;}
+                 | T_Mat3                         { $$ = Type::mat3Type;}
+                 | T_Mat4                         { $$ = Type::mat4Type;}
                  ;
 
-Init : Assign_Expr {}
-     ;
+Init            : Assign_Expr                     {}
+                ;
 
-Decl_Stmt   : Decl {}
-            ;
+Decl_Stmt       : Decl                            {}
+                ;
 
-Stmt        : Compd_Stmt_With_Scope {}
-            | Simple_Stmt {}
-            ;
+Stmt            : Compd_Stmt_With_Scope           {}
+                | Simple_Stmt                     {}
+                ;
 
-Stmt_No_New_Scope  : Compd_Stmt_No_New_Scope {}
-                   | Simple_Stmt {}
+Stmt_No_New_Scope  : Compd_Stmt_No_New_Scope      {}
+                   | Simple_Stmt                  {}
                    ;
 
-Stmt_With_Scope  : Compd_Stmt_No_New_Scope {}
-                 | Simple_Stmt {}
+Stmt_With_Scope  : Compd_Stmt_No_New_Scope        {}
+                 | Simple_Stmt                    {}
                  ;
 
-Simple_Stmt : Decl_Stmt {}
-            | Expr_Stmt {}
-            | Select_Stmt {}
-            | Switch_Stmt {}
-            | Case_Label {}
-            | Iter_Stmt {}
+Simple_Stmt : Decl_Stmt                           {}
+            | Expr_Stmt                           {}
+            | Select_Stmt                         {}
+            | Switch_Stmt                         {}
+            | Case_Label                          {}
+            | Iter_Stmt                           {}
             ;
 
-Compd_Stmt_With_Scope   : '{' '}' {}
-                        | '{' Stmt_List '}' {}
+Compd_Stmt_With_Scope   : '{' '}'                 {}
+                        | '{' Stmt_List '}'       {}
                         ;
 
-Compd_Stmt_No_New_Scope : '{' '}' {}
-                        | '{' Stmt_List '}' {}
+Compd_Stmt_No_New_Scope : '{' '}'                 {}
+                        | '{' Stmt_List '}'       {}
                         ;
 
-Stmt_List   : Stmt {}
-            | Stmt_List Stmt {}
+Stmt_List   : Stmt                                {}
+            | Stmt_List Stmt                      {}
             ;
 
-Expr_Stmt   : ';' {}
-            | Expr ';' {}
+Expr_Stmt   : ';'                                 {$$ = new EmptyExpr();}
+            | Expr ';'                            {$$=$1;}
             ;
 
-Select_Stmt : T_If '(' Expr ')' Select_Rest_Stmt {}
+Select_Stmt : T_If '(' Expr ')' Select_Rest_Stmt  {}
             ;
 
 Select_Rest_Stmt : Stmt_With_Scope T_Else Stmt_With_Scope {}
-                 | Stmt_With_Scope {}
+                 | Stmt_With_Scope                { $$=$1; }
                  ;
 
-Cond    : Expr {}
+Cond    : Expr                                    {  }
         | Fully_Spec_Type T_Identifier T_Equal Init {}
         ;
 
 Switch_Stmt : T_Switch '(' Expr ')' '{' Switch_Stmt_List '}' {}
             ;
 
-Switch_Stmt_List : Stmt_List {}
+Switch_Stmt_List : Stmt_List                      {$$=$1;}
                  ;
 
-Case_Label  : T_Case Expr ':' {}
-            | T_Default ':' {}
+Case_Label  : T_Case Expr ':'                     {}
+            | T_Default ':'                       {}
             ;
 
 Iter_Stmt   : T_While '(' Cond ')' Stmt_No_New_Scope {}
             | T_For '(' For_Init_Stmt For_Rest_Stmt ')' Stmt_No_New_Scope {}
             ;
 
-For_Init_Stmt   : Expr_Stmt {}
-                | Decl_Stmt {}
+For_Init_Stmt   : Expr_Stmt                       {$$=$1;}
+                | Decl_Stmt                       {$$=$1;}
                 ;
 
-Cond_Opt : Cond {}
+Cond_Opt : Cond                                   { }
          ;
 
-For_Rest_Stmt   : Cond_Opt ';' {}
-                | Cond_Opt ';' Expr {}
+For_Rest_Stmt   : Cond_Opt ';'                    {}
+                | Cond_Opt ';' Expr               {}
                 ;
 
-Trans_Unit : Trans_Unit Ext_Decl    { ($$=$1)->Append($2); }
-           | Ext_Decl               { ($$ = new List<Decl*>)->Append($1); }
+Trans_Unit : Trans_Unit Ext_Decl                  { ($$=$1)->Append($2); }
+           | Ext_Decl                             { ($$ = new List<Decl*>)->Append($1); }
            ;
 
-Ext_Decl  : Func_Def                {  }
-          | Decl                    {  }
+Ext_Decl  : Func_Def                              { $$=$1; }
+          | Decl                                  { $$=$1; }
           ;
 
-Func_Def : Func_Proto Compd_Stmt_No_New_Scope {}
+Func_Def : Func_Proto Compd_Stmt_No_New_Scope     {}
       
 
 %%
