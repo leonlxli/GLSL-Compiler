@@ -38,22 +38,62 @@ void yyerror(const char *msg); // standard error-handling routine
  * pp2: You will need to add new fields to this union as you add different 
  *      attributes to your non-terminal symbols.
  */
+
 %union {
   int integerConstant;
   bool boolConstant;
-  char *stringConstant;
   float floatConstant;
+  const char *stringConstant;
   char identifier[MaxIdentLen+1]; // +1 for terminating null
   char field[MaxIdentLen+1];
-  Operator *_operator;
-  Identifier *id;
   Node *node;
-  Expr *expr;
-  Type *type;
+  Identifier *id;
+  Error *error;
   Decl *decl;
   List<Decl*> *declList;
+  VarDecl *varDecl;
+  List<VarDecl*> *varDeclList;
+  VarDeclError *varDeclError;
   FnDecl *fnDecl;
-}
+  FormalsError *formalsError;
+  Expr *expr;
+  ExprError *exprError;
+  EmptyExpr *emptyExpr;
+  IntConstant *intConst;
+  FloatConstant *floatConst;
+  BoolConstant *boolConst;
+  Operator *op;
+  CompoundExpr *compoundExpr;
+  ArithmeticExpr *arithmeticExpr;
+  RelationalExpr *relationalExpr;
+  EqualityExpr *equalityExpr;
+  LogicalExpr *logicalExpr;
+  AssignExpr *assignExpr;
+  PostfixExpr *postfixExpr;
+  LValue *lValue;
+  ArrayAccess *arrayAccess;
+  FieldAccess *fieldAccess;
+  Call *call;
+  ActualsError *actualsError;
+  Program *program;
+  Stmt *stmt;
+  StmtBlock *stmtBlock;
+  ConditionalStmt *conditionalStmt;
+  LoopStmt *loopStmt;
+  ForStmt *forStmt;
+  WhileStmt *whileStmt;
+  IfStmt *ifStmt;
+  IfStmtExprError *ifStmtExprError;
+  BreakStmt *breakStmt;
+  ReturnStmt *returnStmt;
+  SwitchLabel *switchLabel;
+  Case *_case;
+  Default *_default;
+  SwitchStmt *switchStmt;
+  SwitchStmtError *switchStmtError;
+  Type *type;
+  ArrayType *arrayType;
+  }
 
 
 /* Tokens
@@ -65,7 +105,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %token   T_Void T_Bool T_Float T_Int T_UInt
 %token   T_Vec2 T_Vec3 T_Vec4 T_Dims
 %token   T_Mat2 T_Mat3 T_Mat4
-%token   T_Struct T_FieldSelection
+%token   T_Struct 
 %token   T_In T_Out T_InOut
 %token   T_Const T_Uniform
 %token   T_Layout
@@ -78,6 +118,8 @@ void yyerror(const char *msg); // standard error-handling routine
 %token   <boolConstant> T_BoolConstant
 %token   T_Inc T_Dec T_LessEqual T_GreaterEqual T_Equal T_NotEqual
 %token   T_Mul_Assign T_Div_Assign T_Add_Assign T_Sub_Assign
+
+%token   <identifier> T_FieldSelection
 
 
 
@@ -94,16 +136,18 @@ void yyerror(const char *msg); // standard error-handling routine
  */
 
 %type <id> Var_Ident
-%type <node> Pri_Expr
-%type <postfixExpr> Pst_Expr
+%type <expr> Pri_Expr
+%type <expr> Pst_Expr
 %type <expr> Int_Expr
-%type <node> Func_Call
-%type <node> Func_Call_Head_NoPrm
-%type <node> Func_Call_Head_Prm
-%type <node> Func_Call_header
-%type <node> Func_Ident
+%type <call> Func_Call
+%type <call> Func_Call_or_Mtd
+%type <call> Func_Call_Gen
+%type <call> Func_Call_Head_NoPrm
+%type <call> Func_Call_Head_Prm
+%type <call> Func_Call_header
+%type <id> Func_Ident
 %type <expr> Unary_Expr
-%type <node> Unary_Op
+%type <op> Unary_Op
 %type <expr> Mult_Expr
 %type <expr> Add_Expr
 %type <expr> Rel_Expr
@@ -112,7 +156,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <expr> Log_Or_Expr
 %type <expr> Cond_Expr
 %type <assignExpr> Assign_Expr
-%type <node> Assign_Op
+%type <op> Assign_Op
 %type <expr> Expr
 %type <expr> Const_Expr
 %type <decl> Decl
@@ -128,32 +172,32 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <node> Fully_Spec_Type
 %type <node> Layout_Qual
 %type <node> Layout_ID_List
-%type <node> Layout_ID
+%type <id> Layout_ID
 %type <node> Type_Qual
 %type <node> Single_Type_Qual
 %type <node> Storage_Qual
 %type <node> Type_Spec
 %type <node> Type_Spec_Nonarr
 %type <node> Init
-%type <node> Decl_Stmt
+%type <stmt> Decl_Stmt
 %type <stmt> Stmt
-%type <node> Simple_Stmt
-%type <node> Compd_Stmt_With_Scope
-%type <node> Stmt_With_Scope
-%type <node> Stmt_No_New_Scope
-%type <node> Compd_Stmt_No_New_Scope
+%type <stmt> Simple_Stmt
+%type <stmt> Compd_Stmt_With_Scope
+%type <stmt> Stmt_With_Scope
+%type <stmt> Stmt_No_New_Scope
+%type <stmt> Compd_Stmt_No_New_Scope
 %type <node> Stmt_List
-%type <node> Expr_Stmt
-%type <node> Select_Stmt
-%type <node> Select_Rest_Stmt
+%type <stmt> Expr_Stmt
+%type <stmt> Select_Stmt
+%type <stmt> Select_Rest_Stmt
 %type <node> Cond
-%type <node> Cond_Opt
-%type <node> Switch_Stmt
+%type <op> Cond_Opt
+%type <stmt> Switch_Stmt
 %type <node> Switch_Stmt_List
 %type <caseStmts> Case_Label
-%type <node> Iter_Stmt
-%type <node> For_Init_Stmt
-%type <node> For_Rest_Stmt
+%type <stmt> Iter_Stmt
+%type <stmt> For_Init_Stmt
+%type <stmt> For_Rest_Stmt
 %type <declList> Trans_Unit
 %type <decl> Ext_Decl
 %type <fnDecl> Func_Def
@@ -178,38 +222,38 @@ Program           : Trans_Unit                  {
                                                 }
                   ;
 
-Var_Ident         : T_Identifier                { $$ = new Identifier(@1, $1); }
+Var_Ident         : T_Identifier                   { $$ = new Identifier(@1, $1); }
                   ;
 
-Pri_Expr          : Var_Ident                   { $$ = $1; }
-                  | T_IntConstant               { $$ = new IntConstant(@1, $1); }
-                  | T_FloatConstant             { $$ = new FloatConstant(@1, $1); }
-                  | T_BoolConstant              { $$ = new BoolConstant(@1, $1); }
-                  | '(' Expr ')'                {  }
+Pri_Expr          : Var_Ident                      { $$ = new FieldAccess(NULL, $1); }
+                  | T_IntConstant                  { $$ = new IntConstant(@1, $1); }
+                  | T_FloatConstant                { $$ = new FloatConstant(@1, $1); }
+                  | T_BoolConstant                 { $$ = new BoolConstant(@1, $1); }
+                  | '(' Expr ')'                   { $$ = $2; }
                   ;
 
-Pst_Expr          : Pri_Expr                    {}
-                  | Func_Call                   {}
-                  | Pst_Expr '.' T_FieldSelection {}
-                  | Pst_Expr T_Inc           {}
-                  | Pst_Expr T_Dec           {}
+Pst_Expr          : Pri_Expr                       { $$ = $1; }
+                  | Func_Call                      { $$ = $1; }
+                  | Pst_Expr '.' T_FieldSelection  { $$ = new FieldAccess($1, new Identifier(@3, $3)); }
+                  | Pst_Expr T_Inc                 { $$ = new PostfixExpr($1, new Operator(@2, "++")); }
+                  | Pst_Expr T_Dec                 { $$ = new PostfixExpr($1, new Operator(@2, "--")); }
                   ;
 
-Int_Expr          : Expr                        {}
+Int_Expr          : Expr                           { $$=$1; }
                   ;
 
-Func_Call         : Func_Call_or_Mtd            {}
+Func_Call         : Func_Call_or_Mtd               { $$=$1; }
                   ;
 
-Func_Call_or_Mtd  : Func_Call_Gen               {}
+Func_Call_or_Mtd  : Func_Call_Gen                  { }
                   ;
 
-Func_Call_Gen     : Func_Call_Head_Prm ')'         {}
-                  | Func_Call_Head_NoPrm ')'       {}
+Func_Call_Gen     : Func_Call_Head_Prm ')'         { }
+                  | Func_Call_Head_NoPrm ')'       { }
                   ;
 
-Func_Call_Head_NoPrm : Func_Call_header T_Void     {}
-                     | Func_Call_header            {}
+Func_Call_Head_NoPrm : Func_Call_header T_Void     { }
+                     | Func_Call_header            { }
                      ;
 
 Func_Call_Head_Prm  : Func_Call_header Assign_Expr       {}
@@ -219,8 +263,8 @@ Func_Call_Head_Prm  : Func_Call_header Assign_Expr       {}
 Func_Call_header    : Func_Ident '('             {}
                     ;
 
-Func_Ident          : Type_Spec                  {$$=$1;}
-                    | Pst_Expr                   {}
+Func_Ident          : Type_Spec                  {}
+                    | Pst_Expr                   {  }
                     ;
 
 Unary_Expr          : Pst_Expr                   {}
