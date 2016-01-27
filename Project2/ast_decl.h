@@ -61,6 +61,8 @@ class FnDecl : public Decl
     void SetFunctionBody(Stmt *b);
     const char *GetPrintNameForNode() { return "FnDecl"; }
     void PrintChildren(int indentLevel);
+
+    void addFormal(VarDecl * formal) { formals->Append(formal); }
 };
 
 class FormalsError : public FnDecl
