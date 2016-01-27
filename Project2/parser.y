@@ -150,6 +150,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <op> Unary_Op
 %type <expr> Mult_Expr
 %type <expr> Add_Expr
+%type <expr> Shift_Expr
 %type <expr> Rel_Expr
 %type <expr> Eq_Expr
 %type <expr> Log_And_Expr
@@ -268,38 +269,38 @@ Func_Ident          : Type_Spec                  {}
                     ;
 
 Unary_Expr          : Pst_Expr                   { $$ = $1; }
-                    | T_Inc Unary_Expr           { $$ = new CompoundExpr(new Operator(@1, "++"), $2); }
-                    | T_Dec Unary_Expr           { $$ = new CompoundExpr(new Operator(@1, "--"), $2); }
-                    | Unary_Op Unary_Expr        { $$ = new CompoundExpr($1, $2); }
+                    | T_Inc Unary_Expr           { $$ = new ArithmeticExpr(new Operator(@1, "++"), $2); }
+                    | T_Dec Unary_Expr           { $$ = new ArithmeticExpr(new Operator(@1, "--"), $2); }
+                    | Unary_Op Unary_Expr        { $$ = new ArithmeticExpr($1, $2); }
                     ;
 
 Unary_Op            : '+'                        { $$ = new Operator(@1, yytext); }
                     | '-'                        { $$ = new Operator(@1, yytext); }
                     ;
 
-Mult_Expr           : Unary_Expr                 {}
-                    | Mult_Expr '*' Unary_Expr   {}
-                    | Mult_Expr '/' Unary_Expr   {}
+Mult_Expr           : Unary_Expr                 { $$ = $1; }
+                    | Mult_Expr '*' Unary_Expr   { $$ = new ArithmeticExpr($1, new Operator(@1, "*"), $3); }
+                    | Mult_Expr '/' Unary_Expr   { $$ = new ArithmeticExpr($1, new Operator(@1, "/"), $3);  }
                     ;
 
-Add_Expr            : Mult_Expr                  {}
-                    | Add_Expr '+' Mult_Expr     {}
-                    | Add_Expr '-' Mult_Expr     {}
+Add_Expr            : Mult_Expr                  { $$ = $1; }
+                    | Add_Expr '+' Mult_Expr     { $$ = new ArithmeticExpr($1, new Operator(@1, "+"), $3); }
+                    | Add_Expr '-' Mult_Expr     { $$ = new ArithmeticExpr($1, new Operator(@1, "-"), $3); }
                     ;
 
-Shift_Expr          : Add_Expr                    {}
+Shift_Expr          : Add_Expr                    { $$ = $1; }
                     ;
 
-Rel_Expr            : Shift_Expr                  {}
-                    | Rel_Expr '<' Shift_Expr     {}
-                    | Rel_Expr '>' Shift_Expr     {}
-                    | Rel_Expr T_LessEqual Shift_Expr     {}
-                    | Rel_Expr T_GreaterEqual Shift_Expr     {}
+Rel_Expr            : Shift_Expr                  { $$ = $1; }
+                    | Rel_Expr '<' Shift_Expr     { $$ = new RelationalExpr($1, new Operator(@1, "<"), $3); }
+                    | Rel_Expr '>' Shift_Expr     { $$ = new RelationalExpr($1, new Operator(@1, ">"), $3); }
+                    | Rel_Expr T_LessEqual Shift_Expr     { $$ = new RelationalExpr($1, new Operator(@1, "<="), $3); }
+                    | Rel_Expr T_GreaterEqual Shift_Expr     { $$ = new RelationalExpr($1, new Operator(@1, ">="), $3);}
                     ;
 
-Eq_Expr             : Rel_Expr                    {}
-                    | Eq_Expr T_Equal Rel_Expr    {}
-                    | Eq_Expr T_NotEqual Rel_Expr {}
+Eq_Expr             : Rel_Expr                    { $$ = $1; }
+                    | Eq_Expr T_Equal Rel_Expr    { $$ = new EqualityExpr($1, new Operator(@1, "=="), $3); }
+                    | Eq_Expr T_NotEqual Rel_Expr { $$ = new EqualityExpr($1, new Operator(@1, "!="), $3); }
                     ;
 
 And_Expr            : Eq_Expr                     {}
