@@ -399,11 +399,11 @@ Simple_Stmt : Decl_Stmt                           {$$=$1;}
             ;
 
 Compd_Stmt_With_Scope   : '{' '}'                 {$$ = new StmtBlock(new List<VarDecl*>(), new List<Stmt*>());}
-                        | '{' Stmt_List '}'       { }
+                        | '{' Stmt_List '}'       { $$ = new StmtBlock(new List<VarDecl*>(), $2); }
                         ;
 
 Compd_Stmt_No_New_Scope : '{' '}'                 { $$ = new StmtBlock(new List<VarDecl*>(), new List<Stmt*>()); }
-                        | '{' Stmt_List '}'       {}
+                        | '{' Stmt_List '}'       { $$ = new StmtBlock(new List<VarDecl*>(), $2); }
                         ;
 
 Stmt_List   : Stmt                                { ($$ = new List<Stmt*>)->Append($1); }
