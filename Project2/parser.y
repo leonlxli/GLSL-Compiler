@@ -153,8 +153,12 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <expr> Shift_Expr
 %type <expr> Rel_Expr
 %type <expr> Eq_Expr
+%type <expr> And_Expr
+%type <expr> Xor_Expr
+%type <expr> Inc_Or_Expr
 %type <expr> Log_And_Expr
 %type <expr> Log_Or_Expr
+%type <expr> Log_Xor_Expr
 %type <expr> Cond_Expr
 %type <assignExpr> Assign_Expr
 %type <op> Assign_Op
@@ -303,26 +307,26 @@ Eq_Expr             : Rel_Expr                    { $$ = $1; }
                     | Eq_Expr T_NotEqual Rel_Expr { $$ = new EqualityExpr($1, new Operator(@1, "!="), $3); }
                     ;
 
-And_Expr            : Eq_Expr                     {}
+And_Expr            : Eq_Expr                     { $$ = $1; }
                     ;
 
-Xor_Expr            : And_Expr                    {}
+Xor_Expr            : And_Expr                    { $$ = $1; }
                     ;
 
-Inc_Or_Expr         : Xor_Expr                    {}
+Inc_Or_Expr         : Xor_Expr                    { $$ = $1; }
                     ;
 
-Log_And_Expr        : Inc_Or_Expr                 {}
-                    | Log_And_Expr T_And Inc_Or_Expr  {}
+Log_And_Expr        : Inc_Or_Expr                 { $$ = $1; }
+                    | Log_And_Expr T_And Inc_Or_Expr  { $$ = new LogicalExpr($1, new Operator(@1, "&&"), $3); }
                     ;
 
-Log_Xor_Expr        : Log_And_Expr                {}
+Log_Xor_Expr        : Log_And_Expr                { $$ = $1; }
 
-Log_Or_Expr         : Log_Xor_Expr                {}
-                    | Log_Or_Expr T_Or Log_Xor_Expr {}
+Log_Or_Expr         : Log_Xor_Expr                { $$ = $1; }
+                    | Log_Or_Expr T_Or Log_Xor_Expr { $$ = new LogicalExpr($1, new Operator(@1, "||"), $3); }
                     ;
 
-Cond_Expr           : Log_Or_Expr                 {}
+Cond_Expr           : Log_Or_Expr                 { $$ = $1; }
                     ;
 
 Assign_Expr         : Cond_Expr                   {}
