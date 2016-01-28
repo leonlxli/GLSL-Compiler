@@ -111,3 +111,28 @@ void SwitchStmt::PrintChildren(int indentLevel) {
     if (def) def->Print(indentLevel+1);
 }
 
+SwitchStmtList::SwitchStmtList() {
+    cases = new List<Case*>();
+    def = NULL;
+}
+
+void SwitchStmtList::AddCase(Case * c) {
+    cases->Append(c);
+}
+
+void SwitchStmtList::SetDefault(Default * d) {
+    if (def == NULL) {
+        def = d;
+    } else {
+        SwitchStmtError("Multiple default cases");
+    }
+}
+
+List<Case*> * SwitchStmtList::GetCases() {
+    return cases;
+}
+
+Default * SwitchStmtList::GetDefault() {
+    return def;
+}
+

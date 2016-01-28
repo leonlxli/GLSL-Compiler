@@ -182,6 +182,19 @@ class SwitchStmt : public Stmt
     void PrintChildren(int indentLevel);
 };
 
+class SwitchStmtList {
+  protected:
+    List<Case*> * cases;
+    Default * def;
+
+  public: 
+    SwitchStmtList();
+    void AddCase(Case * c);
+    void SetDefault(Default * d);
+    List<Case*> * GetCases();
+    Default * GetDefault();
+};
+
 class SwitchStmtError : public SwitchStmt
 {
   public:

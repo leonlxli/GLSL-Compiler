@@ -94,6 +94,7 @@ void yyerror(const char *msg); // standard error-handling routine
   Case *_case;
   Default *_default;
   SwitchStmt *switchStmt;
+  SwitchStmtList * switchStmtList;
   SwitchStmtError *switchStmtError;
   Type *type;
   ArrayType *arrayType;
@@ -186,8 +187,9 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <ifStmtTemp> Select_Rest_Stmt
 %type <expr> Cond
 %type <stmt> Switch_Stmt
-%type <stmts> Switch_Stmt_List
-%type <stmt> Case_Label
+%type <switchStmtList> Switch_Stmt_List
+%type <_case> Case_Label
+%type <_default> Default_Label
 %type <stmt> Iter_Stmt
 %type <declList> Trans_Unit
 %type <decl> Ext_Decl
@@ -419,16 +421,21 @@ Cond              : Expr                                    { $$=$1; }
                                                     $$ = new AssignExpr(rhs, op, $4); }
                   ;
 
-Switch_Stmt :                        {}
-            | T_Switch '(' Expr ')' '{' Switch_Stmt_List '}' {}
-            ;
+Switch_Stmt       : T_Switch '(' Expr ')' '{' Switch_Stmt_List '}' { $$ = new SwitchStmt($3, ($6)->GetCases(), ($6)->GetDefault()); }
+                  ;
 
-Switch_Stmt_List : Stmt_List                      {$$=$1;}
+Switch_Stmt_List : Case_Label                      { ($$ = new SwitchStmtList())->AddCase($1);  }
+                 | Default_Label                   { ($$ = new SwitchStmtList())->SetDefault($1); }
+                 | Switch_Stmt_List Case_Label     { ($$ = $1)->AddCase($2); }
+                 | Switch_Stmt_List Default_Label  { ($$ = $1)->SetDefault($2); }               
                  ;
 
-Case_Label  : T_Case Expr ':'                     {}
-            | T_Default ':'                       {}
+Case_Label  : T_Case Expr ':' Stmt_List                    {}
+            | T_Case T_IntConstant ':' Stmt_List             { $$ = new Case(new IntConstant(@2, $2), $4); }
             ;
+
+Default_Label : T_Default ':' Stmt_List                      { $$ = new Default($3); }
+              ;
 
 Iter_Stmt   : T_While '(' Cond ')' Stmt_No_New_Scope { $$ = new WhileStmt($3, $5); }
             | T_For '(' Expr_Stmt Cond ';'  ')' Stmt_No_New_Scope {
