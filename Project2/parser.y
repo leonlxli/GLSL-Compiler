@@ -163,9 +163,9 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <funcDecl> Func_Declr
 %type <funcDecl> Func_Hdr
 %type <funcDecl> Func_Hdr_With_Param
-%type <node> Param_Declr
-%type <node> Param_Decl
-%type <node> Param_Type_Spec
+%type <varDecl> Param_Declr
+%type <varDecl> Param_Decl
+%type <type> Param_Type_Spec
 %type <varDecl> Init_Decl_List
 %type <varDecl> Single_Decl
 %type <type> Fully_Spec_Type
@@ -313,18 +313,20 @@ Expr                : Assign_Expr                 { $$=$1;  }
 
 
 Decl                : Func_Proto ';'              { $$=$1; }
+
                     | Init_Decl_List ';'          {$$=$1;}
                     ;
 
-Func_Proto          : Func_Declr ')'              {}
+Func_Proto          : Func_Declr ')'              { $$ = $1; }
                     ;
 
 Func_Declr          : Func_Hdr                    {$$=$1;}
-                    | Func_Hdr_With_Param         {  }
+
+                    | Func_Hdr_With_Param         { $$ = $1; }
                     ;
 
-Func_Hdr_With_Param : Func_Hdr Param_Decl         {}
-                    | Func_Hdr_With_Param ',' Param_Decl {}
+Func_Hdr_With_Param : Func_Hdr Param_Decl         { ($$ = $1)->addFormal($2); }
+                    | Func_Hdr_With_Param ',' Param_Decl { ($$ = $1)->addFormal($3); }
                     ;
 
 Func_Hdr            : Fully_Spec_Type Identifier '(' { $$ = new FnDecl($2, $1, new List<VarDecl*>()); }
@@ -333,15 +335,15 @@ Identifier          : T_Identifier                {$$ = new Identifier(@1, $1);}
                     ;
 
 
-Param_Declr         : Type_Spec T_Identifier      {}
+Param_Declr         : Type_Spec T_Identifier      { $$ = new VarDecl(new Identifier(@2, $2), $1); }
                     ;
 
-Param_Decl          : Param_Declr                 {}
-                    | Param_Type_Spec             {}
+Param_Decl          : Param_Declr                 { $$ = $1; }
+                    | Param_Type_Spec             { $$ = new VarDecl(NULL, $1); }
                     ;
 
 
-Param_Type_Spec     : Type_Spec                   {}
+Param_Type_Spec     : Type_Spec                   { $$ = $1; }
                     ;
 
 Init_Decl_List      : Single_Decl                 {$$=$1;}
@@ -394,11 +396,11 @@ Simple_Stmt : Decl_Stmt                           {$$=$1;}
             ;
 
 Compd_Stmt_With_Scope   : '{' '}'                 {$$ = new StmtBlock(new List<VarDecl*>(), new List<Stmt*>());}
-                        | '{' Stmt_List '}'       { }
+                        | '{' Stmt_List '}'       { $$ = new StmtBlock(new List<VarDecl*>(), $2); }
                         ;
 
 Compd_Stmt_No_New_Scope : '{' '}'                 { $$ = new StmtBlock(new List<VarDecl*>(), new List<Stmt*>()); }
-                        | '{' Stmt_List '}'       {}
+                        | '{' Stmt_List '}'       { $$ = new StmtBlock(new List<VarDecl*>(), $2); }
                         ;
 
 Stmt_List   : Stmt                                { ($$ = new List<Stmt*>)->Append($1); }
@@ -416,11 +418,12 @@ Select_Rest_Stmt : Stmt_With_Scope T_Else Stmt_With_Scope {}
                  | Stmt_With_Scope                { $$=$1; }
                  ;
 
-Cond    : Expr                                    { $$=$1; }
-        | Fully_Spec_Type Identifier T_Equal Init {    Expr* exp = new FieldAccess(NULL, $2);
-                                                       $$ = new AssignExpr( exp , new Operator(@3, "=="), $4 ); 
-                                                    }
-        ;
+Cond              : Expr                                    { $$=$1; }
+                  | Type_Spec T_Identifier T_Equal Assign_Expr { 
+                                                    VarExpr *rhs = new VarExpr(@2, new Identifier(@2, $2));
+                                                    Operator *op = new Operator(@3, "==");
+                                                    $$ = new AssignExpr(rhs, op, $4); }
+                  ;
 
 Switch_Stmt :                        {}
             | T_Switch '(' Expr ')' '{' Switch_Stmt_List '}' {}
@@ -484,5 +487,5 @@ Func_Def : Func_Proto Compd_Stmt_No_New_Scope     { ($$ = $1)->SetFunctionBody($
 void InitParser()
 {
    PrintDebug("parser", "Initializing parser");
-   yydebug = false;
+   yydebug = true;
 }

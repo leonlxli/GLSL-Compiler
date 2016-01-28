@@ -75,6 +75,17 @@ class BoolConstant : public Expr
     void PrintChildren(int indentLevel);
 };
 
+class VarExpr : public Expr 
+{ 
+  protected: 
+     Identifier *id; 
+
+  public: 
+     VarExpr(yyltype loc, Identifier *ident); 
+     const char *GetPrintNameForNode() { return "VarExpr"; } 
+     void PrintChildren(int identLevel); 
+}; 
+
 class Operator : public Node 
 {
   protected:
@@ -168,7 +179,7 @@ class ArrayAccess : public LValue
 class FieldAccess : public LValue 
 {
   protected:
-    Expr *base;	// will be NULL if no explicit base
+    Expr *base; // will be NULL if no explicit base
     Identifier *field;
     
   public:
@@ -184,7 +195,7 @@ class FieldAccess : public LValue
 class Call : public Expr 
 {
   protected:
-    Expr *base;	// will be NULL if no explicit base
+    Expr *base; // will be NULL if no explicit base
     Identifier *field;
     List<Expr*> *actuals;
     
@@ -201,6 +212,5 @@ class ActualsError : public Call
     ActualsError() : Call() { yyerror(this->GetPrintNameForNode()); }
     const char *GetPrintNameForNode() { return "ActualsError"; }
 };
-
 
 #endif

@@ -30,6 +30,14 @@ void BoolConstant::PrintChildren(int indentLevel) {
     printf("%s", value ? "true" : "false");
 }
 
+VarExpr::VarExpr(yyltype loc, Identifier *ident) : Expr(loc) { 
+  id = ident; 
+} 
+
+void VarExpr::PrintChildren(int identLevel) { 
+  id->Print(identLevel + 1); 
+} 
+
 Operator::Operator(yyltype loc, const char *tok) : Node(loc) {
     Assert(tok != NULL);
     strncpy(tokenString, tok, sizeof(tokenString));
@@ -77,7 +85,7 @@ ArrayAccess::ArrayAccess(yyltype loc, Expr *b, Expr *s) : LValue(loc) {
 void ArrayAccess::PrintChildren(int indentLevel) {
     base->Print(indentLevel+1);
     subscript->Print(indentLevel+1, "(subscript) ");
-  }
+}
      
 FieldAccess::FieldAccess(Expr *b, Identifier *f) 
   : LValue(b? Join(b->GetLocation(), f->GetLocation()) : *f->GetLocation()) {
@@ -87,11 +95,10 @@ FieldAccess::FieldAccess(Expr *b, Identifier *f)
     (field=f)->SetParent(this);
 }
 
-
-  void FieldAccess::PrintChildren(int indentLevel) {
-    if (base) base->Print(indentLevel+1);
-    field->Print(indentLevel+1);
-  }
+void FieldAccess::PrintChildren(int indentLevel) {
+  if (base) base->Print(indentLevel+1);
+  field->Print(indentLevel+1);
+}
 
 Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     Assert(f != NULL && a != NULL); // b can be be NULL (just means no explicit base)
@@ -101,9 +108,8 @@ Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     (actuals=a)->SetParentAll(this);
 }
 
- void Call::PrintChildren(int indentLevel) {
-    if (base) base->Print(indentLevel+1);
-    if (field) field->Print(indentLevel+1);
-    if (actuals) actuals->PrintAll(indentLevel+1, "(actuals) ");
-  }
- 
+void Call::PrintChildren(int indentLevel) {
+  if (base) base->Print(indentLevel+1);
+  if (field) field->Print(indentLevel+1);
+  if (actuals) actuals->PrintAll(indentLevel+1, "(actuals) ");
+}
