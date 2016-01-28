@@ -39,6 +39,8 @@ void yyerror(const char *msg); // standard error-handling routine
  *      attributes to your non-terminal symbols.
  */
 
+
+
 %union {
   int integerConstant;
   bool boolConstant;
@@ -140,7 +142,6 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <id> Identifier
 %type <expr> Pri_Expr
 %type <expr> Pst_Expr
-%type <id> Func_Ident
 %type <expr> Unary_Expr
 %type <op> Unary_Op
 %type <expr> Mult_Expr
@@ -171,7 +172,6 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <type> Fully_Spec_Type
 %type <type> Type_Spec
 %type <type> Type_Spec_Nonarr
-%type <expr> Init
 %type <stmt> Decl_Stmt
 %type <stmt> Stmt
 %type <stmt> Simple_Stmt
@@ -180,17 +180,14 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <stmt> Stmt_No_New_Scope
 %type <stmt> Compd_Stmt_No_New_Scope
 %type <stmts> Stmt_List
-%type <stmt> Expr_Stmt
+%type <expr> Expr_Stmt
 %type <stmt> Select_Stmt
 %type <stmt> Select_Rest_Stmt
-%type <node> Cond
-%type <op> Cond_Opt
+%type <expr> Cond
 %type <stmt> Switch_Stmt
 %type <stmts> Switch_Stmt_List
-%type <caseStmts> Case_Label
+%type <stmt> Case_Label
 %type <stmt> Iter_Stmt
-%type <stmt> For_Init_Stmt
-%type <stmt> For_Rest_Stmt
 %type <declList> Trans_Unit
 %type <decl> Ext_Decl
 %type <funcDecl> Func_Def
@@ -232,9 +229,6 @@ Pst_Expr          : Pri_Expr                       { $$ = $1; }
                   ;
 
 
-Func_Ident          : Type_Spec_Nonarr           { $$ = $1; }
-                    | Pst_Expr                   { $$ = $1; }
-                    ;
 
 Unary_Expr          : Pst_Expr                   { $$ = $1; }
                     | T_Inc Unary_Expr           { $$ = new ArithmeticExpr(new Operator(@1, "++"), $2); }
@@ -297,7 +291,6 @@ Assign_Expr         : Cond_Expr                   { $$ = $1; }
                     | Unary_Expr Assign_Op Assign_Expr { $$ = new AssignExpr($1, $2, $3); }
                     ;
 
-Init                : Assign_Expr                     { $$=$1;}
                     ;
 
 Assign_Op           : '='                         { $$ = new Operator(@1, yytext); }
@@ -391,7 +384,7 @@ Simple_Stmt : Decl_Stmt                           {$$=$1;}
             | Expr_Stmt                           {$$=$1;}
             | Select_Stmt                         {$$=$1;}
             | Switch_Stmt                         {$$=$1;}
-            | Case_Label                          {}
+            | Case_Label                          {$$=$1;}
             | Iter_Stmt                           {$$=$1;}
             ;
 
@@ -436,21 +429,15 @@ Case_Label  : T_Case Expr ':'                     {}
             | T_Default ':'                       {}
             ;
 
-Iter_Stmt   : T_While '(' Cond ')' Stmt_No_New_Scope {}
-            | T_For '(' For_Init_Stmt For_Rest_Stmt ')' Stmt_No_New_Scope {}
+Iter_Stmt   : T_While '(' Cond ')' Stmt_No_New_Scope { $$ = new WhileStmt($3, $5); }
+            | T_For '(' Expr_Stmt Cond ';'  ')' Stmt_No_New_Scope {
+                                                      $$ = new ForStmt($3, $4, new EmptyExpr(), $7);
+                                                      }
+            | T_For '(' Expr_Stmt Cond ';' Expr ')' Stmt_No_New_Scope {
+                                                      $$ = new ForStmt($3, $4, $6, $8);
+                                                      }
             ;
 
-For_Init_Stmt   : Expr_Stmt                       {$$=$1;}
-                | Decl_Stmt                       {$$=$1;}
-                ;
-
-Cond_Opt : Cond                                   {  }
-         |                                        {}
-         ;
-
-For_Rest_Stmt   : Cond_Opt ';'                    {}
-                | Cond_Opt ';' Expr               {}
-                ;
 
 Trans_Unit : Trans_Unit Ext_Decl                  { ($$=$1)->Append($2); }
            | Ext_Decl                             { ($$ = new List<Decl*>)->Append($1); }

@@ -40,6 +40,8 @@ LEXFLAGS = -d
 # The -t flag turns on debugging capability
 # The -y flag means imitate yacc's output file naming conventions
 YACCFLAGS = -dvty
+YACCFLAGS = -dvty --report=all --report-file=debug
+
 
 # Link with standard C library, math library, and lex library
 LIBS = -lc -lm -ll

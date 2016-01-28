@@ -25,7 +25,6 @@ Type *Type::mat3Type  = new Type("mat3");
 Type *Type::mat4Type  = new Type("mat4");
 Type *Type::voidType   = new Type("void");
 Type *Type::boolType   = new Type("bool");
-Type *Type::nullType   = new Type("null");
 Type *Type::stringType = new Type("string");
 Type *Type::errorType  = new Type("error"); 
 
