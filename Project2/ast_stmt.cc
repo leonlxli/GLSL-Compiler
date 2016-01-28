@@ -59,6 +59,11 @@ IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) {
     if (elseBody) elseBody->SetParent(this);
 }
 
+IfStmtTemp::IfStmtTemp(Stmt * i, Stmt * e) {
+    ifBody = i;
+    elseBody = e;
+}
+
 void IfStmt::PrintChildren(int indentLevel) {
     if (test) test->Print(indentLevel+1, "(test) ");
     if (body) body->Print(indentLevel+1, "(then) ");

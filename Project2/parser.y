@@ -86,6 +86,7 @@ void yyerror(const char *msg); // standard error-handling routine
   ForStmt *forStmt;
   WhileStmt *whileStmt;
   IfStmt *ifStmt;
+  IfStmtTemp *ifStmtTemp;
   IfStmtExprError *ifStmtExprError;
   BreakStmt *breakStmt;
   ReturnStmt *returnStmt;
@@ -182,7 +183,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <stmts> Stmt_List
 %type <expr> Expr_Stmt
 %type <stmt> Select_Stmt
-%type <stmt> Select_Rest_Stmt
+%type <ifStmtTemp> Select_Rest_Stmt
 %type <expr> Cond
 %type <stmt> Switch_Stmt
 %type <stmts> Switch_Stmt_List
@@ -404,11 +405,11 @@ Expr_Stmt   : ';'                                 {$$ = new EmptyExpr();}
             | Expr ';'                            {$$=$1;}
             ;
 
-Select_Stmt : T_If '(' Expr ')' Select_Rest_Stmt  {}
+Select_Stmt : T_If '(' Expr ')' Select_Rest_Stmt  { $$ = new IfStmt($3, $5->GetIf(), $5->GetElse()); }
             ;
 
-Select_Rest_Stmt : Stmt_With_Scope T_Else Stmt_With_Scope {}
-                 | Stmt_With_Scope                { $$=$1; }
+Select_Rest_Stmt : Stmt_With_Scope T_Else Stmt_With_Scope { $$ = new IfStmtTemp($1, $3); }
+                 | Stmt_With_Scope                { $$ = $$ = new IfStmtTemp($1, NULL); }
                  ;
 
 Cond              : Expr                                    { $$=$1; }

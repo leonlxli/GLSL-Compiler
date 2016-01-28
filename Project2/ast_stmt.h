@@ -104,6 +104,17 @@ class IfStmt : public ConditionalStmt
     void PrintChildren(int indentLevel);
 };
 
+class IfStmtTemp {
+  protected:
+    Stmt *ifBody;
+    Stmt *elseBody;
+
+  public:
+    IfStmtTemp(Stmt * i, Stmt * e);
+    Stmt * GetIf() {return ifBody;}
+    Stmt * GetElse() {return elseBody;}
+};
+
 class IfStmtExprError : public IfStmt
 {
   public:
