@@ -12,4 +12,12 @@ void foo() {
 		default: x = 5;
 				x++;
 	}
+
+	vec2 v; 
+	v = vec2(1,1);
+}
+
+void main () {
+ a * x + b;
+ a + x * b;
 }

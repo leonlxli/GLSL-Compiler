@@ -174,6 +174,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <type> Fully_Spec_Type
 %type <type> Type_Spec
 %type <type> Type_Spec_Nonarr
+%type <type> Non_Prim_Type
 %type <stmt> Decl_Stmt
 %type <stmt> Stmt
 %type <stmt> Jump_Stmt
@@ -197,6 +198,13 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <funcDecl> Func_Def
 %type <program> Program
 
+%type <expr> Func_Call                     
+%type <expr> Func_Call_Or_Method           
+%type <expr> Func_Call_Generic            
+%type <expr> Func_Call_Header_No_Params    
+%type <call> Func_Call_Header_With_Params  
+%type <call> Func_Call_Header             
+%type <id> Func_Id   
 
 
 
@@ -227,10 +235,36 @@ Pri_Expr          : Var_Ident                      { $$ = new FieldAccess(NULL, 
                   ;
 
 Pst_Expr          : Pri_Expr                       { $$ = $1; }
+                  | Func_Call                      { $$ = $1; }
                   | Pst_Expr '.' T_FieldSelection  { $$ = new FieldAccess($1, new Identifier(@3, $3)); }
                   | Pst_Expr T_Inc                 { $$ = new PostfixExpr($1, new Operator(@2, "++")); }
                   | Pst_Expr T_Dec                 { $$ = new PostfixExpr($1, new Operator(@2, "--")); }
                   ;
+
+
+Func_Call                     : Func_Call_Or_Method                           { $$ = $1; }
+                              ;
+
+Func_Call_Or_Method           : Func_Call_Generic                             { $$ = $1; }
+                              ;
+
+Func_Call_Generic             : Func_Call_Header_With_Params ')'              { $$ = $1; }
+                              | Func_Call_Header_No_Params ')'                { $$ = $1; }
+                              ;
+
+Func_Call_Header_No_Params    : Func_Call_Header T_Void                       { $$ = $1; }
+                              | Func_Call_Header                              { $$ = $1; }
+                              ;
+
+Func_Call_Header_With_Params  : Func_Call_Header Assign_Expr                  { ($$ = $1)->AddArg($2); }
+                              | Func_Call_Header_With_Params ',' Assign_Expr  { ($$ = $1)->AddArg($3); }
+                              ;
+
+Func_Call_Header              : Func_Id '('                                   { $$ = new Call(@1, NULL, $1, new List<Expr*>()); }
+                              ;
+
+Func_Id                       : Non_Prim_Type                                 { $$ = new Identifier(@1, ($1)->GetTypeName()); }
+                              ;
 
 
 
@@ -361,13 +395,16 @@ Type_Spec_Nonarr : T_Void                         { $$ = Type::voidType; }
                  | T_Float                        { $$ = Type::floatType;}
                  | T_Int                          { $$ = Type::intType;}
                  | T_Bool                         { $$ = Type::boolType;}
-                 | T_Vec2                         { $$ = Type::vec2Type;}
-                 | T_Vec3                         { $$ = Type::vec3Type;}
-                 | T_Vec4                         { $$ = Type::vec4Type;}
-                 | T_Mat2                         { $$ = Type::mat2Type;}
-                 | T_Mat3                         { $$ = Type::mat3Type;}
-                 | T_Mat4                         { $$ = Type::mat4Type;}
+                 | Non_Prim_Type                  { $$ = $1; }
                  ;
+
+Non_Prim_Type   : T_Vec2                         { $$ = Type::vec2Type;}
+                | T_Vec3                         { $$ = Type::vec3Type;}
+                | T_Vec4                         { $$ = Type::vec4Type;}
+                | T_Mat2                         { $$ = Type::mat2Type;}
+                | T_Mat3                         { $$ = Type::mat3Type;}
+                | T_Mat4                         { $$ = Type::mat4Type;}
+                ;
 
 Decl_Stmt       : Decl                            {}
                 ;
