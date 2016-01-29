@@ -176,6 +176,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <type> Type_Spec_Nonarr
 %type <stmt> Decl_Stmt
 %type <stmt> Stmt
+%type <stmt> Jump_Stmt
 %type <stmt> Simple_Stmt
 %type <stmt> Compd_Stmt_With_Scope
 %type <stmt> Stmt_With_Scope
@@ -389,7 +390,14 @@ Simple_Stmt : Decl_Stmt                           {$$=$1;}
             | Switch_Stmt                         {$$=$1;}
             | Case_Label                          {$$=$1;}
             | Iter_Stmt                           {$$=$1;}
+            | Jump_Stmt                           {$$=$1;}
             ;
+
+Jump_Stmt : T_Continue ';' { $$ = new ContinueStmt(@1); }
+          | T_Break ';'    { $$ = new BreakStmt(@1); }
+          | T_Return ';'   { $$ = new ReturnStmt(@$, new EmptyExpr()); }
+          | T_Return Expr ';' { $$ = new ReturnStmt(@2, $2); }
+          ;
 
 Compd_Stmt_With_Scope   : '{' '}'                 {$$ = new StmtBlock(new List<VarDecl*>(), new List<Stmt*>());}
                         | '{' Stmt_List '}'       { $$ = new StmtBlock(new List<VarDecl*>(), $2); }
