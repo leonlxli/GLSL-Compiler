@@ -50,6 +50,7 @@ INTEGER           ({DIGIT}+)
 EXPONENT          ([Ee][-+]?{INTEGER})
 FLOAT             ({INTEGER}"."{DIGIT}*[fF]?)
 IDENTIFIER        ([a-zA-Z][a-zA-Z_0-9]*)
+SWIZZLE           ([xyzw]+)
 OPERATOR          ([-+/*%=.,;!<>()[\]{}:])
 BEG_COMMENT       ("/*")
 END_COMMENT       ("*/")
@@ -133,7 +134,7 @@ SINGLE_COMMENT    ("//"[^\n]*)
 
 
  /* -------------------- Identifiers --------------------------- */
-("."{IDENTIFIER})   { if (strlen(yytext) > MaxIdentLen)
+("."{SWIZZLE})   { if (strlen(yytext) > MaxIdentLen)
                          ReportError::LongIdentifier(&yylloc, yytext);
                        strncpy(yylval.field, yytext, MaxIdentLen);
                        yylval.field[MaxIdentLen] = '\0';
