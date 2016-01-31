@@ -8,7 +8,7 @@ void foo() {
   switch (i) {
     case 1:
       i = 2;
-    case 2:
+    case 1=1:
       i = 1;
     default:
       i = 1;

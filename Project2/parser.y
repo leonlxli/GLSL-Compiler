@@ -474,8 +474,7 @@ Switch_Stmt_List : Case_Label                      { ($$ = new SwitchStmtList())
                  | Switch_Stmt_List Default_Label  { ($$ = $1)->SetDefault($2); }               
                  ;
 
-Case_Label  : T_Case Expr ':' Stmt_List                      {}
-            | T_Case T_IntConstant ':' Stmt_List             { $$ = new Case(new IntConstant(@2, $2), $4); }
+Case_Label  : T_Case Expr ':' Stmt_List    { $$ = new Case ($2,$4);}
             ;
 
 Default_Label : T_Default ':' Stmt_List                      { $$ = new Default($3); }
@@ -526,5 +525,5 @@ Func_Def : Func_Proto Compd_Stmt_No_New_Scope     { ($$ = $1)->SetFunctionBody($
 void InitParser()
 {
    PrintDebug("parser", "Initializing parser");
-   yydebug = true;
+   yydebug = false;
 }
