@@ -236,7 +236,7 @@ Pri_Expr          : Var_Ident                      { $$ = new FieldAccess(NULL, 
 
 Pst_Expr          : Pri_Expr                       { $$ = $1; }
                   | Func_Call                      { $$ = $1; }
-                  | Pst_Expr '.' T_FieldSelection  { $$ = new FieldAccess($1, new Identifier(@3, $3)); }
+                  | Pst_Expr T_FieldSelection  { $$ = new FieldAccess($1, new Identifier(@2, ($2)+1)); }
                   | Pst_Expr T_Inc                 { $$ = new PostfixExpr($1, new Operator(@2, "++")); }
                   | Pst_Expr T_Dec                 { $$ = new PostfixExpr($1, new Operator(@2, "--")); }
                   ;
