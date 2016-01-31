@@ -1,4 +1,6 @@
 /* test 0 : global declarations */
-bool x;
+
+int x;
+
 float y;
 

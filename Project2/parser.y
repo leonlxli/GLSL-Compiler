@@ -208,6 +208,9 @@ void yyerror(const char *msg); // standard error-handling routine
 
 
 
+%nonassoc "then"
+%nonassoc T_Else
+
 %%
 /* Rules
  * -----
@@ -221,6 +224,7 @@ Program           : Trans_Unit                  {
                                                   // if no errors, advance to next phase
                                                   if (ReportError::NumErrors() == 0) 
                                                       program->Print(0);
+                                                  
                                                 }
                   ;
 
@@ -474,8 +478,7 @@ Switch_Stmt_List : Case_Label                      { ($$ = new SwitchStmtList())
                  | Switch_Stmt_List Default_Label  { ($$ = $1)->SetDefault($2); }               
                  ;
 
-Case_Label  : T_Case Expr ':' Stmt_List                    {}
-            | T_Case T_IntConstant ':' Stmt_List             { $$ = new Case(new IntConstant(@2, $2), $4); }
+Case_Label  : T_Case T_IntConstant ':' Stmt_List             { $$ = new Case(new IntConstant(@2, $2), $4); }
             ;
 
 Default_Label : T_Default ':' Stmt_List                      { $$ = new Default($3); }

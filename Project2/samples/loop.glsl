@@ -1,8 +1,7 @@
 int main() {
-int i;
+	int i;
 	for (i=1; i<10; i++) {
 		int j;
-		break;
 	}
 
 	while (i< 20) {
