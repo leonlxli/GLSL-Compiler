@@ -206,8 +206,6 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <call> Func_Call_Header             
 %type <id> Func_Id   
 
-
-
 %nonassoc "then"
 %nonassoc T_Else
 
@@ -216,7 +214,7 @@ void yyerror(const char *msg); // standard error-handling routine
  * -----
  * All productions and actions should be placed between the start and stop
  * %% markers which delimit the Rules section.
-	 
+   
  */
 Program           : Trans_Unit                  { 
                                                   Program *program = new Program($1);
@@ -224,7 +222,6 @@ Program           : Trans_Unit                  {
                                                   // if no errors, advance to next phase
                                                   if (ReportError::NumErrors() == 0) 
                                                       program->Print(0);
-                                                  
                                                 }
                   ;
 
@@ -428,7 +425,6 @@ Simple_Stmt : Decl_Stmt                           {$$=$1;}
             | Expr_Stmt                           {$$=$1;}
             | Select_Stmt                         {$$=$1;}
             | Switch_Stmt                         {$$=$1;}
-            | Case_Label                          {$$=$1;}
             | Iter_Stmt                           {$$=$1;}
             | Jump_Stmt                           {$$=$1;}
             ;
@@ -459,7 +455,7 @@ Select_Stmt : T_If '(' Expr ')' Select_Rest_Stmt  { $$ = new IfStmt($3, $5->GetI
             ;
 
 Select_Rest_Stmt : Stmt_With_Scope T_Else Stmt_With_Scope { $$ = new IfStmtTemp($1, $3); }
-                 | Stmt_With_Scope                { $$ = $$ = new IfStmtTemp($1, NULL); }
+                 | Stmt_With_Scope                { $$ = $$ = new IfStmtTemp($1, NULL); }%prec "then"
                  ;
 
 Cond              : Expr                                    { $$=$1; }
@@ -478,7 +474,8 @@ Switch_Stmt_List : Case_Label                      { ($$ = new SwitchStmtList())
                  | Switch_Stmt_List Default_Label  { ($$ = $1)->SetDefault($2); }               
                  ;
 
-Case_Label  : T_Case T_IntConstant ':' Stmt_List             { $$ = new Case(new IntConstant(@2, $2), $4); }
+Case_Label  : T_Case Expr ':' Stmt_List                      {}
+            | T_Case T_IntConstant ':' Stmt_List             { $$ = new Case(new IntConstant(@2, $2), $4); }
             ;
 
 Default_Label : T_Default ':' Stmt_List                      { $$ = new Default($3); }
