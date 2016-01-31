@@ -344,7 +344,6 @@ Expr                : Assign_Expr                 { $$=$1;  }
 
 
 Decl                : Func_Proto ';'              { $$=$1; }
-
                     | Init_Decl_List ';'          {$$=$1;}
                     ;
 
