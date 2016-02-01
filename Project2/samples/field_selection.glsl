@@ -3,6 +3,8 @@
 */
 
 void main() {
+	int i = 0;
+	int j = 1;
  	vec4 myVar;
 	vec2 a;
 	vec2 b;

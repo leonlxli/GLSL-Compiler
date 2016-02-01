@@ -437,10 +437,13 @@ Jump_Stmt : T_Continue ';' { $$ = new ContinueStmt(@1); }
 
 Compd_Stmt_With_Scope   : '{' '}'                 {$$ = new StmtBlock(new List<VarDecl*>(), new List<Stmt*>());}
                         | '{' Stmt_List '}'       { $$ = new StmtBlock(new List<VarDecl*>(), $2); }
+                        | '{' error '}'  { ReportError::Formatted(&@$, "Can't parse statement block correctly. Attempting to skip."); $$ = new StmtBlock(new List<VarDecl*>, new List<Stmt*>); }
+
                         ;
 
 Compd_Stmt_No_New_Scope : '{' '}'                 { $$ = new StmtBlock(new List<VarDecl*>(), new List<Stmt*>()); }
                         | '{' Stmt_List '}'       { $$ = new StmtBlock(new List<VarDecl*>(), $2); }
+                        | '{' error '}'  { ReportError::Formatted(&@$, "Can't parse statement block correctly. Attempting to skip."); $$ = new StmtBlock(new List<VarDecl*>, new List<Stmt*>); }
                         ;
 
 Stmt_List   : Stmt                                { ($$ = new List<Stmt*>)->Append($1); }
@@ -449,6 +452,7 @@ Stmt_List   : Stmt                                { ($$ = new List<Stmt*>)->Appe
 
 Expr_Stmt   : ';'                                 {$$ = new EmptyExpr();}
             | Expr ';'                            {$$=$1;}
+            | error ';'                     { ReportError::Formatted(&@$, "Cannot parse statement. Skipping statement."); $$ = new EmptyExpr(); }
             ;
 
 Select_Stmt : T_If '(' Expr ')' Select_Rest_Stmt  { $$ = new IfStmt($3, $5->GetIf(), $5->GetElse()); }
@@ -466,6 +470,7 @@ Cond              : Expr                                    { $$=$1; }
                   ;
 
 Switch_Stmt       : T_Switch '(' Expr ')' '{' Switch_Stmt_List '}' { $$ = new SwitchStmt($3, ($6)->GetCases(), ($6)->GetDefault()); }
+                  | T_Switch '(' Expr ')' '{' error '}' { ReportError::Formatted(&@$, "Cannot parse switch statement block. Skipping entire switch statement block."); $$ = new SwitchStmt($3, new List<Case *>, NULL); }
                   ;
 
 Switch_Stmt_List : Case_Label                      { ($$ = new SwitchStmtList())->AddCase($1);  }
