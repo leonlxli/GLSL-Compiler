@@ -484,6 +484,7 @@ Case_Label  : T_Case Expr ':' Stmt_List    { $$ = new Case ($2,$4);}
             ;
 
 Default_Label : T_Default ':' Stmt_List                      { $$ = new Default($3); }
+              | T_Default ':'                                { $$ = new Default(new List<Stmt*>);}
               ;
 
 Iter_Stmt   : T_While '(' Cond ')' Stmt_No_New_Scope { $$ = new WhileStmt($3, $5); }
