@@ -1,1 +1,7 @@
-bool done;
+int main(){
+switch(x) {
+		case 1:
+		case 2: 
+		case 4: 1+1;
+	}
+}

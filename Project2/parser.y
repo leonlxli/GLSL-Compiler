@@ -480,6 +480,7 @@ Switch_Stmt_List : Case_Label                      { ($$ = new SwitchStmtList())
                  ;
 
 Case_Label  : T_Case Expr ':' Stmt_List    { $$ = new Case ($2,$4);}
+            | T_Case Expr ':'              { $$ = new Case($2, new List<Stmt*>);}
             ;
 
 Default_Label : T_Default ':' Stmt_List                      { $$ = new Default($3); }
