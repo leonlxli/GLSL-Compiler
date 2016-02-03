@@ -3,6 +3,8 @@ Readme:
 Extra Credit:
 	We have some error reporting. It will display all the top level errors, and shows where the error is, instead of just the first syntax error.
 
+	We also implemented jump statements.
+
 How we Structured out code:
 	We followed the manual, but it gave us a lot of shift/reduce conflicts, so we modified the grammar so that it would be unambiguous. We also made some intermediate classes for storing data and switching between different types.
 
