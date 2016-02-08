@@ -31,6 +31,10 @@ class Scope {
 
   public:
      Scope(){};
+     static void MergeScopes(Scope s1, Scope s2);
+     std::map<std::string, Variable> * getMap() {
+     	return &scopeMap;
+     };
 };
 
 class SymbolTable {
@@ -39,6 +43,11 @@ class SymbolTable {
      
   public:
      SymbolTable(){};
+     void PushScope(Scope s);
+     void PopScope();
+     std::stack<Scope> * getStack() {
+     	return &symTable;
+     }
 };
  
 #endif
