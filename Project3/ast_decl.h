@@ -16,6 +16,8 @@
 #include "ast.h"
 #include "list.h"
 
+ #include <string>
+
 class Type;
 class NamedType;
 class Identifier;
@@ -32,6 +34,7 @@ class Decl : public Node
     Decl() : id(NULL) {}
     Decl(Identifier *name);
     friend ostream& operator<<(ostream& out, Decl *d) { return out << d->id; }
+    string GetId();
 };
 
 class VarDecl : public Decl 

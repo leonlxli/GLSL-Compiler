@@ -8,6 +8,9 @@
 #include "list.h"
 #include "errors.h"
 
+#include "ast_decl.h"
+#include "ast_expr.h"
+
 #include <map>
 #include <stack>
 #include <string> 
@@ -16,29 +19,26 @@ using namespace std;
 
 static stack<int> sym_table; // TODO - change int to scope maps
 
-typedef struct Variable { 
+typedef struct Symbol { 
   int scope;
 
-  int type; // type
-  int line; // line of declaration 
-
-  int int_val; // value of variable
-  float float_val;
-  bool bool_val;
+  Decl * decl; // contains id, type, return type, etc
+  
+  AssignExpr * assignment; // if no assignment, then uninitialized 
 
   List<int> * references; // variable ref lines - not sure if needed
-} Variable;
+} Symbol;
 
 class SymbolTable {
   protected:
     stack<string> scopeStack;
-    map<string, stack<Variable> > table;
+    map<string, stack<Symbol *> > table;
      
   public:
     SymbolTable(){};
     void OpenScope();
     void CloseScope();
-    void AddVariable(string id, Variable var);
+    void AddSymbol(Symbol * sym); 
 };
  
 #endif

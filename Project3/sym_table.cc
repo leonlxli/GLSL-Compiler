@@ -12,20 +12,22 @@ void SymbolTable::CloseScope(){
   // key popped from scopeStack
 }
 
-void SymbolTable::AddVariable(string id, Variable var) {
+void SymbolTable::AddSymbol(Symbol * sym) {
+  Decl * decl = sym->decl;
+  string id = decl->GetId();
 
-  map<string,stack<Variable> >::iterator it = table.find(id);
+  map<string,stack<Symbol *> >::iterator it = table.find(id);
 
-  stack<Variable> bucket;
+  stack<Symbol *> bucket;
 
   if (it !=  table.end()) { // already in map
-    stack<Variable> bucket = it->second;
+    bucket = it->second;
 
-    if (bucket.top().scope == var.scope) {
-      // ReportError::DeclConflict(Decl *newDecl, Decl *prevDecl);
+    if (bucket.top()->scope == sym->scope) {
+      ReportError::DeclConflict(decl, bucket.top()->decl);
     }
   }
 
-  bucket.push(var);
-  table.insert(pair<string,stack<Variable> >(id, bucket));
+  bucket.push(sym);
+  table.insert(pair<string,stack<Symbol *> >(id, bucket));
 }

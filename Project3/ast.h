@@ -76,6 +76,7 @@ class Identifier : public Node
     const char *GetPrintNameForNode()   { return "Identifier"; }
     void PrintChildren(int indentLevel);
     friend ostream& operator<<(ostream& out, Identifier *id) { return out << id->name; }
+    char * GetName() { return name; }
 };
 
 
