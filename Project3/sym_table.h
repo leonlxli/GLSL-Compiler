@@ -8,14 +8,14 @@
 #include "list.h"
 #include "errors.h"
 
-#include "ast_decl.h"
-#include "ast_expr.h"
-
 #include <map>
 #include <stack>
 #include <string> 
 
 using namespace std;
+
+class Decl;
+class AssignExpr;
 
 typedef struct Symbol { 
   int scope;
