@@ -20,8 +20,6 @@
 #include "parser.h"
 #include "errors.h"
 
-SymbolTable * sTable;
-
 void yyerror(const char *msg); // standard error-handling routine
 
 %}
@@ -442,5 +440,4 @@ void InitParser()
 {
    PrintDebug("parser", "Initializing parser");
    yydebug = false;
-   sTable = new SymbolTable();
 }

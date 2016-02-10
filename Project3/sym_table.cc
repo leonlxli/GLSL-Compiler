@@ -1,13 +1,13 @@
 #include "sym_table.h"
 
-void SymbolTable::OpenScope() {
+void SymbolTable::EnterScope() {
   /* empty string as special marker
   since it can't be an identifier */
   scopeStack.push(""); 
   scope++; // inc scope number 
 }
     
-void SymbolTable::CloseScope(){
+void SymbolTable::ExitScope(){
   // pop from scopeStack until special marker
   // and remove the first value in the bucket for each 
   // key popped from scopeStack
@@ -28,9 +28,18 @@ void SymbolTable::AddSymbol(Symbol * sym) {
 
     if (bucket.top()->scope == sym->scope) {
       ReportError::DeclConflict(decl, bucket.top()->decl);
+      return;
     }
   }
 
   bucket.push(sym);
   table.insert(pair<string,stack<Symbol *> >(id, bucket));
+}
+
+Symbol * SymbolTable::FindSymbol(string id) {
+  return NULL;
+}
+
+bool SymbolTable::IsSymbolInScope() {
+  return false;
 }

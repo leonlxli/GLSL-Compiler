@@ -35,9 +35,11 @@ class SymbolTable {
      
   public:
     SymbolTable(){ scope = 0; };
-    void OpenScope();
-    void CloseScope();
+    void EnterScope();
+    void ExitScope();
     void AddSymbol(Symbol * sym); 
+    Symbol * FindSymbol(string id);
+    bool IsSymbolInScope();
 };
  
 #endif
