@@ -1,27 +1,31 @@
 #include "sym_table.h"
 
-/* move s2 elements into s2 */
-void Scope::MergeScopes(Scope s1, Scope s2) {
-  std::map<std::string, Variable> * m1 = s1.getMap();
-  std::map<std::string, Variable> * m2 = s2.getMap();
-  
-  m1->insert(m2->begin(), m2->end());
+void SymbolTable::OpenScope() {
+  /* empty string as special marker
+  since it can't be an identifier */
+  scopeStack.push("");  
+}
+    
+void SymbolTable::CloseScope(){
+  // pop from scopeStack until special marker
+  // and remove the first value in the bucket for each 
+  // key popped from scopeStack
 }
 
-void SymbolTable::PushScope(Scope s) {
+void SymbolTable::AddVariable(string id, Variable var) {
 
-  /* copy parent variables into new scope, so we
-  don't have to verify variables across mutiple
-  stack levels */
-   
-  if(!symTable.empty()) {
-    Scope parent = symTable.top();
-    Scope::MergeScopes(s, parent);
+  map<string,stack<Variable> >::iterator it = table.find(id);
+
+  stack<Variable> bucket;
+
+  if (it !=  table.end()) { // already in map
+    stack<Variable> bucket = it->second;
+
+    if (bucket.top().scope == var.scope) {
+      // ReportError::DeclConflict(Decl *newDecl, Decl *prevDecl);
+    }
   }
 
-  symTable.push(s);
-}
-
-void SymbolTable::PopScope() {
-  symTable.pop();
+  bucket.push(var);
+  table.insert(pair<string,stack<Variable> >(id, bucket));
 }

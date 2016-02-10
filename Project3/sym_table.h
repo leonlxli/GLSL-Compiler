@@ -6,15 +6,19 @@
 #include "scanner.h"
 #include "location.h"
 #include "list.h"
+#include "errors.h"
 
 #include <map>
 #include <stack>
 #include <string> 
 
-static std::stack<int> sym_table; // TODO - change int to scope maps
+using namespace std;
+
+static stack<int> sym_table; // TODO - change int to scope maps
 
 typedef struct Variable { 
-  char id[MaxIdentLen]; // identifier
+  int scope;
+
   int type; // type
   int line; // line of declaration 
 
@@ -25,29 +29,16 @@ typedef struct Variable {
   List<int> * references; // variable ref lines - not sure if needed
 } Variable;
 
-class Scope {
-  protected:
-  	std::map<std::string, Variable> scopeMap;
-
-  public:
-     Scope(){};
-     static void MergeScopes(Scope s1, Scope s2);
-     std::map<std::string, Variable> * getMap() {
-     	return &scopeMap;
-     };
-};
-
 class SymbolTable {
   protected:
-     std::stack<Scope> symTable; // TODO - change int to scope maps
+    stack<string> scopeStack;
+    map<string, stack<Variable> > table;
      
   public:
-     SymbolTable(){};
-     void PushScope(Scope s);
-     void PopScope();
-     std::stack<Scope> * getStack() {
-     	return &symTable;
-     }
+    SymbolTable(){};
+    void OpenScope();
+    void CloseScope();
+    void AddVariable(string id, Variable var);
 };
  
 #endif
