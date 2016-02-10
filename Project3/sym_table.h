@@ -17,8 +17,6 @@
 
 using namespace std;
 
-static stack<int> sym_table; // TODO - change int to scope maps
-
 typedef struct Symbol { 
   int scope;
 
@@ -31,11 +29,12 @@ typedef struct Symbol {
 
 class SymbolTable {
   protected:
+  	int scope;
     stack<string> scopeStack;
     map<string, stack<Symbol *> > table;
      
   public:
-    SymbolTable(){};
+    SymbolTable(){ scope = 0; };
     void OpenScope();
     void CloseScope();
     void AddSymbol(Symbol * sym); 

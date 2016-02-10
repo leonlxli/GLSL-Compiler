@@ -3,7 +3,8 @@
 void SymbolTable::OpenScope() {
   /* empty string as special marker
   since it can't be an identifier */
-  scopeStack.push("");  
+  scopeStack.push(""); 
+  scope++; // inc scope number 
 }
     
 void SymbolTable::CloseScope(){
@@ -13,6 +14,8 @@ void SymbolTable::CloseScope(){
 }
 
 void SymbolTable::AddSymbol(Symbol * sym) {
+  sym->scope = scope; // add scope to symbol
+
   Decl * decl = sym->decl;
   string id = decl->GetId();
 
