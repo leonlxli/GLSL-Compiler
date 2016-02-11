@@ -167,7 +167,3 @@ void DeclStmt::Check(){
     decl->Check();
 }
 
-void Stmt::Check(){
-
-}
-
