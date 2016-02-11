@@ -50,9 +50,9 @@ Symbol * SymbolTable::FindSymbol(string id) {
   }
 }
 
-bool SymbolTable::FindScope(Scope){
-  list<Scope>::iterator it = find(list.begin(), list.end(), Scope);
-  if( it == list.end()) {
+bool SymbolTable::FindScope(Scope s){
+  list<Scope>::iterator it = find(scopeList.begin(), scopeList.end(), s);
+  if( it == scopeList.end()) {
     return false;
   } else {
     return true;
