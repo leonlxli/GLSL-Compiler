@@ -15,6 +15,7 @@
 
 #include "list.h"
 #include "ast.h"
+#include "sym_table.h"
 
 class Decl;
 class VarDecl;
@@ -29,6 +30,8 @@ class Program : public Node
      List<Decl*> *decls;
      
   public:
+     static SymbolTable * symbolTable;
+     
      Program(List<Decl*> *declList);
      const char *GetPrintNameForNode() { return "Program"; }
      void PrintChildren(int indentLevel);

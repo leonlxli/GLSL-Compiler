@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "scanner.h"
-#include "location.h"
 #include "list.h"
 #include "errors.h"
 
