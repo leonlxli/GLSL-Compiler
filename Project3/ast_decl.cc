@@ -46,10 +46,21 @@ void FnDecl::PrintChildren(int indentLevel) {
 }
 
 void VarDecl::Check() {
+    Symbol * symbol = Program::symbolTable->FindSymbol(GetId());
+    if (symbol == NULL || symbol->scope != Program::symbolTable->GetScope()) {
+        Symbol * newSymbol = (Symbol *) malloc(sizeof(Symbol));
+        newSymbol->decl = this;
 
+        Program::symbolTable->AddSymbol(newSymbol);
+    } else {
+        ReportError::DeclConflict(this, symbol->decl);
+    }
 }
 
 void FnDecl::Check() {
-
+ // make sure not on a function scope
+ // make sure function's not already in current scope
+ // add to symbol table 
+ // check child statements   
 }
 

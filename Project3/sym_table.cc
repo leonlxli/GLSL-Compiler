@@ -11,10 +11,16 @@ void SymbolTable::ExitScope(){
   while(scopeStack.top()!=""){
     string key = scopeStack.top();
     scopeStack.pop();
-    table.find(key)->second.pop();
+
+    Symbol * symbol = table.find(key)->second.top(); // find addr
+    table.find(key)->second.pop(); // pop
+
+    free(symbol); // free
   }
   scopeStack.pop();
   scope--;
+
+  // free memory for symbol
 }
 
 void SymbolTable::AddSymbol(Symbol * sym) {
@@ -31,7 +37,6 @@ void SymbolTable::AddSymbol(Symbol * sym) {
     bucket = it->second;
 
     if (bucket.top()->scope == sym->scope) {
-      ReportError::DeclConflict(decl, bucket.top()->decl);
       return;
     }
   }

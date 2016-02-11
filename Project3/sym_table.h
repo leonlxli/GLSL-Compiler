@@ -35,13 +35,15 @@ class SymbolTable {
     map<string, stack<Symbol *> > table;
     list<Scope> scopeList;
   public:
-    SymbolTable(){ scope = 0;};
+    SymbolTable(){ scope = 0;}
     bool FindScope(Scope);
     void EnterScope();
     void ExitScope();
     void AddSymbol(Symbol * sym); 
     Symbol * FindSymbol(string id);
     bool IsSymbolInScope(string id);
+
+    int GetScope(){return scope;}
 };
  
 #endif
