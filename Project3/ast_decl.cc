@@ -58,7 +58,7 @@ void VarDecl::Check() {
 }
 
 void FnDecl::Check() {
-    Symbol * symbol = Program::symbolTable->FindSymbol(GetSymbolId());
+    Symbol * symbol = Program::symbolTable->FindSymbol(GetId());
     if (symbol == NULL || symbol->scope != Program::symbolTable->GetScope()) {
         Symbol * newSymbol = (Symbol *) malloc(sizeof(Symbol));
         newSymbol->decl = this;

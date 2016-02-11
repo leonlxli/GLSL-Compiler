@@ -37,7 +37,6 @@ class Decl : public Node
     friend ostream& operator<<(ostream& out, Decl *d) { return out << d->id; }
     string GetId();
 
-    virtual string GetSymbolId(){ return string(""); };
     virtual void Check(){}
 };
 
@@ -53,9 +52,6 @@ class VarDecl : public Decl
     void PrintChildren(int indentLevel);
 
     void Check();
-    string GetSymbolId() {
-      return GetId();
-    }
 
     Type * GetType() { return type; }
 };
@@ -80,21 +76,7 @@ class FnDecl : public Decl
     void SetFunctionBody(Stmt *b);
     const char *GetPrintNameForNode() { return "FnDecl"; }
     void PrintChildren(int indentLevel);
-    
-    string GetSymbolId() {
-      std::ostringstream s;
-      s << id->GetName() << "(";
-      for (int i = 0; i < formals->NumElements(); i++) {
-        s << formals->Nth(i)->GetType()->GetTypeName() << ",";
-      }
-
-      s << ")";
-
-      /*const std::string tmp = s.str();
-      const char* cstr = tmp.c_str();
-      printf("%s\n", cstr);*/
-      return s.str();
-    }
+  
     void Check();
 };
 
