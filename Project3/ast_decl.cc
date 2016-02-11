@@ -64,9 +64,18 @@ void FnDecl::Check() {
         newSymbol->decl = this;
 
         Program::symbolTable->AddSymbol(newSymbol);
+
+        // check child statements 
+        Program::symbolTable->EnterScope(Scope::function);
+
+        for (int i = 0; i < formals->NumElements(); i++) {
+            formals->Nth(i)->Check(); // add params to symbol table
+        }
+
+        body->Check(); // check body statament block*/
+        Program::symbolTable->ExitScope(); // finished with function
     } else {
         ReportError::DeclConflict(this, symbol->decl);
     }
- // check child statements   
 }
 

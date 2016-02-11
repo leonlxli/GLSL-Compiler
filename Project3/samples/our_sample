@@ -6,8 +6,9 @@ int j;
 
 int main (int i) {
 }
-int main (int i, int j) {
-	
-}
+/*int main (int i, int j) {
+	x = 0;
+	int x;
+}*/
 int main (int i) {
 }

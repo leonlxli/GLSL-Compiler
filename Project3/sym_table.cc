@@ -9,14 +9,20 @@ void SymbolTable::EnterScope(int scopeType) {
 }
     
 void SymbolTable::ExitScope(){
-  while(scopeStack.top()!=""){
+  while(scopeStack.top()!= string("")){
+
     string key = scopeStack.top();
     scopeStack.pop();
 
-    Symbol * symbol = table.find(key)->second.top(); // find addr
-    table.find(key)->second.pop(); // pop
+    stack<Symbol *> value = table[key];
+    Symbol * symbol = value.top(); // find addr
+    value.pop(); // pop
 
-    free(symbol); // free
+    //free(symbol); // free
+
+    if (value.empty()) {
+      table.erase(key); // remove symbol from table
+    }
   }
   scopeList.pop_back();
   scopeStack.pop();
@@ -40,9 +46,12 @@ void SymbolTable::AddSymbol(Symbol * sym) {
       return;
     }
   }
+
   scopeStack.push(id);
   bucket.push(sym);
-  table.insert(pair<string,stack<Symbol *> >(id, bucket));
+  table[id] = bucket; // add updated values
+
+  //PrintSymbolTable();
 }
 
 Symbol * SymbolTable::FindSymbol(string id) {
@@ -78,3 +87,17 @@ bool SymbolTable::IsSymbolInScope(string id) {
 
 
 }
+
+void SymbolTable::PrintSymbolTable() {
+  cout << "================ MAP ==============" <<endl;
+  typedef map<string, stack<Symbol *> >::const_iterator MapIterator;
+  for (MapIterator iter = table.begin(); iter != table.end(); iter++)
+  {
+      cout << "Key: " << iter->first << endl /*<< "Values:" << endl*/;
+
+      /*typedef stack<Symbol *>::const_iterator StackIterator;
+      for (StackIterator stack_iter = iter->second.begin(); stack_iter != iter->second.end(); stack_iter++)
+          cout << " " << *stack_iter << endl;*/
+  }
+}
+

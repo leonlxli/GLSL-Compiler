@@ -53,6 +53,8 @@ class SymbolTable {
     bool IsSymbolInScope(string id);
 
     int GetScope(){return scope;}
+
+    void PrintSymbolTable();
 };
  
 #endif

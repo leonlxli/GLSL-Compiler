@@ -36,6 +36,8 @@ void Program::Check() {
     for (int i = 0; i < decls->NumElements(); i++) {
         decls->Nth(i)->Check();
     }
+
+    symbolTable->ExitScope(); // finish
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
