@@ -5,15 +5,18 @@
 #include <stdlib.h>
 #include "list.h"
 #include "errors.h"
-
+#include <list>
 #include <map>
 #include <stack>
 #include <string> 
+#include <algorithm>
 
 using namespace std;
 
 class Decl;
 class AssignExpr;
+
+enum Scope { global, function, conditional, loop, _switch, _case };
 
 typedef struct Symbol { 
   int scope;
@@ -22,8 +25,6 @@ typedef struct Symbol {
   
   AssignExpr * assignment; // if no assignment, then uninitialized 
   
-
-
   List<int> * references; // variable ref lines - not sure if needed
 } Symbol;
 
@@ -32,9 +33,10 @@ class SymbolTable {
   	int scope;
     stack<string> scopeStack;
     map<string, stack<Symbol *> > table;
-     
+    list<Scope> scopeList;
   public:
-    SymbolTable(){ scope = 0; };
+    SymbolTable(){ scope = 0;};
+    bool FindScope(Scope);
     void EnterScope();
     void ExitScope();
     void AddSymbol(Symbol * sym); 

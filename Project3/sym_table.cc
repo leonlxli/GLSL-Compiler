@@ -50,6 +50,15 @@ Symbol * SymbolTable::FindSymbol(string id) {
   }
 }
 
+bool SymbolTable::FindScope(Scope){
+  list<Scope>::iterator it = find(list.begin(), list.end(), Scope);
+  if( it == list.end()) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 bool SymbolTable::IsSymbolInScope(string id) {
   Symbol * sym = SymbolTable::FindSymbol(id);
   if(sym==NULL){
