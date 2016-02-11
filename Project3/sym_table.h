@@ -23,6 +23,8 @@ typedef struct Symbol {
   Decl * decl; // contains id, type, return type, etc
   
   AssignExpr * assignment; // if no assignment, then uninitialized 
+  
+
 
   List<int> * references; // variable ref lines - not sure if needed
 } Symbol;
@@ -39,7 +41,7 @@ class SymbolTable {
     void ExitScope();
     void AddSymbol(Symbol * sym); 
     Symbol * FindSymbol(string id);
-    bool IsSymbolInScope();
+    bool IsSymbolInScope(string id);
 };
  
 #endif

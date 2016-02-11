@@ -11,7 +11,7 @@ void SymbolTable::ExitScope(){
   while(scopeStack.top()!=""){
     string key = scopeStack.top();
     scopeStack.pop();
-    table[key].pop();
+    table.find(key)->second.pop();
   }
   scopeStack.pop();
   scope--;
@@ -41,14 +41,26 @@ void SymbolTable::AddSymbol(Symbol * sym) {
 }
 
 Symbol * SymbolTable::FindSymbol(string id) {
-  if(table[id].size()==0){
+  map<string,stack<Symbol *> >::iterator it = table.find(id);
+  if(it==table.end() || it->second.size()==0){
     return NULL;
   }
   else{
-    return table[id].top();
+    return it->second.top();
   }
 }
 
-bool SymbolTable::IsSymbolInScope() {
-  return false;
+bool SymbolTable::IsSymbolInScope(string id) {
+  Symbol * sym = SymbolTable::FindSymbol(id);
+  if(sym==NULL){
+    return true;
+  }
+  if(sym->scope != scope){
+    return true;
+  }
+  else{
+    return false;
+  }
+
+
 }
