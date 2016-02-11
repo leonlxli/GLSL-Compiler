@@ -1,9 +1,9 @@
 #include "sym_table.h"
 
-void SymbolTable::EnterScope(int scope) {
+void SymbolTable::EnterScope(int scopeType) {
   /* empty string as special marker
   since it can't be an identifier */
-  scopeList.push_back(scope);
+  scopeList.push_back(scopeType);
   scopeStack.push(""); 
   scope++; // inc scope number 
 }
