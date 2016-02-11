@@ -3,3 +3,11 @@ int i;
 
 int j;
 int j;
+
+int main (int i) {
+}
+int main (int i, int j) {
+	
+}
+int main (int i) {
+}

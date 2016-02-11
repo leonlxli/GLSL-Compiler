@@ -38,6 +38,10 @@ class Type : public Node
     virtual void PrintToStream(ostream& out) { out << typeName; }
     friend ostream& operator<<(ostream& out, Type *t) { t->PrintToStream(out); return out; }
     virtual bool IsEquivalentTo(Type *other) { return this == other; }
+
+    string GetTypeName() {
+      return typeName;
+    }
 };
 
 class NamedType : public Type 

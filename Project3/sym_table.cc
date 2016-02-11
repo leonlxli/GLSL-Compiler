@@ -27,7 +27,7 @@ void SymbolTable::AddSymbol(Symbol * sym) {
   sym->scope = scope; // add scope to symbol
 
   Decl * decl = sym->decl;
-  string id = decl->GetId();
+  string id = decl->GetSymbolId();
 
   map<string,stack<Symbol *> >::iterator it = table.find(id);
   
