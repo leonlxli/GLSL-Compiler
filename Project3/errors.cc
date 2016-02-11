@@ -152,8 +152,8 @@ void ReportError::ContinueOutsideLoop(ContinueStmt *cStmt) {
     OutputError(cStmt->GetLocation(), "continue is only allowed inside a loop");
 }
 
-void ReportError::ConditionOutsideFunction(IfStmt *iStmt) {
-    OutputError(iStmt->GetLocation(), "If Statement are only allowed in functions");
+void ReportError::ConditionOutsideFunction(ConditionalStmt *condStmt) {
+    OutputError(condStmt->GetLocation(), "If Statement are only allowed in functions");
 }
 
 /**

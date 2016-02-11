@@ -116,3 +116,8 @@ Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     if (actuals) actuals->PrintAll(indentLevel+1, "(actuals) ");
   }
  
+
+
+void Expr::Check(){
+  
+}

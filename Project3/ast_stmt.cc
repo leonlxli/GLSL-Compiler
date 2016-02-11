@@ -141,14 +141,33 @@ void SwitchStmt::PrintChildren(int indentLevel) {
     if (def) def->Print(indentLevel+1);
 }
 
-void IfStmt::Check(){
+void ConditionalStmt::Check(){
     if(!(Program::symbolTable->FindScope(Scope::function))){
         ReportError::ConditionOutsideFunction(this);
     }
     else{
+        test->Check();
         Program::symbolTable->EnterScope(Scope::conditional);
         //check children
+        body->Check();
         Program::symbolTable->ExitScope();
     }
+}
+
+void StmtBlock::Check(){
+    for (int i = 0; i < decls->NumElements(); i++) {
+        decls->Nth(i)->Check();
+    }
+    for (int i = 0; i < stmts->NumElements(); i++) {
+        stmts->Nth(i)->Check();
+    }
+}
+
+void DeclStmt::Check(){
+    decl->Check();
+}
+
+void Stmt::Check(){
+
 }
 
