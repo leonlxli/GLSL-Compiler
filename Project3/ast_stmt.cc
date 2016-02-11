@@ -152,7 +152,20 @@ void ConditionalStmt::Check(){
     }
 }
 
+void StmtBlock::Check(){
+    for (int i = 0; i < decls->NumElements(); i++) {
+        decls->Nth(i)->Check();
+    }
+    for (int i = 0; i < stmts->NumElements(); i++) {
+        stmts->Nth(i)->Check();
+    }
+}
+
+void DeclStmt::Check(){
+    decl->Check();
+}
+
 void Stmt::Check(){
-    
+
 }
 
