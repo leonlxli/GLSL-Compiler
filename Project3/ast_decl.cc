@@ -27,7 +27,6 @@ void VarDecl::PrintChildren(int indentLevel) {
    if (id) id->Print(indentLevel+1);
 }
 
-
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
     Assert(n != NULL && r!= NULL && d != NULL);
     (returnType=r)->SetParent(this);
@@ -46,4 +45,11 @@ void FnDecl::PrintChildren(int indentLevel) {
     if (body) body->Print(indentLevel+1, "(body) ");
 }
 
+void VarDecl::Check() {
+
+}
+
+void FnDecl::Check() {
+
+}
 

@@ -29,12 +29,10 @@ void Program::Check() {
      *      and polymorphism in the node classes.
      */
 
-    // sample test - not the actual working code
-    // replace it with your own implementation
-    if ( decls->NumElements() >= 2 ) {
-      // Decl *newDecl  = decls->Nth(1);
-      // Decl *prevDecl = decls->Nth(0);
-      // ReportError::DeclConflict(newDecl, prevDecl);
+    PrintChildren(0);
+
+    for (int i = 0; i < decls->NumElements(); i++) {
+        decls->Nth(i)->Check();
     }
 }
 
