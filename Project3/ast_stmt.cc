@@ -8,6 +8,8 @@
 #include "ast_expr.h"
 #include "errors.h"
 
+SymbolTable * Program::symbolTable = new SymbolTable();
+
 Program::Program(List<Decl*> *d) {
     Assert(d != NULL);
     (decls=d)->SetParentAll(this);
