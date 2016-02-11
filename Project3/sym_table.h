@@ -16,7 +16,16 @@ using namespace std;
 class Decl;
 class AssignExpr;
 
-enum Scope { global, function, conditional, loop, _switch, _case };
+namespace Scope {
+enum Scope { 
+		global, 
+		function, 
+		conditional, 
+		loop, 
+		_switch, 
+		_case 
+	};
+}
 
 typedef struct Symbol { 
   int scope;
@@ -33,11 +42,11 @@ class SymbolTable {
   	int scope;
     stack<string> scopeStack;
     map<string, stack<Symbol *> > table;
-    list<Scope> scopeList;
+    list<int> scopeList;
   public:
     SymbolTable(){ scope = 0;}
-    bool FindScope(Scope);
-    void EnterScope();
+    bool FindScope(int scope);
+    void EnterScope(int scope);
     void ExitScope();
     void AddSymbol(Symbol * sym); 
     Symbol * FindSymbol(string id);

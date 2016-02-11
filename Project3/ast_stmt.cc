@@ -31,6 +31,8 @@ void Program::Check() {
 
     PrintChildren(0);
 
+    symbolTable->EnterScope(Scope::global);
+
     for (int i = 0; i < decls->NumElements(); i++) {
         decls->Nth(i)->Check();
     }

@@ -1,8 +1,9 @@
 #include "sym_table.h"
 
-void SymbolTable::EnterScope() {
+void SymbolTable::EnterScope(int scope) {
   /* empty string as special marker
   since it can't be an identifier */
+  scopeList.push_back(scope);
   scopeStack.push(""); 
   scope++; // inc scope number 
 }
@@ -17,10 +18,9 @@ void SymbolTable::ExitScope(){
 
     free(symbol); // free
   }
+  scopeList.pop_back();
   scopeStack.pop();
   scope--;
-
-  // free memory for symbol
 }
 
 void SymbolTable::AddSymbol(Symbol * sym) {
@@ -55,8 +55,8 @@ Symbol * SymbolTable::FindSymbol(string id) {
   }
 }
 
-bool SymbolTable::FindScope(Scope s){
-  list<Scope>::iterator it = find(scopeList.begin(), scopeList.end(), s);
+bool SymbolTable::FindScope(int scope){
+  list<int>::iterator it = find(scopeList.begin(), scopeList.end(), scope);
   if( it == scopeList.end()) {
     return false;
   } else {
