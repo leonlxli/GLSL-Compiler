@@ -43,6 +43,7 @@ class Stmt : public Node
   public:
      Stmt() : Node() {}
      Stmt(yyltype loc) : Node(loc) {}
+     void Check();
 };
 
 class StmtBlock : public Stmt 
@@ -77,6 +78,7 @@ class ConditionalStmt : public Stmt
   public:
     ConditionalStmt() : Stmt(), test(NULL), body(NULL) {}
     ConditionalStmt(Expr *testExpr, Stmt *body);
+    void Check();
 };
 
 class LoopStmt : public ConditionalStmt 

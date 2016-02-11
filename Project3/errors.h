@@ -44,6 +44,7 @@ using namespace std;
 class Type;
 class Identifier;
 class Expr;
+class ConditionalStmt;
 class BreakStmt;
 class ContinueStmt;
 class IfStmt;
@@ -89,7 +90,7 @@ class ReportError {
   static void ReturnMissing(FnDecl *fnDecl);
   static void BreakOutsideLoop(BreakStmt *bStmt); 
   static void ContinueOutsideLoop(ContinueStmt *cStmt); 
-  static void ConditionOutsideFunction(IfStmt *iStmt); 
+  static void ConditionOutsideFunction(ConditionalStmt *condStmt); 
   // Generic method to report a printf-style error message
   static void Formatted(yyltype *loc, const char *format, ...);
 
