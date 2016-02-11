@@ -18,6 +18,8 @@ void SymbolTable::ExitScope(){
     Symbol * symbol = value.top(); // find addr
     value.pop(); // pop
 
+    table[key] = value; //update entry
+
     //free(symbol); // free
 
     if (value.empty()) {
@@ -33,7 +35,7 @@ void SymbolTable::AddSymbol(Symbol * sym) {
   sym->scope = scope; // add scope to symbol
 
   Decl * decl = sym->decl;
-  string id = decl->GetSymbolId();
+  string id = decl->GetId();
 
   map<string,stack<Symbol *> >::iterator it = table.find(id);
   
