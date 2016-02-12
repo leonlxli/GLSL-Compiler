@@ -157,10 +157,6 @@ Type * RelationalExpr::GetType() {
   }
 }
 
-Type * RelationalExpr::GetType() {
-
-}
-
 Type * EqualityExpr::GetType() {
   if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
