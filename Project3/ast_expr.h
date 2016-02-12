@@ -145,6 +145,7 @@ class RelationalExpr : public CompoundExpr
   public:
     RelationalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "RelationalExpr"; }
+    Type * GetType();
 };
 
 class EqualityExpr : public CompoundExpr 
@@ -167,6 +168,7 @@ class AssignExpr : public CompoundExpr
   public:
     AssignExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "AssignExpr"; }
+    Type * GetType();
 };
 
 class PostfixExpr : public CompoundExpr
@@ -174,6 +176,7 @@ class PostfixExpr : public CompoundExpr
   public:
     PostfixExpr(Expr *lhs, Operator *op) : CompoundExpr(lhs,op) {}
     const char *GetPrintNameForNode() { return "PostfixExpr"; }
+    Type * GetType();
 };
 
 class LValue : public Expr 

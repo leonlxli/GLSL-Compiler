@@ -125,6 +125,8 @@ void VarExpr::Check() {
   }
 }
 
+
+
 Type * VarExpr::GetType() {
   // return type 
   string varName = string(id->GetName());
@@ -140,16 +142,39 @@ Type * VarExpr::GetType() {
   }
 }
 
-Type * ArithmeticExpr::GetType() {
+Type * RelationalExpr::GetType() {
   if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
-
+    return Type::voidType;
   } else if (left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
              left->GetType()->GetTypeName() != Type::floatType->GetTypeName()) {
      ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
      
   } else {
+    return Type::boolType;
+  }
+}
+
+Type * ArithmeticExpr::GetType() {
+  if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
+    ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+    return Type::voidType;
+  } else if (left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
+             left->GetType()->GetTypeName() != Type::floatType->GetTypeName()) {
+     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+     return Type::voidType;
+  } else {
     return left->GetType();
   }
 }
  
+Type * PostfixExpr::GetType(){
+  if(left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
+    left->GetType()->GetTypeName() != Type::floatType->GetTypeName()){
+      ReportError::IncompatibleOperand(op, left->GetType());
+      return Type::voidType;
+  }
+  else{
+    return left->GetType();
+  }
+}
