@@ -57,11 +57,24 @@ void VarDecl::Check() {
     }
 }
 
+bool VarDecl::Equals(VarDecl * other) {
+    if(GetType()->GetTypeName() == other->GetType()->GetTypeName()) {
+        return true;
+    }
+
+    return false;
+}
+
 void FnDecl::Check() {
     Symbol * symbol = Program::symbolTable->FindSymbol(GetId());
-    if (symbol == NULL || symbol->scope != Program::symbolTable->GetScope()) {
+
+    if (symbol == NULL || 
+        symbol->scope != Program::symbolTable->GetScope() ||
+        (symbol->isFunction && !Equals((FnDecl *) symbol->decl))) {
+
         Symbol * newSymbol = (Symbol *) malloc(sizeof(Symbol));
         newSymbol->decl = this;
+        newSymbol->isFunction = true;
 
         Program::symbolTable->AddSymbol(newSymbol);
 
@@ -76,6 +89,30 @@ void FnDecl::Check() {
         Program::symbolTable->ExitScope(newSymbol); // finished with function
     } else {
         ReportError::DeclConflict(this, symbol->decl);
+
+        // check child statements 
+        Program::symbolTable->EnterScope(Scope::function);
+
+        for (int i = 0; i < formals->NumElements(); i++) {
+            formals->Nth(i)->Check(); // add params to symbol table
+        }
+
+        body->Check(); // check body statament block*/
+        Program::symbolTable->ExitScope(NULL); // finished with function
     }
+}
+
+bool FnDecl::Equals(FnDecl * other) {
+    if(formals->NumElements() != other->formals->NumElements()) {
+        return false;
+    }
+
+    for (int i = 0; i < formals->NumElements(); i++) {
+        if(!formals->Nth(i)->Equals(other->formals->Nth(i))) {
+            return false;
+        }
+    }
+
+    return true;
 }
 

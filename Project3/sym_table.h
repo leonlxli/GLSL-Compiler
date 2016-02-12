@@ -29,6 +29,7 @@ enum Scope {
 
 typedef struct Symbol { 
   int scope;
+  bool isFunction;
 
   Decl * decl; // contains id, type, return type, etc
   

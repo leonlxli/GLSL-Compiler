@@ -52,6 +52,7 @@ class VarDecl : public Decl
     void PrintChildren(int indentLevel);
 
     void Check();
+    bool Equals(VarDecl * other);
 
     Type * GetType() { return type; }
 };
@@ -78,6 +79,7 @@ class FnDecl : public Decl
     void PrintChildren(int indentLevel);
   
     void Check();
+    bool Equals(FnDecl * other);
 };
 
 class FormalsError : public FnDecl

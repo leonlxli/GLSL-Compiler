@@ -40,7 +40,7 @@ class Type : public Node
     virtual bool IsEquivalentTo(Type *other) { return this == other; }
 
     string GetTypeName() {
-      return typeName;
+      return string(typeName);
     }
 };
 

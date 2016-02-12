@@ -27,7 +27,7 @@ void SymbolTable::ExitScope(Symbol * symbol){ // symbol = NULL unless exiting fr
     }
   }
 
-  if (scopeList.back() == Scope::function) {
+  if (scopeList.back() == Scope::function && symbol != NULL) { // if valid function
     // verify presence of return statement if needed
     FnDecl * fun = (FnDecl *) symbol->decl;
 
