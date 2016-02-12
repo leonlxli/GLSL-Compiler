@@ -20,7 +20,7 @@ namespace Scope {
 enum Scope { 
 		global, 
 		function, 
-		conditional, 
+		If, 
 		loop, 
 		_switch, 
 		_case 

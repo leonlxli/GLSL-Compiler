@@ -148,10 +148,7 @@ void ConditionalStmt::Check(){
         ReportError::ConditionOutsideFunction(this);
     }
     else{
-        test->Check();
-        Program::symbolTable->EnterScope(Scope::conditional);
-        body->Check();
-        Program::symbolTable->ExitScope(NULL);
+        return;
     }
 }
 
@@ -165,44 +162,45 @@ void StmtBlock::Check(){
 }
 
 void ForStmt::Check(){
-    if(!(Program::symbolTable->FindScope(Scope::function))){
-        ReportError::ConditionOutsideFunction(this);
+    if(strcmp(test->GetPrintNameForNode(),"RelationalExpr")!=0){
+        ReportError::TestNotBoolean(test);
     }
-    else{
-        if(strcmp(test->GetPrintNameForNode(),"RelationalExpr")==0){
-            Program::symbolTable->EnterScope(Scope::loop);
-            //verify that these are the right type of expr
-            init->Check();
-            test->Check();
-            step->Check();
-            body->Check();
-            Program::symbolTable->ExitScope(NULL);
-        }
-        else{
-            ReportError::TestNotBoolean(test);
-        }
-    }
+    Program::symbolTable->EnterScope(Scope::loop);
+    init->Check();
+    test->Check();
+    step->Check();
+    body->Check();
+    Program::symbolTable->ExitScope(NULL);
 
 }
+
 
 
 void WhileStmt::Check(){
-    if(!(Program::symbolTable->FindScope(Scope::function))){
-        ReportError::ConditionOutsideFunction(this);
+    if(strcmp(test->GetPrintNameForNode(),"RelationalExpr")!=0){
+        ReportError::TestNotBoolean(test);
     }
-    else{
-        if(strcmp(test->GetPrintNameForNode(),"RelationalExpr")==0){
-            Program::symbolTable->EnterScope(Scope::loop);
-            test->Check();
-            body->Check();
-            Program::symbolTable->ExitScope(NULL);
-        }
-        else{
-            ReportError::TestNotBoolean(test);
-        }
-    }
-
+    Program::symbolTable->EnterScope(Scope::loop);
+    test->Check();
+    body->Check();
+    Program::symbolTable->ExitScope(NULL);
 }
+
+void IfStmt::Check(){
+    if(strcmp(test->GetPrintNameForNode(),"RelationalExpr")!=0){
+        ReportError::TestNotBoolean(test);
+    }
+    Program::symbolTable->EnterScope(Scope::If);
+    test->Check();
+    body->Check();
+    Program::symbolTable->ExitScope(NULL);
+    if(elseBody!=NULL){
+        Program::symbolTable->EnterScope(Scope::If);
+        elseBody->Check();
+        Program::symbolTable->ExitScope(NULL);
+    }
+}
+
 void DeclStmt::Check(){
     decl->Check();
 }

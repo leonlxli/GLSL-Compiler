@@ -3,6 +3,7 @@ void main () {
 	while (100) {
 		x++;
 		int i;
+		int i;
 		break;
 	}
 	
