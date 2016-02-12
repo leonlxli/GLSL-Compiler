@@ -30,7 +30,7 @@ class Expr : public Stmt
     } 
 
     virtual void Check() {}
-    virtual Type * GetType() { return Type::voidType; } // will be overridden 
+    virtual string GetType() { return Type::voidType->GetTypeName(); } // will be overridden 
 };
 
 class ExprError : public Expr
@@ -49,7 +49,7 @@ class EmptyExpr : public Expr
     const char *GetPrintNameForNode() { return "Empty"; }
 
     void Check() {}
-    Type * GetType() { return Type::voidType; }
+    string GetType() { return Type::voidType->GetTypeName(); }
 };
 
 class IntConstant : public Expr 
@@ -62,7 +62,7 @@ class IntConstant : public Expr
     const char *GetPrintNameForNode() { return "IntConstant"; }
     void PrintChildren(int indentLevel);
 
-    Type * GetType() { return Type::intType; }
+    string GetType() { return Type::intType->GetTypeName(); }
 };
 
 class FloatConstant: public Expr 
@@ -75,7 +75,7 @@ class FloatConstant: public Expr
     const char *GetPrintNameForNode() { return "FloatConstant"; }
     void PrintChildren(int indentLevel);
 
-    Type * GetType() { return Type::floatType; }
+    string GetType() { return Type::floatType->GetTypeName(); }
 };
 
 class BoolConstant : public Expr 
@@ -88,7 +88,7 @@ class BoolConstant : public Expr
     const char *GetPrintNameForNode() { return "BoolConstant"; }
     void PrintChildren(int indentLevel);
 
-    Type * GetType() { return Type::boolType; }
+    string GetType() { return Type::boolType->GetTypeName(); }
 };
 
 class VarExpr : public Expr
@@ -102,7 +102,7 @@ class VarExpr : public Expr
     void PrintChildren(int indentLevel);
 
     void Check();
-    Type * GetType();
+    string GetType();
 };
 
 class Operator : public Node 

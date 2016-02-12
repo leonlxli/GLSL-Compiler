@@ -54,7 +54,7 @@ class VarDecl : public Decl
     void Check();
     bool Equals(VarDecl * other);
 
-    Type * GetType() { return type; }
+    string GetType() { return type->GetTypeName(); }
 };
 
 class VarDeclError : public VarDecl

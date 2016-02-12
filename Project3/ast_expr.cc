@@ -125,13 +125,13 @@ void VarExpr::Check() {
   }
 }
 
-Type * VarExpr::GetType() {
+string VarExpr::GetType() {
   // return type 
   string varName = string(id->GetName());
 
   if(!Program::symbolTable->IsSymbolInScope(varName)) { // not in scope
     ReportError::IdentifierNotDeclared(id, LookingForVariable);
-    return Type::voidType;
+    return Type::voidType->GetTypeName();
 
   } else {
     Symbol * symbol = Program::symbolTable->FindSymbol(varName);
