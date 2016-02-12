@@ -162,12 +162,11 @@ void StmtBlock::Check(){
 }
 
 void ForStmt::Check(){
+    Program::symbolTable->EnterScope(Scope::loop);
+    init->Check();
     if(test->GetType()->GetTypeName() != Type::boolType->GetTypeName()){
         ReportError::TestNotBoolean(test);
     }
-    Program::symbolTable->EnterScope(Scope::loop);
-    init->Check();
-    test->Check();
     step->Check();
     body->Check();
     Program::symbolTable->ExitScope(NULL);
@@ -176,21 +175,19 @@ void ForStmt::Check(){
 
 
 void WhileStmt::Check(){
+    Program::symbolTable->EnterScope(Scope::loop);
     if(test->GetType()->GetTypeName() != Type::boolType->GetTypeName()){
         ReportError::TestNotBoolean(test);
     }
-    Program::symbolTable->EnterScope(Scope::loop);
-    test->Check();
     body->Check();
     Program::symbolTable->ExitScope(NULL);
 }
 
 void IfStmt::Check(){
+    Program::symbolTable->EnterScope(Scope::If);
     if(test->GetType()->GetTypeName() != Type::boolType->GetTypeName()){
         ReportError::TestNotBoolean(test);
     }
-    Program::symbolTable->EnterScope(Scope::If);
-    test->Check();
     body->Check();
     Program::symbolTable->ExitScope(NULL);
     if(elseBody!=NULL){
@@ -205,11 +202,24 @@ void DeclStmt::Check(){
 }
 
 void SwitchStmt::Check(){
-    
+
+}
+
+void ContinueStmt::Check(){
+    if(!(Program::symbolTable->FindScope(Scope::loop))){
+        ReportError::ContinueOutsideLoop(this);
+    }
+}
+
+void BreakStmt::Check(){
+    if(!(Program::symbolTable->FindScope(Scope::loop))){
+        ReportError::BreakOutsideLoop(this);
+    }
 }
 
 void ReturnStmt::Check() {
     // check return expression
     // verify return type
+
 }
 

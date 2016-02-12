@@ -45,7 +45,7 @@ class Stmt : public Node
      Stmt() : Node() {}
      Stmt(yyltype loc) : Node(loc) {}
 
-     virtual void Check() {}
+     virtual void Check() { printf("Pure Stmt");}
 };
 
 class StmtBlock : public Stmt 
@@ -138,6 +138,7 @@ class BreakStmt : public Stmt
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
     const char *GetPrintNameForNode() { return "BreakStmt"; }
+    void Check();
 };
 
 class ContinueStmt : public Stmt 
@@ -145,6 +146,7 @@ class ContinueStmt : public Stmt
   public:
     ContinueStmt(yyltype loc) : Stmt(loc) {}
     const char *GetPrintNameForNode() { return "ContinueStmt"; }
+    void Check();
 };
 
 class ReturnStmt : public Stmt  

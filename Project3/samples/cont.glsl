@@ -1,8 +1,8 @@
 void main () {
 	int i;
 	int j;
-	while (i>j) {
-		i--;
+	while(i<j){
+		int x;
 	}
 	continue;
 }

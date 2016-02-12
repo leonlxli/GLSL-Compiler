@@ -153,7 +153,7 @@ Type * RelationalExpr::GetType() {
      return Type::voidType;
 
   } else {
-    return left->GetType();
+    return Type::boolType;
   }
 }
 
