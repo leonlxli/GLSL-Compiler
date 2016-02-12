@@ -7,6 +7,7 @@
 #include "ast_expr.h"
 #include "ast_type.h"
 #include "ast_decl.h"
+#include <regex.h>
 
 
 IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
@@ -281,5 +282,53 @@ Type * PostfixExpr::GetType(){
   }
   else{
     return left->GetType();
+  }
+}
+
+void FieldAccess::Check() {
+  string type = base->GetType()->GetTypeName();
+
+  if(type != Type::vec2Type->GetTypeName() &&
+     type != Type::vec3Type->GetTypeName() &&
+     type != Type::vec4Type->GetTypeName()) {
+
+    ReportError::InaccessibleSwizzle(field, base);
+  } else {
+
+    int err;
+    regex_t swizzle;
+
+    regcomp(&swizzle, "[xyzw]+", REG_EXTENDED);
+
+    err = regexec(&swizzle, field->GetName(), 0, NULL, REG_EXTENDED);
+
+    if (err) {
+      ReportError::InvalidSwizzle(field, base);
+    } else {
+      if(strlen(field->GetName()) > 4) {
+        ReportError::OversizedVector(field, base);
+      }
+
+      if(type == Type::vec2Type->GetTypeName()) {
+
+        char * z = strchr(field->GetName(), 'z');
+        char * w = strchr(field->GetName(), 'w');
+
+        if (z != NULL || w != NULL) {
+          err = 1;
+        }
+
+      } else if(type == Type::vec3Type->GetTypeName()) {
+        char * w = strchr(field->GetName(), 'w');
+        
+        if (w != NULL) {
+          err = 1;
+        }
+      }
+
+      if(err) {
+        ReportError::SwizzleOutOfBound(field, base);
+      } 
+    }
   }
 }
