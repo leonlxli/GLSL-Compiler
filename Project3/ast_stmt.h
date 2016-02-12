@@ -171,8 +171,8 @@ class SwitchLabel : public Stmt
 
   public:
     SwitchLabel() { label = NULL; stmt = NULL; }
-    SwitchLabel(Expr *label, Stmt *stmt);
-    SwitchLabel(Stmt *stmt);
+    SwitchLabel(yyltype loc, Expr *label, Stmt *stmt);
+    SwitchLabel(yyltype loc, Stmt *stmt);
     void PrintChildren(int indentLevel);
 };
 
@@ -180,7 +180,7 @@ class Case : public SwitchLabel
 {
   public:
     Case() : SwitchLabel() {}
-    Case(Expr *label, Stmt *stmt) : SwitchLabel(label, stmt) {}
+    Case(yyltype loc, Expr *label, Stmt *stmt) : SwitchLabel(loc, label, stmt) {}
     const char *GetPrintNameForNode() { return "Case"; }
     void Check(Type * type);
     void Check();
@@ -189,7 +189,7 @@ class Case : public SwitchLabel
 class Default : public SwitchLabel
 {
   public:
-    Default(Stmt *stmt) : SwitchLabel(stmt) {}
+    Default(yyltype loc, Stmt *stmt) : SwitchLabel(loc, stmt) {}
     const char *GetPrintNameForNode() { return "Default"; }
     void Check();
 };

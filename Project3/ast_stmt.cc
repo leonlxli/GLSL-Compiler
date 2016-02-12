@@ -113,13 +113,13 @@ void ReturnStmt::PrintChildren(int indentLevel) {
       expr->Print(indentLevel+1);
 }
   
-SwitchLabel::SwitchLabel(Expr *l, Stmt *s) {
+SwitchLabel::SwitchLabel(yyltype loc, Expr *l, Stmt *s) : Stmt(loc){
     Assert(l != NULL && s != NULL);
     (label=l)->SetParent(this);
     (stmt=s)->SetParent(this);
 }
 
-SwitchLabel::SwitchLabel(Stmt *s) {
+SwitchLabel::SwitchLabel(yyltype loc, Stmt *s) : Stmt(loc){
     Assert(s != NULL);
     label = NULL;
     (stmt=s)->SetParent(this);

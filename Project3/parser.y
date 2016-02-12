@@ -254,8 +254,8 @@ SwitchStmt         : T_Switch T_LeftParen Expression T_RightParen T_LeftBrace St
                                         $$ = new SwitchStmt($3, $6, NULL);
                                      }
                    ;
-CaseStmt           : T_Case Expression T_Colon Statement  { $$ = new Case($2, $4); }
-                   | T_Default T_Colon Statement          { $$ = new Default($3); }
+CaseStmt           : T_Case Expression T_Colon Statement  { $$ = new Case(yyloc, $2, $4); }
+                   | T_Default T_Colon Statement          { $$ = new Default(yyloc, $3); }
                    ;
 
 JumpStmt           : T_Break   T_Semicolon    { $$ = new BreakStmt(yylloc); }
