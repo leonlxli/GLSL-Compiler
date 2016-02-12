@@ -45,13 +45,14 @@ class SymbolTable {
     map<string, stack<Symbol *> > table;
     list<int> scopeList;
   public:
-    SymbolTable(){ scope = 0;}
+  	FnDecl * currentFunction;
+    bool returnFlag;
 
-    static ReturnStmt * ret; // verify when exiting function scope
+    SymbolTable(){ scope = 0;}
 
     bool FindScope(int scope);
     void EnterScope(int scope);
-    void ExitScope(Symbol * symbol);
+    void ExitScope();
 
     void AddSymbol(Symbol * sym); 
     Symbol * FindSymbol(string id);
