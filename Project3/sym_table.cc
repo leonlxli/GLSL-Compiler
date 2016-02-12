@@ -8,7 +8,7 @@ void SymbolTable::EnterScope(int scopeType) {
   scope++; // inc scope number 
 }
     
-void SymbolTable::ExitScope(Symbol * symbol){ // symbol = NULL unless exiting from a function
+void SymbolTable::ExitScope(){ // symbol = NULL unless exiting from a function
   while(scopeStack.top()!= string("")){
 
     string key = scopeStack.top();
@@ -27,11 +27,14 @@ void SymbolTable::ExitScope(Symbol * symbol){ // symbol = NULL unless exiting fr
     }
   }
 
-  if (scopeList.back() == Scope::function && symbol != NULL) { // if valid function
-    // verify presence of return statement if needed
-    FnDecl * fun = (FnDecl *) symbol->decl;
 
-    // TODO
+  if(currentFunction != NULL ) { // missing return statement
+   if (!returnFlag && (currentFunction->GetType()->GetTypeName() != Type::voidType->GetTypeName())){
+      ReportError::ReturnMissing(currentFunction);
+    }
+
+    currentFunction = NULL; // reset before exiting
+    returnFlag = false;
   }
 
   scopeList.pop_back();

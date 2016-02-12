@@ -79,6 +79,7 @@ class FnDecl : public Decl
     void PrintChildren(int indentLevel);
   
     void Check();
+    Type * GetType() { return returnType; }
     bool Equals(FnDecl * other);
 };
 

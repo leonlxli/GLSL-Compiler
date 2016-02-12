@@ -39,7 +39,7 @@ void Program::Check() {
         decls->Nth(i)->Check();
     }
 
-    symbolTable->ExitScope(NULL); // finish
+    symbolTable->ExitScope(); // finish
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
@@ -169,7 +169,7 @@ void ForStmt::Check(){
     }
     step->Check();
     body->Check();
-    Program::symbolTable->ExitScope(NULL);
+    Program::symbolTable->ExitScope();
 
 }
 
@@ -180,7 +180,7 @@ void WhileStmt::Check(){
         ReportError::TestNotBoolean(test);
     }
     body->Check();
-    Program::symbolTable->ExitScope(NULL);
+    Program::symbolTable->ExitScope();
 }
 
 void IfStmt::Check(){
@@ -189,11 +189,12 @@ void IfStmt::Check(){
         ReportError::TestNotBoolean(test);
     }
     body->Check();
-    Program::symbolTable->ExitScope(NULL);
+    Program::symbolTable->ExitScope();
+
     if(elseBody!=NULL){
         Program::symbolTable->EnterScope(Scope::If);
         elseBody->Check();
-        Program::symbolTable->ExitScope(NULL);
+        Program::symbolTable->ExitScope();
     }
 }
 
@@ -218,8 +219,16 @@ void BreakStmt::Check(){
 }
 
 void ReturnStmt::Check() {
-    // check return expression
-    // verify return type
+    FnDecl * function = Program::symbolTable->currentFunction;
+    Program::symbolTable->returnFlag = true;
 
+    if(expr == NULL && (function->GetType()->GetTypeName() != Type::voidType->GetTypeName())) { // function return should be void 
+        ReportError::ReturnMismatch(this, Type::voidType, function->GetType());
+
+    } else if(expr != NULL) { 
+        if(expr->GetType()->GetTypeName() != function->GetType()->GetTypeName()) {
+            ReportError::ReturnMismatch(this, expr->GetType(), function->GetType());
+        }
+    }
 }
 
