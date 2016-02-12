@@ -7,6 +7,8 @@
 #include "ast_decl.h"
 #include "ast_expr.h"
 #include "errors.h"
+#include <string.h>
+
 
 SymbolTable * Program::symbolTable = new SymbolTable();
 
@@ -148,7 +150,6 @@ void ConditionalStmt::Check(){
     else{
         test->Check();
         Program::symbolTable->EnterScope(Scope::conditional);
-        //check children
         body->Check();
         Program::symbolTable->ExitScope(NULL);
     }
@@ -163,6 +164,45 @@ void StmtBlock::Check(){
     }
 }
 
+void ForStmt::Check(){
+    if(!(Program::symbolTable->FindScope(Scope::function))){
+        ReportError::ConditionOutsideFunction(this);
+    }
+    else{
+        if(strcmp(test->GetPrintNameForNode(),"RelationalExpr")==0){
+            Program::symbolTable->EnterScope(Scope::loop);
+            //verify that these are the right type of expr
+            init->Check();
+            test->Check();
+            step->Check();
+            body->Check();
+            Program::symbolTable->ExitScope(NULL);
+        }
+        else{
+            ReportError::TestNotBoolean(test);
+        }
+    }
+
+}
+
+
+void WhileStmt::Check(){
+    if(!(Program::symbolTable->FindScope(Scope::function))){
+        ReportError::ConditionOutsideFunction(this);
+    }
+    else{
+        if(strcmp(test->GetPrintNameForNode(),"RelationalExpr")==0){
+            Program::symbolTable->EnterScope(Scope::loop);
+            test->Check();
+            body->Check();
+            Program::symbolTable->ExitScope(NULL);
+        }
+        else{
+            ReportError::TestNotBoolean(test);
+        }
+    }
+
+}
 void DeclStmt::Check(){
     decl->Check();
 }
