@@ -155,11 +155,39 @@ Type * ArithmeticExpr::GetType() {
   }
 }
 
+Type * RelationalExpr::GetType() {
+
+}
+
+Type * EqualityExpr::GetType() {
+  if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
+    ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+    return Type::voidType;
+
+  } else {
+    return left->GetType();
+  }
+}
+
+Type * LogicalExpr::GetType() {
+  if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
+    ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+    return Type::voidType;
+
+  } else if (left->GetType()->GetTypeName() != Type::boolType->GetTypeName()) {
+     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+     return Type::voidType;
+
+  } else {
+    return Type::boolType;
+  }
+}
+
 Type * AssignExpr::GetType() {
   if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
     return Type::voidType;
-    
+
   } else {
     return left->GetType();
   }
