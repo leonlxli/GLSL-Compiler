@@ -175,7 +175,6 @@ void ForStmt::Check(){
 }
 
 
-
 void WhileStmt::Check(){
     if(strcmp(test->GetPrintNameForNode(),"RelationalExpr")!=0){
         ReportError::TestNotBoolean(test);
@@ -203,6 +202,10 @@ void IfStmt::Check(){
 
 void DeclStmt::Check(){
     decl->Check();
+}
+
+void SwitchStmt::Check(){
+    
 }
 
 void ReturnStmt::Check() {
