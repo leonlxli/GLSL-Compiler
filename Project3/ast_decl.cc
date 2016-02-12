@@ -58,7 +58,7 @@ void VarDecl::Check() {
 }
 
 bool VarDecl::Equals(VarDecl * other) {
-    if(GetType() == other->GetType()) {
+    if(GetType()->GetTypeName() == other->GetType()->GetTypeName()) {
         return true;
     }
 

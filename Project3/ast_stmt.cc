@@ -162,7 +162,7 @@ void StmtBlock::Check(){
 }
 
 void ForStmt::Check(){
-    if(test->GetType() != Type::boolType->GetTypeName()){
+    if(test->GetType()->GetTypeName() != Type::boolType->GetTypeName()){
         ReportError::TestNotBoolean(test);
     }
     Program::symbolTable->EnterScope(Scope::loop);
@@ -176,7 +176,7 @@ void ForStmt::Check(){
 
 
 void WhileStmt::Check(){
-    if(test->GetType() != Type::boolType->GetTypeName()){
+    if(test->GetType()->GetTypeName() != Type::boolType->GetTypeName()){
         ReportError::TestNotBoolean(test);
     }
     Program::symbolTable->EnterScope(Scope::loop);
@@ -186,7 +186,7 @@ void WhileStmt::Check(){
 }
 
 void IfStmt::Check(){
-    if(test->GetType() != Type::boolType->GetTypeName()){
+    if(test->GetType()->GetTypeName() != Type::boolType->GetTypeName()){
         ReportError::TestNotBoolean(test);
     }
     Program::symbolTable->EnterScope(Scope::If);
