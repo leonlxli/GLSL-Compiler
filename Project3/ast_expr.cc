@@ -146,10 +146,22 @@ Type * RelationalExpr::GetType() {
   if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
     return Type::voidType;
+    
   } else if (left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
              left->GetType()->GetTypeName() != Type::floatType->GetTypeName()) {
      ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
-     
+     return Type::voidType;
+
+  } else {
+    return left->GetType();
+  }
+}
+
+Type * AssignExpr::GetType() {
+  if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
+    ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+    return Type::voidType;
+    
   } else {
     return Type::boolType;
   }
