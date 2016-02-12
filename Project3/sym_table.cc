@@ -85,17 +85,11 @@ bool SymbolTable::FindScope(int scope){
 
 bool SymbolTable::IsSymbolInScope(string id) {
   Symbol * sym = SymbolTable::FindSymbol(id);
-  if(sym==NULL){
-    return true;
-  }
-  if(sym->scope != scope){
-    return true;
-  }
-  else{
+  if(sym == NULL){
     return false;
   }
 
-
+  return true;
 }
 
 void SymbolTable::PrintSymbolTable() {
