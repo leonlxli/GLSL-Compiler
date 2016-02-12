@@ -45,9 +45,13 @@ class SymbolTable {
     list<int> scopeList;
   public:
     SymbolTable(){ scope = 0;}
+
+    static ReturnStmt * ret; // verify when exiting function scope
+
     bool FindScope(int scope);
     void EnterScope(int scope);
-    void ExitScope();
+    void ExitScope(Symbol * symbol);
+
     void AddSymbol(Symbol * sym); 
     Symbol * FindSymbol(string id);
     bool IsSymbolInScope(string id);

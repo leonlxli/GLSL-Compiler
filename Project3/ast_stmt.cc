@@ -29,7 +29,7 @@ void Program::Check() {
      *      and polymorphism in the node classes.
      */
 
-    PrintChildren(0);
+    //PrintChildren(0);
 
     symbolTable->EnterScope(Scope::global);
 
@@ -37,7 +37,7 @@ void Program::Check() {
         decls->Nth(i)->Check();
     }
 
-    symbolTable->ExitScope(); // finish
+    symbolTable->ExitScope(NULL); // finish
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
@@ -150,7 +150,7 @@ void ConditionalStmt::Check(){
         Program::symbolTable->EnterScope(Scope::conditional);
         //check children
         body->Check();
-        Program::symbolTable->ExitScope();
+        Program::symbolTable->ExitScope(NULL);
     }
 }
 
@@ -165,5 +165,10 @@ void StmtBlock::Check(){
 
 void DeclStmt::Check(){
     decl->Check();
+}
+
+void ReturnStmt::Check() {
+    // check return expression
+    // verify return type
 }
 

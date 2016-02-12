@@ -73,7 +73,7 @@ void FnDecl::Check() {
         }
 
         body->Check(); // check body statament block*/
-        Program::symbolTable->ExitScope(); // finished with function
+        Program::symbolTable->ExitScope(newSymbol); // finished with function
     } else {
         ReportError::DeclConflict(this, symbol->decl);
     }

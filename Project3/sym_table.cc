@@ -8,7 +8,7 @@ void SymbolTable::EnterScope(int scopeType) {
   scope++; // inc scope number 
 }
     
-void SymbolTable::ExitScope(){
+void SymbolTable::ExitScope(Symbol * symbol){ // symbol = NULL unless exiting from a function
   while(scopeStack.top()!= string("")){
 
     string key = scopeStack.top();
@@ -26,6 +26,14 @@ void SymbolTable::ExitScope(){
       table.erase(key); // remove symbol from table
     }
   }
+
+  if (scopeList.back() == Scope::function) {
+    // verify presence of return statement if needed
+    FnDecl * fun = (FnDecl *) symbol->decl;
+
+    // TODO
+  }
+
   scopeList.pop_back();
   scopeStack.pop();
   scope--;
