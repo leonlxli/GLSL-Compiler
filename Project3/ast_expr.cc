@@ -125,8 +125,6 @@ void VarExpr::Check() {
   }
 }
 
-
-
 Type * VarExpr::GetType() {
   // return type 
   string varName = string(id->GetName());
@@ -139,6 +137,17 @@ Type * VarExpr::GetType() {
     Symbol * symbol = Program::symbolTable->FindSymbol(varName);
     VarDecl * var = (VarDecl *) symbol->decl;
     return var->GetType();
+  }
+}
+
+void RelationalExpr::Check() {
+  if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
+    ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+    
+  } else if (left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
+             left->GetType()->GetTypeName() != Type::floatType->GetTypeName()) {
+     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+
   }
 }
 
@@ -157,13 +166,28 @@ Type * RelationalExpr::GetType() {
   }
 }
 
+void EqualityExpr::Check() {
+  if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
+    ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+  } 
+}
+
 Type * EqualityExpr::GetType() {
   if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
     return Type::voidType;
 
   } else {
-    return left->GetType();
+    return Type::boolType;
+  }
+}
+
+void LogicalExpr::Check() {
+  if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
+    ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+
+  } else if (left->GetType()->GetTypeName() != Type::boolType->GetTypeName()) {
+     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
   }
 }
 
@@ -181,14 +205,30 @@ Type * LogicalExpr::GetType() {
   }
 }
 
+void AssignExpr::Check() {
+  if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
+    ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+  } 
+}
+
 Type * AssignExpr::GetType() {
   if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
     return Type::voidType;
 
   } else {
-    return Type::boolType;
+    return left->GetType();
   }
+}
+
+void ArithmeticExpr::Check() {
+  if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
+    ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+
+  } else if (left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
+             left->GetType()->GetTypeName() != Type::floatType->GetTypeName()) {
+     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+  } 
 }
 
 Type * ArithmeticExpr::GetType() {
@@ -203,7 +243,14 @@ Type * ArithmeticExpr::GetType() {
     return left->GetType();
   }
 }
- 
+
+void PostfixExpr::Check(){
+  if(left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
+    left->GetType()->GetTypeName() != Type::floatType->GetTypeName()){
+      ReportError::IncompatibleOperand(op, left->GetType());
+  }
+}
+
 Type * PostfixExpr::GetType(){
   if(left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
     left->GetType()->GetTypeName() != Type::floatType->GetTypeName()){
