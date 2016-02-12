@@ -139,4 +139,17 @@ Type * VarExpr::GetType() {
     return var->GetType();
   }
 }
+
+Type * ArithmeticExpr::GetType() {
+  if(left->GetType()->GetTypeName() != right->GetType()->GetTypeName()) {
+    ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+
+  } else if (left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
+             left->GetType()->GetTypeName() != Type::floatType->GetTypeName()) {
+     ReportError::IncompatibleOperands(op, left->GetType(), right->GetType());
+     
+  } else {
+    return left->GetType();
+  }
+}
  
