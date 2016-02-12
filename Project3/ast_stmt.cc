@@ -32,7 +32,7 @@ void Program::Check() {
      *      and polymorphism in the node classes.
      */
 
-    PrintChildren(0);
+    // PrintChildren(0);
 
     symbolTable->EnterScope(Scope::global);
 
@@ -225,13 +225,13 @@ void Case::Check(Type * type){
     if(label->GetType()->GetTypeName() != type->GetTypeName()&&type!=Type::voidType){
         ReportError::CaseSwitchMisMatch(label, caseType, type);
     }
-    Program::symbolTable->ExitScope();
     stmt->Check();
+    Program::symbolTable->ExitScope();
 }
 
 void Default::Check(){
     if(!(Program::symbolTable->FindScope(Scope::_switch))){
-        ReportError::CaseOutSideSwitch(this);
+        ReportError::DefaultOutSideSwitch(this);
     }
     Program::symbolTable->EnterScope(Scope::_default);
     stmt->Check();
@@ -245,7 +245,7 @@ void ContinueStmt::Check(){
 }
 
 void BreakStmt::Check(){
-    if(!(Program::symbolTable->FindScope(Scope::loop)||Program::symbolTable->FindScope(Scope::_switch))){
+    if(!(Program::symbolTable->FindScope(Scope::loop)||Program::symbolTable->FindScope(Scope::_case)||Program::symbolTable->FindScope(Scope::_default))){
         ReportError::BreakOutsideLoop(this);
     }
 }

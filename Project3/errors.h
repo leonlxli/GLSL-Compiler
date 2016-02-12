@@ -104,7 +104,7 @@ class ReportError {
 //Extra Credit
   static void CaseSwitchMisMatch(Expr *expr, Type *caseType, Type *SwitchType);
   static void CaseOutSideSwitch(Case *_case);
-  static void CaseOutSideSwitch(Default *_default);
+  static void DefaultOutSideSwitch(Default *_default);
  private:
   static void UnderlineErrorInLine(const char *line, yyltype *pos);
   static void OutputError(yyltype *loc, string msg);

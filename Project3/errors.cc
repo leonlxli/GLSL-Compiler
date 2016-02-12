@@ -165,7 +165,7 @@ void ReportError::CaseSwitchMisMatch(Expr *expr, Type *caseType, Type *SwitchTyp
 void ReportError::CaseOutSideSwitch(Case *_case) { 
     OutputError(_case->GetLocation(), "Case is only allowed inside a switch statement");
 }
-void ReportError::CaseOutSideSwitch(Default *_default) { 
+void ReportError::DefaultOutSideSwitch(Default *_default) { 
     OutputError(_default->GetLocation(), "default is only allowed inside a switch statement");
 }
 
