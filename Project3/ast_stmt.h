@@ -45,7 +45,8 @@ class Stmt : public Node
      Stmt() : Node() {}
      Stmt(yyltype loc) : Node(loc) {}
 
-     virtual void Check() { printf("Pure Stmt");}
+     virtual void Check() {}
+     virtual void Check(Type * type) {}
 };
 
 class StmtBlock : public Stmt 
@@ -181,6 +182,8 @@ class Case : public SwitchLabel
     Case() : SwitchLabel() {}
     Case(Expr *label, Stmt *stmt) : SwitchLabel(label, stmt) {}
     const char *GetPrintNameForNode() { return "Case"; }
+    void Check(Type * type);
+    void Check();
 };
 
 class Default : public SwitchLabel
@@ -188,6 +191,7 @@ class Default : public SwitchLabel
   public:
     Default(Stmt *stmt) : SwitchLabel(stmt) {}
     const char *GetPrintNameForNode() { return "Default"; }
+    void Check();
 };
 
 class SwitchStmt : public Stmt

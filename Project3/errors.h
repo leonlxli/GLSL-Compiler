@@ -51,6 +51,8 @@ class IfStmt;
 class ReturnStmt;
 class Decl;
 class Operator;
+class Case;
+class Default;
 
 typedef enum {
       LookingForType,
@@ -94,10 +96,15 @@ class ReportError {
   // Generic method to report a printf-style error message
   static void Formatted(yyltype *loc, const char *format, ...);
 
-
   // Returns number of error messages printed
   static int NumErrors() { return numErrors; }
   
+
+
+//Extra Credit
+  static void CaseSwitchMisMatch(Expr *expr, Type *caseType, Type *SwitchType);
+  static void CaseOutSideSwitch(Case *_case);
+  static void CaseOutSideSwitch(Default *_default);
  private:
   static void UnderlineErrorInLine(const char *line, yyltype *pos);
   static void OutputError(yyltype *loc, string msg);

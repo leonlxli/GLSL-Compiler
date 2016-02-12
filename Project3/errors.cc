@@ -156,6 +156,19 @@ void ReportError::ConditionOutsideFunction(ConditionalStmt *condStmt) {
     OutputError(condStmt->GetLocation(), "If Statement are only allowed in functions");
 }
 
+
+//extra credit
+void ReportError::CaseSwitchMisMatch(Expr *expr, Type *caseType, Type *SwitchType){
+    OutputError(expr->GetLocation(), "Case Label type is different from Switch Label Type");
+}
+
+void ReportError::CaseOutSideSwitch(Case *_case) { 
+    OutputError(_case->GetLocation(), "Case is only allowed inside a switch statement");
+}
+void ReportError::CaseOutSideSwitch(Default *_default) { 
+    OutputError(_default->GetLocation(), "default is only allowed inside a switch statement");
+}
+
 /**
  * Function: yyerror()
  * -------------------

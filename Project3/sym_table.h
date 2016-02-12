@@ -23,7 +23,9 @@ enum Scope {
 		If, 
 		loop, 
 		_switch, 
-		_case 
+		_case,
+    _default
+
 	};
 }
 

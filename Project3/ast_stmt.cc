@@ -15,6 +15,7 @@ SymbolTable * Program::symbolTable = new SymbolTable();
 Program::Program(List<Decl*> *d) {
     Assert(d != NULL);
     (decls=d)->SetParentAll(this);
+    //PrintChildren(1);
 }
 
 void Program::PrintChildren(int indentLevel) {
@@ -31,7 +32,7 @@ void Program::Check() {
      *      and polymorphism in the node classes.
      */
 
-    //PrintChildren(0);
+    PrintChildren(0);
 
     symbolTable->EnterScope(Scope::global);
 
@@ -203,7 +204,38 @@ void DeclStmt::Check(){
 }
 
 void SwitchStmt::Check(){
+    Program::symbolTable->EnterScope(Scope::_switch);
+        Type * type = expr->GetType();
+        for (int i = 0; i < cases->NumElements(); i++) {
+            cases->Nth(i)->Check(type);
+        }
+        if(def!=NULL){
+            def->Check();
+        }
+    Program::symbolTable->ExitScope();
+}
 
+void Case::Check(){
+    ReportError::CaseOutSideSwitch(this);
+}
+
+void Case::Check(Type * type){
+    Program::symbolTable->EnterScope(Scope::_case);
+    Type * caseType = label->GetType();
+    if(label->GetType()->GetTypeName() != type->GetTypeName()&&type!=Type::voidType){
+        ReportError::CaseSwitchMisMatch(label, caseType, type);
+    }
+    Program::symbolTable->ExitScope();
+    stmt->Check();
+}
+
+void Default::Check(){
+    if(!(Program::symbolTable->FindScope(Scope::_switch))){
+        ReportError::CaseOutSideSwitch(this);
+    }
+    Program::symbolTable->EnterScope(Scope::_default);
+    stmt->Check();
+    Program::symbolTable->ExitScope();
 }
 
 void ContinueStmt::Check(){
@@ -213,10 +245,11 @@ void ContinueStmt::Check(){
 }
 
 void BreakStmt::Check(){
-    if(!(Program::symbolTable->FindScope(Scope::loop))){
+    if(!(Program::symbolTable->FindScope(Scope::loop)||Program::symbolTable->FindScope(Scope::_switch))){
         ReportError::BreakOutsideLoop(this);
     }
 }
+
 
 void ReturnStmt::Check() {
     FnDecl * function = Program::symbolTable->currentFunction;

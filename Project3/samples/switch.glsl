@@ -1,9 +1,10 @@
 
 void main() {
-   int x;
-
+   case 5: break;
    switch( x + 1.0 ) {
      case 0: break;
-     case 1: x = 2; break;
+     int x;
+     case 1: int x; int x;
+     default: int i; int i;
    }
 }
