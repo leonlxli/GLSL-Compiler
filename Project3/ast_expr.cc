@@ -115,4 +115,28 @@ Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     if (field) field->Print(indentLevel+1);
     if (actuals) actuals->PrintAll(indentLevel+1, "(actuals) ");
   }
+
+void VarExpr::Check() {
+  string varName = string(id->GetName());
+
+  if(Program::symbolTable->FindSymbol(varName)->assignment == NULL){ // not initialized
+    // maybe throw error - not sure
+    
+  }
+}
+
+Type * VarExpr::GetType() {
+  // return type 
+  string varName = string(id->GetName());
+
+  if(!Program::symbolTable->IsSymbolInScope(varName)) { // not in scope
+    ReportError::IdentifierNotDeclared(id, LookingForVariable);
+    return Type::voidType;
+
+  } else {
+    Symbol * symbol = Program::symbolTable->FindSymbol(varName);
+    VarDecl * var = (VarDecl *) symbol->decl;
+    return var->GetType();
+  }
+}
  

@@ -24,11 +24,13 @@ class Expr : public Stmt
   public:
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
-    virtual void Check() {}
 
     friend std::ostream& operator<< (std::ostream& stream, Expr * expr) {
       return stream << expr->GetPrintNameForNode();
     } 
+
+    virtual void Check() {}
+    virtual Type * GetType() { return Type::voidType; } // will be overridden 
 };
 
 class ExprError : public Expr
@@ -45,6 +47,9 @@ class EmptyExpr : public Expr
 {
   public:
     const char *GetPrintNameForNode() { return "Empty"; }
+
+    void Check() {}
+    Type * GetType() { return Type::voidType; }
 };
 
 class IntConstant : public Expr 
@@ -56,6 +61,8 @@ class IntConstant : public Expr
     IntConstant(yyltype loc, int val);
     const char *GetPrintNameForNode() { return "IntConstant"; }
     void PrintChildren(int indentLevel);
+
+    Type * GetType() { return Type::intType; }
 };
 
 class FloatConstant: public Expr 
@@ -67,6 +74,8 @@ class FloatConstant: public Expr
     FloatConstant(yyltype loc, double val);
     const char *GetPrintNameForNode() { return "FloatConstant"; }
     void PrintChildren(int indentLevel);
+
+    Type * GetType() { return Type::floatType; }
 };
 
 class BoolConstant : public Expr 
@@ -78,6 +87,8 @@ class BoolConstant : public Expr
     BoolConstant(yyltype loc, bool val);
     const char *GetPrintNameForNode() { return "BoolConstant"; }
     void PrintChildren(int indentLevel);
+
+    Type * GetType() { return Type::boolType; }
 };
 
 class VarExpr : public Expr
@@ -89,6 +100,9 @@ class VarExpr : public Expr
     VarExpr(yyltype loc, Identifier *id);
     const char *GetPrintNameForNode() { return "VarExpr"; }
     void PrintChildren(int indentLevel);
+
+    void Check();
+    Type * GetType();
 };
 
 class Operator : public Node 
