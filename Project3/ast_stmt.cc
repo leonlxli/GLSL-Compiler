@@ -32,7 +32,7 @@ void Program::Check() {
      *      and polymorphism in the node classes.
      */
 
-    // PrintChildren(0);
+    PrintChildren(0);
 
     symbolTable->EnterScope(Scope::global);
 
@@ -207,10 +207,19 @@ void SwitchStmt::Check(){
     Program::symbolTable->EnterScope(Scope::_switch);
         Type * type = expr->GetType();
         for (int i = 0; i < cases->NumElements(); i++) {
-            cases->Nth(i)->Check(type);
+            if((strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")!=0)
+                &&(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")!=0)){
+                ReportError::DeclarationBesidesCase(cases->Nth(i));
+            }
+            else if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")==0 && i<cases->NumElements()-1){
+                ReportError::DefaultNotLast(cases->Nth(i));
+            }
+            else{
+                cases->Nth(i)->Check(type);
+            }
         }
-        if(def!=NULL){
-            def->Check();
+        if(def==NULL){
+            printf("null\n");
         }
     Program::symbolTable->ExitScope();
 }
@@ -230,7 +239,9 @@ void Case::Check(Type * type){
 }
 
 void Default::Check(){
+    printf("default\n");
     if(!(Program::symbolTable->FindScope(Scope::_switch))){
+        printf("uhoh");
         ReportError::DefaultOutSideSwitch(this);
     }
     Program::symbolTable->EnterScope(Scope::_default);

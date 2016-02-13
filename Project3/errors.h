@@ -105,6 +105,8 @@ class ReportError {
   static void CaseSwitchMisMatch(Expr *expr, Type *caseType, Type *SwitchType);
   static void CaseOutSideSwitch(Case *_case);
   static void DefaultOutSideSwitch(Default *_default);
+  static void DeclarationBesidesCase(Stmt *stmt);
+  static void DefaultNotLast(Stmt *stmt);
  private:
   static void UnderlineErrorInLine(const char *line, yyltype *pos);
   static void OutputError(yyltype *loc, string msg);

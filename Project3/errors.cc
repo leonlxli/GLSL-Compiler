@@ -166,9 +166,15 @@ void ReportError::CaseOutSideSwitch(Case *_case) {
     OutputError(_case->GetLocation(), "Case is only allowed inside a switch statement");
 }
 void ReportError::DefaultOutSideSwitch(Default *_default) { 
-    OutputError(_default->GetLocation(), "default is only allowed inside a switch statement");
+    OutputError(_default->GetLocation(), "default is only allowed at the end of a switch statement");
 }
 
+void ReportError::DeclarationBesidesCase(Stmt *stmt){
+    OutputError(stmt->GetLocation(), "statements in switch statments must start with case or default.");
+}
+void ReportError::DefaultNotLast(Stmt *stmt) { 
+    OutputError(stmt->GetLocation(), "default is only allowed at the end of a switch statement");
+}
 /**
  * Function: yyerror()
  * -------------------
