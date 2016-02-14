@@ -32,7 +32,7 @@ void Program::Check() {
      *      and polymorphism in the node classes.
      */
 
-    PrintChildren(0);
+    // PrintChildren(0);
 
     symbolTable->EnterScope(Scope::global);
 
@@ -219,7 +219,7 @@ void SwitchStmt::Check(){
             }
         }
         if(def==NULL){
-            printf("null\n");
+            def->Check();
         }
     Program::symbolTable->ExitScope();
 }
