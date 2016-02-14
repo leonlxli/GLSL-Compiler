@@ -37,7 +37,6 @@ typedef struct Symbol {
   
   AssignExpr * assignment; // if no assignment, then uninitialized 
   
-  List<int> * references; // variable ref lines - not sure if needed
 } Symbol;
 
 class SymbolTable {
