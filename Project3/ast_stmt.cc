@@ -165,7 +165,9 @@ void ForStmt::Check(){
     // printf("hello");
     Program::symbolTable->EnterScope(Scope::loop);
     init->Check();
-    if(test->GetType()->GetTypeName() != Type::boolType->GetTypeName()){
+
+    string type = test->GetType()->GetTypeName();
+    if(type != Type::boolType->GetTypeName() && type != Type::errorType->GetTypeName()){
         ReportError::TestNotBoolean(test);
     }
     step->Check();
@@ -177,7 +179,9 @@ void ForStmt::Check(){
 
 void WhileStmt::Check(){
     Program::symbolTable->EnterScope(Scope::loop);
-    if(test->GetType()->GetTypeName() != Type::boolType->GetTypeName()){
+
+    string type = test->GetType()->GetTypeName();
+    if(type != Type::boolType->GetTypeName() && type != Type::errorType->GetTypeName()){
         ReportError::TestNotBoolean(test);
     }
     body->Check();
@@ -186,7 +190,9 @@ void WhileStmt::Check(){
 
 void IfStmt::Check(){
     Program::symbolTable->EnterScope(Scope::If);
-    if(test->GetType()->GetTypeName() != Type::boolType->GetTypeName()){
+    
+    string type = test->GetType()->GetTypeName();
+    if(type != Type::boolType->GetTypeName() && type != Type::errorType->GetTypeName()){
         ReportError::TestNotBoolean(test);
     }
     body->Check();

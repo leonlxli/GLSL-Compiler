@@ -318,7 +318,9 @@ void PostfixExpr::Check(){
 
   if(l->GetTypeName() != Type::intType->GetTypeName() && 
     l->GetTypeName() != Type::floatType->GetTypeName()){
-      ReportError::IncompatibleOperand(op, l);
+      if(l->GetTypeName() != Type::errorType->GetTypeName()){
+        ReportError::IncompatibleOperand(op, l);
+    }
   }
 }
 
@@ -326,7 +328,9 @@ Type * PostfixExpr::GetType(){
   Type * l = left->GetType();
   if(l->GetTypeName() != Type::intType->GetTypeName() && 
     l->GetTypeName() != Type::floatType->GetTypeName()){
-      ReportError::IncompatibleOperand(op, l);
+      if(l->GetTypeName() != Type::errorType->GetTypeName()){
+        ReportError::IncompatibleOperand(op, l);
+      }
       return Type::errorType;
   }
   else{
