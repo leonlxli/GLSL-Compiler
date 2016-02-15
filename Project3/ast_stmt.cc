@@ -20,7 +20,6 @@ Program::Program(List<Decl*> *d) {
 
 void Program::PrintChildren(int indentLevel) {
     decls->PrintAll(indentLevel+1);
-    printf("\n");
 }
 
 void Program::Check() {
@@ -163,6 +162,7 @@ void StmtBlock::Check(){
 }
 
 void ForStmt::Check(){
+    // printf("hello");
     Program::symbolTable->EnterScope(Scope::loop);
     init->Check();
     if(test->GetType()->GetTypeName() != Type::boolType->GetTypeName()){
@@ -207,15 +207,14 @@ void SwitchStmt::Check(){
     Program::symbolTable->EnterScope(Scope::_switch);
         Type * type = expr->GetType();
         for (int i = 0; i < cases->NumElements(); i++) {
-            if((strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")!=0)
-                &&(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")!=0)){
-                ReportError::DeclarationBesidesCase(cases->Nth(i));
-            }
-            else if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")==0 && i<cases->NumElements()-1){
+            if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")==0 && i<cases->NumElements()-1){
                 ReportError::DefaultNotLast(cases->Nth(i));
             }
-            else{
+            else if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")==0) {
                 cases->Nth(i)->Check(type);
+            }
+            else{
+                cases->Nth(i)->Check();
             }
         }
         if(def!=NULL){
@@ -230,14 +229,13 @@ void Case::Check(){
 
 void Case::Check(Type * type){
     Type * caseType = label->GetType();
-    if(label->GetType()->GetTypeName() != type->GetTypeName()&&type!=Type::voidType){
+    if(label->GetType()->GetTypeName() != type->GetTypeName()&&type!=Type::errorType){
         ReportError::CaseSwitchMisMatch(label, caseType, type);
     }
     stmt->Check();
 }
 
 void Default::Check(){
-    printf("default\n");
     if(!(Program::symbolTable->FindScope(Scope::_switch))){
         //printf("uhoh");
         ReportError::DefaultOutSideSwitch(this);

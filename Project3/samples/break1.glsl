@@ -1,6 +1,7 @@
 
 void foo () {
-	if(true+true){
+break;
+	if(true){
 	
 	}
 }
