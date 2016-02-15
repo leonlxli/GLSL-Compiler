@@ -320,7 +320,7 @@ void PostfixExpr::Check(){
     l->GetTypeName() != Type::floatType->GetTypeName()){
       if(l->GetTypeName() != Type::errorType->GetTypeName()){
         ReportError::IncompatibleOperand(op, l);
-      }
+    }
   }
 }
 

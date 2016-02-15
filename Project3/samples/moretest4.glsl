@@ -1,4 +1,5 @@
+int x;
 void main() {
-	for(i=0; i<5; i++){
+	for(y; y < 5; y++) {
 	}
 }
