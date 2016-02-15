@@ -22,10 +22,7 @@ enum Scope {
 		function, 
 		If, 
 		loop, 
-		_switch, 
-		_case,
-    _default
-
+		_switch
 	};
 }
 

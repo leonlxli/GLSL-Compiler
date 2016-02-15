@@ -229,24 +229,20 @@ void Case::Check(){
 }
 
 void Case::Check(Type * type){
-    Program::symbolTable->EnterScope(Scope::_case);
     Type * caseType = label->GetType();
     if(label->GetType()->GetTypeName() != type->GetTypeName()&&type!=Type::voidType){
         ReportError::CaseSwitchMisMatch(label, caseType, type);
     }
     stmt->Check();
-    Program::symbolTable->ExitScope();
 }
 
 void Default::Check(){
     printf("default\n");
     if(!(Program::symbolTable->FindScope(Scope::_switch))){
-        printf("uhoh");
+        //printf("uhoh");
         ReportError::DefaultOutSideSwitch(this);
     }
-    Program::symbolTable->EnterScope(Scope::_default);
     stmt->Check();
-    Program::symbolTable->ExitScope();
 }
 
 void ContinueStmt::Check(){
@@ -256,7 +252,7 @@ void ContinueStmt::Check(){
 }
 
 void BreakStmt::Check(){
-    if(!(Program::symbolTable->FindScope(Scope::loop)||Program::symbolTable->FindScope(Scope::_case)||Program::symbolTable->FindScope(Scope::_default))){
+    if(!(Program::symbolTable->FindScope(Scope::loop)||Program::symbolTable->FindScope(Scope::_switch))){
         ReportError::BreakOutsideLoop(this);
     }
 }
