@@ -270,7 +270,9 @@ void ReturnStmt::Check() {
         ReportError::ReturnMismatch(this, Type::voidType, function->GetType());
 
     } else if(expr != NULL) { 
-        if(expr->GetType()->GetTypeName() != function->GetType()->GetTypeName()) {
+        string returnType = expr->GetType()->GetTypeName();
+
+        if(returnType != function->GetType()->GetTypeName() && returnType != Type::voidType->GetTypeName()) {
             ReportError::ReturnMismatch(this, expr->GetType(), function->GetType());
         }
     }
