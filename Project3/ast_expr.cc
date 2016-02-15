@@ -224,7 +224,10 @@ void AssignExpr::Check() {
   Type * l = left->GetType();
   Type * r = right->GetType();
   if(l->GetTypeName() != r->GetTypeName()) {
-    ReportError::IncompatibleOperands(op, l, r);
+    if(l->GetTypeName()!= Type::voidType->GetTypeName() &&
+       r->GetTypeName()!= Type::voidType->GetTypeName()){
+      ReportError::IncompatibleOperands(op, l, r);
+    }
   } 
 }
 
@@ -232,9 +235,11 @@ Type * AssignExpr::GetType() {
   Type * l = left->GetType();
   Type * r = right->GetType();
   if(l->GetTypeName() != r->GetTypeName()) {
-    ReportError::IncompatibleOperands(op, l, r);
+    if(l->GetTypeName() != Type::voidType->GetTypeName() && 
+       r->GetTypeName() != Type::voidType->GetTypeName()){
+      ReportError::IncompatibleOperands(op, l, r);
+    }
     return Type::voidType;
-
   } else {
     return left->GetType();
   }
@@ -268,20 +273,24 @@ Type * ArithmeticExpr::GetType() {
 }
 
 void PostfixExpr::Check(){
-  if(left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
-    left->GetType()->GetTypeName() != Type::floatType->GetTypeName()){
-      ReportError::IncompatibleOperand(op, left->GetType());
+  Type * l = left->GetType();
+  Type * r = right->GetType();
+  if(l->GetTypeName() != Type::intType->GetTypeName() && 
+    l->GetTypeName() != Type::floatType->GetTypeName()){
+      ReportError::IncompatibleOperand(op, l);
   }
 }
 
 Type * PostfixExpr::GetType(){
-  if(left->GetType()->GetTypeName() != Type::intType->GetTypeName() && 
-    left->GetType()->GetTypeName() != Type::floatType->GetTypeName()){
-      ReportError::IncompatibleOperand(op, left->GetType());
+  Type * l = left->GetType();
+  Type * r = right->GetType();
+  if(l->GetTypeName() != Type::intType->GetTypeName() && 
+    l->GetTypeName() != Type::floatType->GetTypeName()){
+      ReportError::IncompatibleOperand(op, l);
       return Type::voidType;
   }
   else{
-    return left->GetType();
+    return l;
   }
 }
 
