@@ -218,7 +218,7 @@ void SwitchStmt::Check(){
                 cases->Nth(i)->Check(type);
             }
         }
-        if(def==NULL){
+        if(def!=NULL){
             def->Check();
         }
     Program::symbolTable->ExitScope();
