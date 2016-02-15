@@ -1,6 +1,6 @@
-void if_else() {
-	bool x;
-
-	if(x)
-		float y;
+void main (int x) {
+  int j;
+  for(j = 0; true; j++){
+    int j;
+  }
 }
