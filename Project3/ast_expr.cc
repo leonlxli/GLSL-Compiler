@@ -120,7 +120,9 @@ Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
 void VarExpr::Check() {
   string varName = string(id->GetName());
 
-  if(Program::symbolTable->FindSymbol(varName)->assignment == NULL){ // not initialized
+  if(!Program::symbolTable->IsSymbolInScope(varName)) { // not in scope
+    ReportError::IdentifierNotDeclared(id, LookingForVariable);
+  } else if(Program::symbolTable->FindSymbol(varName)->assignment == NULL){ // not initialized
     // maybe throw error - not sure
     
   }
@@ -274,7 +276,6 @@ Type * ArithmeticExpr::GetType() {
 
 void PostfixExpr::Check(){
   Type * l = left->GetType();
-  Type * r = right->GetType();
   if(l->GetTypeName() != Type::intType->GetTypeName() && 
     l->GetTypeName() != Type::floatType->GetTypeName()){
       ReportError::IncompatibleOperand(op, l);
@@ -283,7 +284,6 @@ void PostfixExpr::Check(){
 
 Type * PostfixExpr::GetType(){
   Type * l = left->GetType();
-  Type * r = right->GetType();
   if(l->GetTypeName() != Type::intType->GetTypeName() && 
     l->GetTypeName() != Type::floatType->GetTypeName()){
       ReportError::IncompatibleOperand(op, l);
