@@ -28,7 +28,7 @@ void SymbolTable::ExitScope(){ // symbol = NULL unless exiting from a function
   }
 
 
-  if(currentFunction != NULL ) { // missing return statement
+  if(currentFunction != NULL && scopeList.back() == Scope::function) { // missing return statement
    if (!returnFlag && (currentFunction->GetType()->GetTypeName() != Type::voidType->GetTypeName())){
       ReportError::ReturnMissing(currentFunction);
     }
