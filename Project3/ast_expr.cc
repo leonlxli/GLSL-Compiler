@@ -139,6 +139,12 @@ Type * VarExpr::GetType() {
 
   } else {
     Symbol * symbol = Program::symbolTable->FindSymbol(varName);
+
+    if(symbol->isFunction) {
+      ReportError::IdentifierNotDeclared(id, LookingForVariable);
+      return Type::errorType;
+    }
+
     VarDecl * var = (VarDecl *) symbol->decl;
     return var->GetType();
   }
