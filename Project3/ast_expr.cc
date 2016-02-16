@@ -394,3 +394,70 @@ void FieldAccess::Check() {
     }
   }
 }
+
+Type * FieldAccess::GetType() {
+  string type = base->GetType()->GetTypeName();
+
+  if(type != Type::vec2Type->GetTypeName() &&
+     type != Type::vec3Type->GetTypeName() &&
+     type != Type::vec4Type->GetTypeName()) {
+
+    ReportError::InaccessibleSwizzle(field, base);
+
+    return Type::errorType;
+  } else {
+
+    int err;
+    regex_t swizzle;
+
+    regcomp(&swizzle, "[xyzw]+", REG_EXTENDED);
+
+    err = regexec(&swizzle, field->GetName(), 0, NULL, REG_EXTENDED);
+
+    if (err) {
+      ReportError::InvalidSwizzle(field, base);
+      return Type::errorType;
+    } else {
+      if(strlen(field->GetName()) > 4) {
+        ReportError::OversizedVector(field, base);
+        return Type::errorType;
+      }
+
+      if(type == Type::vec2Type->GetTypeName()) {
+
+        char * z = strchr(field->GetName(), 'z');
+        char * w = strchr(field->GetName(), 'w');
+
+        if (z != NULL || w != NULL) {
+          err = 1;
+        }
+
+      } else if(type == Type::vec3Type->GetTypeName()) {
+        char * w = strchr(field->GetName(), 'w');
+        
+        if (w != NULL) {
+          err = 1;
+        }
+      }
+
+      if(err) {
+        ReportError::SwizzleOutOfBound(field, base);
+        return Type::errorType;
+      } 
+    }
+  }
+
+  int l = strlen(field->GetName());
+
+  if(l == 1) {
+    return Type::floatType;
+  } else if(l == 2) {
+    return Type::vec2Type;
+  } else if(l == 3) {
+    return Type::vec3Type;
+  } else if(l == 4) {
+    return Type::vec4Type;
+  } else {
+    return Type::errorType;
+  }
+}

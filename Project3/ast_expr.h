@@ -226,6 +226,7 @@ class FieldAccess : public LValue
     void PrintChildren(int indentLevel);
 
     void Check();
+    Type * GetType();
 };
 
 /* Like field access, call is used both for qualified base.field()
