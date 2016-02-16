@@ -1,6 +1,9 @@
-void main (int x) {
-  int j;
-  for(j = 0; true; j++){
-    int j;
-  }
+
+void main() {
+   int x;
+   switch( x + 1.0 ) {
+     case 0: break;
+     case 0: int x;
+     default: int i;
+   }
 }

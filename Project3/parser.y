@@ -304,12 +304,12 @@ UnaryExpr          : PostfixExpr     { $$ = $1; }
                    | T_Inc UnaryExpr
                            {
                              Operator *op = new Operator(yylloc, $1);
-                             $$ = new ArithmeticExpr(op, $2);
+                             $$ = new PostfixExpr($2, op);
                            }
                    | T_Dec UnaryExpr
                            {
                              Operator *op = new Operator(yylloc, $1);
-                             $$ = new ArithmeticExpr(op, $2);
+                             $$ = new PostfixExpr($2, op);
                            }
                    | T_Plus UnaryExpr
                            {

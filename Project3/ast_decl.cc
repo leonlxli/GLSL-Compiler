@@ -67,7 +67,6 @@ bool VarDecl::Equals(VarDecl * other) {
 
 void FnDecl::Check() {
     Program::symbolTable->currentFunction = this;
-    
     Symbol * symbol = Program::symbolTable->FindSymbol(GetId());
 
     if (symbol == NULL || 
@@ -86,8 +85,9 @@ void FnDecl::Check() {
         for (int i = 0; i < formals->NumElements(); i++) {
             formals->Nth(i)->Check(); // add params to symbol table
         }
-
         body->Check(); // check body statament block*/
+
+
         Program::symbolTable->ExitScope(); // finished with function
     } else {
         ReportError::DeclConflict(this, symbol->decl);
@@ -108,7 +108,6 @@ bool FnDecl::Equals(FnDecl * other) {
     if(formals->NumElements() != other->formals->NumElements()) {
         return false;
     }
-
     for (int i = 0; i < formals->NumElements(); i++) {
         if(!formals->Nth(i)->Equals(other->formals->Nth(i))) {
             return false;

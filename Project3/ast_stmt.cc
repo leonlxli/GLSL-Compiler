@@ -31,7 +31,7 @@ void Program::Check() {
      *      and polymorphism in the node classes.
      */
 
-    // PrintChildren(0);
+    PrintChildren(0);
 
     symbolTable->EnterScope(Scope::global);
 
@@ -153,10 +153,14 @@ void ConditionalStmt::Check(){
 }
 
 void StmtBlock::Check(){
+    printf("hi stmtblock\n");
     for (int i = 0; i < decls->NumElements(); i++) {
         decls->Nth(i)->Check();
     }
     for (int i = 0; i < stmts->NumElements(); i++) {
+        printf("yo fdasf yo\n");
+        stmts->Nth(i)->GetPrintNameForNode();
+        printf("After");
         stmts->Nth(i)->Check();
     }
 }
