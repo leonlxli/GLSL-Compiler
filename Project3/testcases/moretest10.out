@@ -1,0 +1,12 @@
+
+*** Error line 2.
+	int x;
+             ^
+*** Declaration of 'x' here conflicts with declaration on line 1
+
+
+*** Error line 1.
+int MyFunction(int x, int y) {
+                           ^
+*** Declaration of 'MyFunction' on line 1 doesn't have a return
+

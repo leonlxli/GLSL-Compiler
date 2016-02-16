@@ -1,0 +1,6 @@
+
+*** Error line 3.
+	vec2 y = 1.6 + x;
+                     ^
+*** syntax error
+

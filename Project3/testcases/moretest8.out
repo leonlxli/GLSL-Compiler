@@ -1,0 +1,6 @@
+
+*** Error line 2.
+float test() {return 1.0;}
+           ^
+*** Declaration of 'test' here conflicts with declaration on line 1
+

@@ -1,0 +1,6 @@
+
+*** Error line 2.
+	vec2 = v;
+             ^
+*** syntax error
+

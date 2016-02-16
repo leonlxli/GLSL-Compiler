@@ -1,0 +1,6 @@
+
+*** Error line 2.
+	switch(x+1.0) {
+               ^
+*** No declaration found for variable 'x'
+

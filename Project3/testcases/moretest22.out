@@ -1,0 +1,6 @@
+
+*** Error line 3.
+	abc.xyxyy;
+            ^^^^^
+*** VarExpr swizzle 'xyxyy' generates a vector longer than vec4
+

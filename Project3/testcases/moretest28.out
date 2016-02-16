@@ -1,0 +1,6 @@
+
+*** Error line 4.
+	return x + y;
+                    ^
+*** Incompatible operands: int + bool
+

@@ -1,0 +1,6 @@
+
+*** Error line 3.
+	vec4 otherVec = someVec.xyxx;
+                        ^^^^^^^
+*** syntax error
+

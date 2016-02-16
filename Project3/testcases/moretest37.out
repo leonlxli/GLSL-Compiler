@@ -1,0 +1,12 @@
+
+*** Error line 2.
+	if(x){
+           ^
+*** No declaration found for variable 'x'
+
+
+*** Error line 2.
+	if(x){
+           ^
+*** Test expression must have boolean type
+

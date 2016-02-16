@@ -1,0 +1,6 @@
+
+*** Error line 4.
+	int e;
+             ^
+*** Declaration of 'e' here conflicts with declaration on line 2
+

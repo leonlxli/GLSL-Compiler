@@ -1,0 +1,6 @@
+
+*** Error line 1.
+int test() { return 1;)
+                      ^
+*** syntax error
+

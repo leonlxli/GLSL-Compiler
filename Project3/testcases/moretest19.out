@@ -1,0 +1,6 @@
+
+*** Error line 1.
+int main() {
+         ^
+*** Declaration of 'main' on line 1 doesn't have a return
+

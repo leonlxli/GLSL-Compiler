@@ -1,0 +1,6 @@
+
+*** Error line 3.
+	for(y; y < 5; y++) {
+               ^
+*** No declaration found for variable 'y'
+

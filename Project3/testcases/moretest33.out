@@ -1,0 +1,6 @@
+
+*** Error line 2.
+	for(i=0; i<5; i++){
+                 ^
+*** No declaration found for variable 'i'
+

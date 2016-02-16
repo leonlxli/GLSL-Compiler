@@ -1,0 +1,6 @@
+
+*** Error line 1.
+int fn(int k)
+            ^
+*** Declaration of 'fn' on line 1 doesn't have a return
+

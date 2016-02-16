@@ -1,0 +1,6 @@
+
+*** Error line 4.
+	if( y == (x = 3))
+            ^^^^^^^^^^^
+*** Test expression must have boolean type
+
