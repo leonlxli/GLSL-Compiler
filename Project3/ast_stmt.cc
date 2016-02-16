@@ -15,7 +15,6 @@ SymbolTable * Program::symbolTable = new SymbolTable();
 Program::Program(List<Decl*> *d) {
     Assert(d != NULL);
     (decls=d)->SetParentAll(this);
-    // PrintChildren(1);
 }
 
 void Program::PrintChildren(int indentLevel) {
@@ -157,8 +156,15 @@ void StmtBlock::Check(){
         decls->Nth(i)->Check();
     }
     for (int i = 0; i < stmts->NumElements(); i++) {
-        stmts->Nth(i)->GetPrintNameForNode();
-        stmts->Nth(i)->Check();
+        if(strcmp(stmts->Nth(i)->GetPrintNameForNode(), "StmtBlock")==0){
+            Program::symbolTable->EnterScope(Scope::block);
+            stmts->Nth(i)->Check();
+            Program::symbolTable->ExitScope();
+        }
+        else{
+            stmts->Nth(i)->Check();
+        }
+        
     }
 }
 

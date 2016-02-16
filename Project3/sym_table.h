@@ -22,7 +22,8 @@ enum Scope {
 		function, 
 		If, 
 		loop, 
-		_switch
+		_switch,
+    block
 	};
 }
 

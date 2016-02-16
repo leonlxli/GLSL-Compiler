@@ -1,7 +1,10 @@
+int x;
 void main () {
+	int y;
 	int y;
 	float x;
 	if( y == (x = 3.0))
 	{
+
 	}
 }
