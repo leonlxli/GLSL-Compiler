@@ -276,7 +276,7 @@ void ReturnStmt::Check() {
         string returnType = expr->GetType()->GetTypeName();
 
         if(returnType != fType->GetTypeName() && returnType != Type::voidType->GetTypeName()) {
-            if(fType->GetTypeName() != Type::errorType->GetTypeName())
+            if(returnType != Type::errorType->GetTypeName())
                 ReportError::ReturnMismatch(this, expr->GetType(), function->GetType());
         }
     }
