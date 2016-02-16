@@ -278,36 +278,29 @@ Type * AssignExpr::GetType() {
 void ArithmeticExpr::Check() {
   Type * l = left->GetType();
   Type * r = right->GetType();
-  if(l->GetTypeName() != r->GetTypeName()) {
+
+  if (l->GetTypeName() == Type::boolType->GetTypeName() || r->GetTypeName() == Type::boolType->GetTypeName()) {
+     ReportError::IncompatibleOperands(op, l, r);
+  } else if(l->GetTypeName() != r->GetTypeName()) {
     if(l->GetTypeName() != Type::errorType->GetTypeName() && 
        r->GetTypeName() != Type::errorType->GetTypeName()){
       ReportError::IncompatibleOperands(op, l, r);
     }
-  } else if (l->GetTypeName() != Type::intType->GetTypeName() && 
-             l->GetTypeName() != Type::floatType->GetTypeName()) {
-    if(l->GetTypeName() != Type::errorType->GetTypeName() && 
-       r->GetTypeName() != Type::errorType->GetTypeName()){
-     ReportError::IncompatibleOperands(op, l, r);
-    }
-  } 
+  }
 }
 
 Type * ArithmeticExpr::GetType() {
   Type * l = left->GetType();
   Type * r = right->GetType();
-  if(l->GetTypeName() != r->GetTypeName()) {
+
+  if (l->GetTypeName() == Type::boolType->GetTypeName() || r->GetTypeName() == Type::boolType->GetTypeName()) {
+     ReportError::IncompatibleOperands(op, l, r);
+  } else if(l->GetTypeName() != r->GetTypeName()) {
     if(l->GetTypeName() != Type::errorType->GetTypeName() && 
        r->GetTypeName() != Type::errorType->GetTypeName()){
       ReportError::IncompatibleOperands(op, l, r);
     }
     return Type::errorType;
-  } else if (l->GetTypeName() != Type::intType->GetTypeName() && 
-             l->GetTypeName() != Type::floatType->GetTypeName()) {
-    if(l->GetTypeName() != Type::errorType->GetTypeName() && 
-       r->GetTypeName() != Type::errorType->GetTypeName()){
-     ReportError::IncompatibleOperands(op, l, r);
-    }
-     return Type::errorType;
   } else {
     return l;
   }
