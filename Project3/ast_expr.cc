@@ -295,6 +295,7 @@ Type * ArithmeticExpr::GetType() {
 
   if (l->GetTypeName() == Type::boolType->GetTypeName() || r->GetTypeName() == Type::boolType->GetTypeName()) {
      ReportError::IncompatibleOperands(op, l, r);
+     return Type::errorType;
   } else if(l->GetTypeName() != r->GetTypeName()) {
     if(l->GetTypeName() != Type::errorType->GetTypeName() && 
        r->GetTypeName() != Type::errorType->GetTypeName()){
