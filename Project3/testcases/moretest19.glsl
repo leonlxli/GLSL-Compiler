@@ -1,6 +1,5 @@
 int main() {
-	float x;
-	x=5.0;
+	int x;
 	switch (x=5){
 	case true: return -1.0;
 	default: return 5;
