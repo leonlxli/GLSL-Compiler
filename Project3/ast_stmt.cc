@@ -264,21 +264,24 @@ void BreakStmt::Check(){
 
 
 void ReturnStmt::Check() {
+
     FnDecl * function = Program::symbolTable->currentFunction;
-    Program::symbolTable->returnFlag = true;
     Type * fType = function->GetType();
     if(expr == NULL && (fType->GetTypeName() != Type::voidType->GetTypeName())) { // function return should be void 
-        if(fType->GetTypeName() != Type::errorType->GetTypeName())
+        if(fType->GetTypeName() != Type::errorType->GetTypeName()) {
             ReportError::ReturnMismatch(this, Type::voidType, fType);
+            return;
+        }
 
     } else if(expr != NULL) { 
-        Type * returnT = expr->GetType();
-        string returnType = returnT->GetTypeName();
-        if(returnType != fType->GetTypeName() && returnType != Type::voidType->GetTypeName()) {
-            if(returnType != Type::errorType->GetTypeName())
-                ReportError::ReturnMismatch(this, expr->GetType(), function->GetType());
-        }
-    }
+        string returnType = expr->GetType()->GetTypeName();
 
+        if(returnType != fType->GetTypeName() && returnType != Type::errorType->GetTypeName()) {
+            ReportError::ReturnMismatch(this, expr->GetType(), function->GetType());
+            return;
+        }
+    } 
+
+    Program::symbolTable->returnFlag = true;
 }
 
