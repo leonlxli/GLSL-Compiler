@@ -50,6 +50,7 @@ void VarDecl::Check() {
     if (symbol == NULL || symbol->scope != Program::symbolTable->GetScope()) {
         Symbol * newSymbol = (Symbol *) malloc(sizeof(Symbol));
         newSymbol->decl = this;
+        newSymbol->isFunction = false;
 
         Program::symbolTable->AddSymbol(newSymbol);
     } else {
