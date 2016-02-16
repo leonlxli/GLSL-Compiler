@@ -15,7 +15,7 @@ SymbolTable * Program::symbolTable = new SymbolTable();
 Program::Program(List<Decl*> *d) {
     Assert(d != NULL);
     (decls=d)->SetParentAll(this);
-    //PrintChildren(1);
+    // PrintChildren(1);
 }
 
 void Program::PrintChildren(int indentLevel) {
@@ -264,7 +264,6 @@ void BreakStmt::Check(){
 
 
 void ReturnStmt::Check() {
-    printf("Check return");
     FnDecl * function = Program::symbolTable->currentFunction;
     Program::symbolTable->returnFlag = true;
     Type * fType = function->GetType();
@@ -273,12 +272,13 @@ void ReturnStmt::Check() {
             ReportError::ReturnMismatch(this, Type::voidType, fType);
 
     } else if(expr != NULL) { 
-        string returnType = expr->GetType()->GetTypeName();
-
+        Type * returnT = expr->GetType();
+        string returnType = returnT->GetTypeName();
         if(returnType != fType->GetTypeName() && returnType != Type::voidType->GetTypeName()) {
             if(returnType != Type::errorType->GetTypeName())
                 ReportError::ReturnMismatch(this, expr->GetType(), function->GetType());
         }
     }
+
 }
 

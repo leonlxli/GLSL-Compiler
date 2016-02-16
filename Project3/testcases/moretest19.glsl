@@ -1,7 +1,7 @@
 int main() {
 	int x;
 	switch (x=5){
-	case true: return -1;
+	case true: return -1.0;
 	default: return 5;
 	}
 

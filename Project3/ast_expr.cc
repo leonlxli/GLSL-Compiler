@@ -276,6 +276,14 @@ Type * AssignExpr::GetType() {
 }
 
 void ArithmeticExpr::Check() {
+  if( left==NULL){
+    right->GetType();
+    return;
+  }
+  if( right == NULL ){
+    left->GetType();
+    return;
+  }
   Type * l = left->GetType();
   Type * r = right->GetType();
 
@@ -290,8 +298,16 @@ void ArithmeticExpr::Check() {
 }
 
 Type * ArithmeticExpr::GetType() {
+  if( left==NULL){
+    return right->GetType();
+    
+  }
+  if( right == NULL ){
+    return left->GetType();
+  }
   Type * l = left->GetType();
   Type * r = right->GetType();
+
 
   if (l->GetTypeName() == Type::boolType->GetTypeName() || r->GetTypeName() == Type::boolType->GetTypeName()) {
      ReportError::IncompatibleOperands(op, l, r);
