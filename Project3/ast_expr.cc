@@ -314,9 +314,7 @@ Type * ArithmeticExpr::GetType() {
 }
 
 void PostfixExpr::Check(){
-  printf("Check\n");
   Type * l = left->GetType();
-  printf("Check2\n");
   if(l->GetTypeName() != Type::intType->GetTypeName() && 
     l->GetTypeName() != Type::floatType->GetTypeName()){
       if(l->GetTypeName() != Type::errorType->GetTypeName()){
