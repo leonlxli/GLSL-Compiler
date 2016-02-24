@@ -55,11 +55,17 @@ void VarDecl::Emit() {
             NULL, // initializer
             type->GetTypeName());
 
-        var->setInitializer(NULL); // useless line for getting rid of unused var warning
+        (void) var; // useless line for getting rid of unused var warning
 
     } else { // local var
         // get insert position
         // create local variable 
+        llvm::AllocaInst * var = new llvm::AllocaInst (
+            llvmType, 
+            type->GetTypeName(), 
+            Program::irgen.GetCurrentBB()); // insert at end of basic block
+
+        (void) var; // useless line for getting rid of unused var warning
     }
 }
 
