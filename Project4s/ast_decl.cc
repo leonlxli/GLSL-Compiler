@@ -42,4 +42,29 @@ void FnDecl::PrintChildren(int indentLevel) {
     if (body) body->Print(indentLevel+1, "(body) ");
 }
 
+void VarDecl::Emit() {
+    llvm::Function * currentFunc = Program::irgen.GetCurrentFunction();
+    llvm::Type *llvmType = Program::irgen.ConvertType(type); // todo - get actual type
+
+    if(currentFunc == NULL) { // global var
+
+        llvm::GlobalVariable * var = new llvm::GlobalVariable (
+            llvmType, 
+            false, // is constant
+            llvm::GlobalValue::CommonLinkage, 
+            NULL, // initializer
+            type->GetTypeName());
+
+        var->setInitializer(NULL); // useless line for getting rid of unused var warning
+
+    } else { // local var
+        // get insert position
+        // create local variable 
+    }
+}
+
+void FnDecl::Emit() {
+
+}
+
 
