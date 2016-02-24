@@ -21,16 +21,21 @@ void Program::PrintChildren(int indentLevel) {
     printf("\n");
 }
 
-void Program::Emit() {
-    // TODO:
-    // This is just a reference for you to get started
-    //
-    // You can use this as a template and create Emit() function
-    // for individual node to fill in the module structure and instructions.
-    //
-    IRGenerator irgen;
-    llvm::Module *mod = irgen.GetOrCreateModule("foo.bc");
+IRGenerator Program::irgen; // define irgen
 
+void Program::Emit() {
+
+    llvm::Module *mod = Program::irgen.GetOrCreateModule("Program");
+
+    for (int i = 0; i < decls->NumElements(); i++) {
+
+        decls->Nth(i)->Emit();
+    }
+
+    // write the BC into standard output
+    llvm::WriteBitcodeToFile(mod, llvm::outs());
+
+    /*
     // create a function signature
     std::vector<llvm::Type *> argTypes;
     llvm::Type *intTy = irgen.GetIntType();
@@ -50,10 +55,8 @@ void Program::Emit() {
     // create a return instruction
     llvm::Value *val = llvm::ConstantInt::get(intTy, 1);
     llvm::Value *sum = llvm::BinaryOperator::CreateAdd(arg, val, "", bb);
-    llvm::ReturnInst::Create(*context, sum, bb);
+    llvm::ReturnInst::Create(*context, sum, bb);*/
 
-    // write the BC into standard output
-    llvm::WriteBitcodeToFile(mod, llvm::outs());
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {

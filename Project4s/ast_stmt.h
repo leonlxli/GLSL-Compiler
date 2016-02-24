@@ -15,6 +15,7 @@
 
 #include "list.h"
 #include "ast.h"
+#include "irgen.h"
 
 class Decl;
 class VarDecl;
@@ -32,6 +33,8 @@ class Program : public Node
      Program(List<Decl*> *declList);
      const char *GetPrintNameForNode() { return "Program"; }
      void PrintChildren(int indentLevel);
+
+     static IRGenerator irgen; // IR Generator attached to program node 
      virtual void Emit();
 };
 
