@@ -71,25 +71,25 @@ void VarDecl::Emit() {
 
 void FnDecl::Emit() {
     // create a function signature
+    llvm::Type *ret = Program::irgen.ConvertType(returnType);
     std::vector<llvm::Type *> argTypes;
 
-    llvm::Type *ty = Program::irgen.ConvertType(returnType);
-    argTypes.push_back(ty);
+    for (int i = 0; i < formals->NumElements(); i++) {
+        llvm::Type *t = Program::irgen.ConvertType(formals->Nth(i)->GetType());
+        argTypes.push_back(t);
+    }
+
     llvm::ArrayRef<llvm::Type *> argArray(argTypes);
-    llvm::FunctionType *funcTy = llvm::FunctionType::get(ty, argArray, false);
-    // llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction("foo", intTy, intTy, (Type *)0));
+    llvm::FunctionType *funcTy = llvm::FunctionType::get(ret, argArray, false);
+    
     llvm::Module *mod = Program::irgen.GetOrCreateModule(NULL);
     llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction(id->GetName(), funcTy));
-    // llvm::Argument *arg = f->arg_begin();
-    //List<llvm::Argument*> argList = f->getArgumentList();
-    // for(int i=0, llvm::Function::arg_iterator *iterator = f->arg_begin(); iterator != f->arg_end(); iterator++;i++) {
-    //     *iterator->setName(formals->Nth(i)->id->GetName());
-    // }
-    // for (int i = 0; i < formals->NumElements(); i++) {
-    //     arg->setName(formals->Nth(i)->id->GetName());
 
-    // }
-    // arg->setName("x");
+    llvm::Function::arg_iterator args = f->arg_begin();
+
+    for(int i = 0; args != f->arg_end(); args++, i++) {
+        args->setName(formals->Nth(i)->GetIdentifier()->GetName());
+    }
 
     // insert a block into the runction
     // llvm::LLVMContext *context = Program::irgen.GetContext();
