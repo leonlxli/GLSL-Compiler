@@ -1,6 +1,0 @@
-
-*** Error line 7.
-   y = -(x + 1);
-              ^
-*** Incompatible operands: float + int
-

@@ -39,10 +39,6 @@ void IRGenerator::SetBasicBlock(llvm::BasicBlock *bb) {
    currentBB = bb;
 }
 
-void IRGenerator::ExitBasicBlock(){
-  currentBB = currentBB.getParent();
-}
-
 llvm::BasicBlock *IRGenerator::GetBasicBlock() const {
    return currentBB;
 }

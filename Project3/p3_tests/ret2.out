@@ -1,6 +1,0 @@
-
-*** Error line 4.
-  return 2 + 1.0;
-                ^
-*** Incompatible operands: int + float
-

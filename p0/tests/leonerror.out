@@ -1,3 +1,0 @@
-true         line 1 cols 7-10 is T_BoolConstant (value = true)
-true         line 5 cols 1-4 is T_BoolConstant (value = true)
-false        line 9 cols 1-5 is T_BoolConstant (value = false)
