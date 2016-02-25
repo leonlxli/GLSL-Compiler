@@ -1,0 +1,22 @@
+=========== PROJECT 3 README ============
+
+1. Symbol Table
+	a) Keeping Track of Scope
+		We enumerated all the possible scopes the programs could be in (function, loop, global, etc) so that we can keep a list of what scopes we are currently in. (e.g. we can be in a function and a loop simultaneously) We also have an int variable as a part of the symbol table that kept track of which scope we're currently in (global would be level 1, the first function declaration would be level 2)
+	b) Symbol Information
+		In order to keep data about the different symbol in each scope, we make a struct that kept the scope of the variable, whether or not the symbol is a function, a pointer to its declaration, and a pointer to its assignment, if applicable.
+	c) Symbol Table Architecture 
+		We decided to use a single map of identifiers (string) to pointers to the struct for the symbol info. The map uses buckets for duplicates, with the most recent entries on top. We handled the exiting of scopes by keeping a separate stack of symbol names with the scopes separated by our special marker, "" (empty string). Every time we exit a scope, we pop the stack, and if it's not an empty string, we remove the first entry we find from the hash table.
+	d) Handling Missing Function Returns
+		We used the symbol table to detect missing returns by having fields for a pointer to the function declaration (if the current scope is part of a function) and a boolean marking whether or not there's been a return statement in the function. Upon exiting a scope, we can then check if the scope is a function, and whether or not it was missing a return statement.
+
+
+2. Type checking
+	In the Expressions we divided up the check and get type methods, so that we are able to get the types of all the expressions we have. If there is an error, we only throw one error to make sure that the errors did not cascade. The one that took priority was whether or not a variable was declared. We would pass these types up the expression tree, and it would do the type checking accordingly in the ast_expr file
+
+
+3. Extra Credit
+	1. Function overloading
+	2. Having a Default statement outside of a switch statement;
+	3. Having a case statement outside of a Switch statement
+	4. Having a default in the middle of a switch statement.
