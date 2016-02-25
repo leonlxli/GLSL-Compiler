@@ -53,7 +53,7 @@ void VarDecl::Emit() {
             false, // is constant
             llvm::GlobalValue::CommonLinkage, 
             NULL, // initializer
-            type->GetTypeName());
+            id->GetName());
 
         (void) var; // useless line for getting rid of unused var warning
 
@@ -62,7 +62,7 @@ void VarDecl::Emit() {
         // create local variable 
         llvm::AllocaInst * var = new llvm::AllocaInst (
             llvmType, 
-            type->GetTypeName(), 
+            id->GetName(), 
             Program::irgen.GetCurrentBB()); // insert at end of basic block
 
         (void) var; // useless line for getting rid of unused var warning
