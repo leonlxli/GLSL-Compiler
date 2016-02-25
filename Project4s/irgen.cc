@@ -39,6 +39,11 @@ void IRGenerator::SetBasicBlock(llvm::BasicBlock *bb) {
    currentBB = bb;
 }
 
+void IRGenerator::ExitBlock(){
+  llvm::BasicBlock* par = currentBB->getSinglePredecessor(); // need to check
+  SetBasicBlock(par);
+}
+
 llvm::BasicBlock *IRGenerator::GetBasicBlock() const {
    return currentBB;
 }
