@@ -31,6 +31,10 @@ void IRGenerator::SetFunction(llvm::Function *func) {
    currentFunc = func;
 }
 
+void IRGenerator::ExitFunction(){
+  currentFunc = NULL;
+}
+
 llvm::Function *IRGenerator::GetFunction() const {
    return currentFunc;
 }

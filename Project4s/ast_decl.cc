@@ -91,14 +91,17 @@ void FnDecl::Emit() {
         args->setName(formals->Nth(i)->GetIdentifier()->GetName());
     }
 
-    // insert a block into the runction
-    // llvm::LLVMContext *context = Program::irgen.GetContext();
-    // llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
+    Program::irgen.SetFunction(f); // set function
 
-    // create a return instruction
-    // llvm::Value *val = llvm::ConstantInt::get(ty, 1);
-    // llvm::Value *sum = llvm::BinaryOperator::CreateAdd(arg, val, "", bb);
-    // llvm::ReturnInst::Create(*context, sum, bb);
+    llvm::LLVMContext *context = Program::irgen.GetContext();
+    llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
+
+    Program::irgen.SetBasicBlock(bb);
+
+    body->Emit();
+
+    Program::irgen.ExitBlock();
+    Program::irgen.ExitFunction();
 }
 
 

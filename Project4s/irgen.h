@@ -30,9 +30,11 @@ class IRGenerator {
     // Add your helper functions here
     llvm::Function *GetFunction() const;
     void      SetFunction(llvm::Function *func);
-    void ExitBlock();
+    void ExitFunction();
+
     llvm::BasicBlock *GetBasicBlock() const;
     void        SetBasicBlock(llvm::BasicBlock *bb);
+    void ExitBlock();
 
     llvm::Type *GetIntType() const;
     llvm::Type *GetBoolType() const;

@@ -160,3 +160,12 @@ void SwitchStmt::PrintChildren(int indentLevel) {
     if (def) def->Print(indentLevel+1);
 }
 
+void StmtBlock::Emit() {
+
+    for (int i = 0; i < decls->NumElements(); i++) {
+        decls->Nth(i)->Emit();
+    }
+    for (int i = 0; i < stmts->NumElements(); i++) {
+        stmts->Nth(i)->Emit(); 
+    }
+}
