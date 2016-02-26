@@ -24,6 +24,7 @@ class Expr : public Stmt
   public:
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
+    // llvm::Value *Emit(){ return new llvm::Value(Program::irgen.GetVoidType(), 1); } // Need to look at this
 };
 
 class ExprError : public Expr

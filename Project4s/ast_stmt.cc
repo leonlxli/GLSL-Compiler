@@ -130,11 +130,14 @@ void ReturnStmt::PrintChildren(int indentLevel) {
 }
 
 void ReturnStmt::Emit(){
-    if( expr )
-        expr->Emit();
-        // llvm::ReturnInst::Create(*context, rval, basicBlock); do something here
+    llvm::LLVMContext *context = Program::irgen.GetContext();
+    if( expr ){
+        //look at this
+        // llvm::Value *rval = expr->Emit();
+        // llvm::ReturnInst::Create(*context, rval, Program::irgen.GetBasicBlock());
+    }
     else{
-         // llvm::ReturnInst::Create(*context, basicBlock);
+         llvm::ReturnInst::Create(*context, Program::irgen.GetBasicBlock());
     }
 }
   
