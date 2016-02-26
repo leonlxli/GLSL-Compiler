@@ -40,6 +40,8 @@ class IRGenerator {
     llvm::Type *GetBoolType() const;
     llvm::Type *GetFloatType() const;
     llvm::Type *GetVoidType() const;
+    llvm::Type *GetVecType(int n) const;
+    llvm::Type *GetMatType(int n) const;
 
     llvm::Function * GetCurrentFunction() { return currentFunc; }
     llvm::BasicBlock * GetCurrentBB() { return currentBB; }
