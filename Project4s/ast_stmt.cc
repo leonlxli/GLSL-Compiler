@@ -128,6 +128,15 @@ void ReturnStmt::PrintChildren(int indentLevel) {
     if ( expr ) 
       expr->Print(indentLevel+1);
 }
+
+void ReturnStmt::Emit(){
+    if( expr )
+        expr->Emit();
+        // llvm::ReturnInst::Create(*context, rval, basicBlock); do something here
+    else{
+         // llvm::ReturnInst::Create(*context, basicBlock);
+    }
+}
   
 SwitchLabel::SwitchLabel(Expr *l, Stmt *s) {
     Assert(l != NULL && s != NULL);
