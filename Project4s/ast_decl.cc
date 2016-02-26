@@ -93,14 +93,8 @@ void FnDecl::Emit() {
 
     Program::irgen.SetFunction(f); // set function
 
-    llvm::LLVMContext *context = Program::irgen.GetContext();
-    llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
-
-    Program::irgen.SetBasicBlock(bb);
-
     body->Emit();
 
-    Program::irgen.ExitBlock();
     Program::irgen.ExitFunction();
 }
 

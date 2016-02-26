@@ -170,11 +170,32 @@ void SwitchStmt::PrintChildren(int indentLevel) {
 }
 
 void StmtBlock::Emit() {
+    //todo - create new scope
+    llvm::Function *f = Program::irgen.GetFunction();
 
-    for (int i = 0; i < decls->NumElements(); i++) {
-        decls->Nth(i)->Emit();
+    llvm::LLVMContext *context = Program::irgen.GetContext();
+    llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
+
+    Program::irgen.SetBasicBlock(bb);
+
+    //todo - create local variables for parameters if this is the stmt block for a function
+    llvm::Function::arg_iterator args = f->arg_begin();
+
+    for(int i = 0; args != f->arg_end(); args++, i++) {
+        llvm::AllocaInst * alloc = new llvm::AllocaInst(Program::irgen.GetVoidType());
+        llvm::StoreInst *var = new llvm::StoreInst(args, alloc, bb);
+
+        (void) var; // useless line for getting rid of unused var warning
     }
+
     for (int i = 0; i < stmts->NumElements(); i++) {
         stmts->Nth(i)->Emit(); 
     }
+
+    //todo - delete scope
+    Program::irgen.ExitBlock();
+}
+
+void DeclStmt::Emit() {
+    decl->Emit();
 }
