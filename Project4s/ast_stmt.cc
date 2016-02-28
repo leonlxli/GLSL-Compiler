@@ -21,6 +21,7 @@ void Program::PrintChildren(int indentLevel) {
     printf("\n");
 }
 
+SymbolTable * Program::symbolTable = new SymbolTable();
 IRGenerator Program::irgen; // define irgen
 
 void Program::Emit() {

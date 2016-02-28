@@ -16,6 +16,7 @@
 #include "list.h"
 #include "ast.h"
 #include "irgen.h"
+#include "sym_table.h"
 
 class Decl;
 class VarDecl;
@@ -34,6 +35,7 @@ class Program : public Node
      const char *GetPrintNameForNode() { return "Program"; }
      void PrintChildren(int indentLevel);
 
+     static SymbolTable * symbolTable;
      static IRGenerator irgen; // IR Generator attached to program node 
      virtual void Emit();
 };
