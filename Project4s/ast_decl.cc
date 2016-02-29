@@ -12,10 +12,6 @@ Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     (id=n)->SetParent(this); 
 }
 
-string Decl::GetId() {
-    return string(id->GetName());
-}
-
 
 VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
     Assert(n != NULL && t != NULL);
@@ -46,26 +42,7 @@ void FnDecl::PrintChildren(int indentLevel) {
     if (body) body->Print(indentLevel+1, "(body) ");
 }
 
-bool VarDecl::Equals(VarDecl * other) {
-    if(GetType()->GetTypeName() == other->GetType()->GetTypeName()) {
-        return true;
-    }
-
-    return false;
-}
-
 void VarDecl::Emit() {
-    Symbol * symbol = Program::symbolTable->FindSymbol(GetId());
-    if (symbol == NULL || symbol->scope != Program::symbolTable->GetScope()) {
-        Symbol * newSymbol = (Symbol *) malloc(sizeof(Symbol));
-        newSymbol->decl = this;
-        newSymbol->isFunction = false;
-
-        Program::symbolTable->AddSymbol(newSymbol);
-    } else {
-        //ReportError::DeclConflict(this, symbol->decl);
-    }
-
     llvm::Function * currentFunc = Program::irgen.GetCurrentFunction();
     llvm::Type *llvmType = Program::irgen.ConvertType(type); // todo - get actual type
 
@@ -92,69 +69,33 @@ void VarDecl::Emit() {
     }
 }
 
-bool FnDecl::Equals(FnDecl * other) {
-    if(formals->NumElements() != other->formals->NumElements()) {
-        return false;
-    }
-    for (int i = 0; i < formals->NumElements(); i++) {
-        if(!formals->Nth(i)->Equals(other->formals->Nth(i))) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 void FnDecl::Emit() {
+    // create a function signature
+    llvm::Type *ret = Program::irgen.ConvertType(returnType);
+    std::vector<llvm::Type *> argTypes;
 
-    Program::symbolTable->currentFunction = this;
-    Symbol * symbol = Program::symbolTable->FindSymbol(GetId());
-
-    if (symbol == NULL || 
-        symbol->scope != Program::symbolTable->GetScope() ||
-        (symbol->isFunction && !Equals((FnDecl *) symbol->decl))) {
-
-        Symbol * newSymbol = (Symbol *) malloc(sizeof(Symbol));
-        newSymbol->decl = this;
-        newSymbol->isFunction = true;
-
-        Program::symbolTable->AddSymbol(newSymbol);
-
-        // check child statements 
-        Program::symbolTable->EnterScope(Scope::function);
-
-        // create a function signature
-        llvm::Type *ret = Program::irgen.ConvertType(returnType);
-        std::vector<llvm::Type *> argTypes;
-
-        for (int i = 0; i < formals->NumElements(); i++) {
-            llvm::Type *t = Program::irgen.ConvertType(formals->Nth(i)->GetType());
-            argTypes.push_back(t);
-        }
-
-        llvm::ArrayRef<llvm::Type *> argArray(argTypes);
-        llvm::FunctionType *funcTy = llvm::FunctionType::get(ret, argArray, false);
-        
-        llvm::Module *mod = Program::irgen.GetOrCreateModule(NULL);
-        llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction(id->GetName(), funcTy));
-
-        llvm::Function::arg_iterator args = f->arg_begin();
-
-        for(int i = 0; args != f->arg_end(); args++, i++) {
-            args->setName(formals->Nth(i)->GetIdentifier()->GetName());
-        }
-
-        Program::irgen.SetFunction(f); // set function
-
-        body->Emit();
-
-        Program::irgen.ExitFunction();
-
-
-        Program::symbolTable->ExitScope(); // finished with function
-    } else {
-        //ReportError::DeclConflict(this, symbol->decl);
+    for (int i = 0; i < formals->NumElements(); i++) {
+        llvm::Type *t = Program::irgen.ConvertType(formals->Nth(i)->GetType());
+        argTypes.push_back(t);
     }
+
+    llvm::ArrayRef<llvm::Type *> argArray(argTypes);
+    llvm::FunctionType *funcTy = llvm::FunctionType::get(ret, argArray, false);
+    
+    llvm::Module *mod = Program::irgen.GetOrCreateModule(NULL);
+    llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction(id->GetName(), funcTy));
+
+    llvm::Function::arg_iterator args = f->arg_begin();
+
+    for(int i = 0; args != f->arg_end(); args++, i++) {
+        args->setName(formals->Nth(i)->GetIdentifier()->GetName());
+    }
+
+    Program::irgen.SetFunction(f); // set function
+
+    body->Emit();
+
+    Program::irgen.ExitFunction();
 }
 
 

@@ -15,10 +15,9 @@
 #define _H_ast_decl
 
 #include "ast.h"
- #include "ast_type.h"
 #include "list.h"
-#include <string>
 
+class Type;
 class NamedType;
 class Identifier;
 class Stmt;
@@ -34,8 +33,6 @@ class Decl : public Node
     Decl() : id(NULL) {}
     Decl(Identifier *name);
     Identifier *GetIdentifier() const { return id; }
-
-    string GetId();
 };
 
 class VarDecl : public Decl 
@@ -50,7 +47,6 @@ class VarDecl : public Decl
     void PrintChildren(int indentLevel);
 
     Type * GetType() { return type; }
-    bool Equals(VarDecl * other);
     void Emit();
 };
 
@@ -76,9 +72,6 @@ class FnDecl : public Decl
     void PrintChildren(int indentLevel);
 
     void Emit();
-
-    bool Equals(FnDecl * other);
-    Type * GetType() { return returnType; }
 };
 
 class FormalsError : public FnDecl
