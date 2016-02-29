@@ -39,6 +39,8 @@
 #include <stdlib.h>   // for NULL
 #include "location.h"
 
+#include <string>
+
 class Node  {
   protected:
     yyltype *location;

@@ -43,7 +43,7 @@ void FnDecl::PrintChildren(int indentLevel) {
 }
 
 void VarDecl::Emit() {
-    llvm::Function * currentFunc = Program::irgen.GetCurrentFunction();
+    llvm::Function * currentFunc = Program::irgen.GetFunction();
     llvm::Type *llvmType = Program::irgen.ConvertType(type); // todo - get actual type
 
     if(currentFunc == NULL) { // global var
@@ -60,12 +60,14 @@ void VarDecl::Emit() {
     } else { // local var
         // get insert position
         // create local variable 
-        llvm::AllocaInst * var = new llvm::AllocaInst (
+        llvm::AllocaInst * alloc = new llvm::AllocaInst (
             llvmType, 
             id->GetName(), 
-            Program::irgen.GetCurrentBB()); // insert at end of basic block
+            Program::irgen.currentBlock()); // insert at end of basic block
 
-        (void) var; // useless line for getting rid of unused var warning
+        Program::irgen.locals()[string(id->GetName())] = alloc; // add to symbol table 
+
+        (void) alloc; // useless line for getting rid of unused var warning
     }
 }
 

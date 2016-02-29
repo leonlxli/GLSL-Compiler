@@ -19,7 +19,30 @@
 
 #include "ast_type.h"
 
+#include <stack>
+#include <map>
+
+class CodeGenBlock {
+public:
+    llvm::BasicBlock *block;
+    std::map<std::string, llvm::Value*> locals;
+};
+
 class IRGenerator {
+  private:
+    std::stack<CodeGenBlock *> blocks;
+    llvm::Function *mainFunction;
+
+    llvm::LLVMContext *context;
+    llvm::Module      *module;
+
+    // track which function or basic block is active
+    llvm::Function    *currentFunc;
+    llvm::BasicBlock  *currentBB;
+
+    static const char *TargetTriple;
+    static const char *TargetLayout;
+
   public:
     IRGenerator();
     ~IRGenerator();
@@ -33,8 +56,6 @@ class IRGenerator {
     void ExitFunction();
 
     llvm::BasicBlock *GetBasicBlock() const;
-    void        SetBasicBlock(llvm::BasicBlock *bb);
-    void ExitBlock();
 
     llvm::Type *GetIntType() const;
     llvm::Type *GetBoolType() const;
@@ -43,21 +64,14 @@ class IRGenerator {
     llvm::Type *GetVecType(int n) const;
     llvm::Type *GetMatType(int n) const;
 
-    llvm::Function * GetCurrentFunction() { return currentFunc; }
-    llvm::BasicBlock * GetCurrentBB() { return currentBB; }
-
     llvm::Type * ConvertType(Type * Type);
 
-  private:
-    llvm::LLVMContext *context;
-    llvm::Module      *module;
-
-    // track which function or basic block is active
-    llvm::Function    *currentFunc;
-    llvm::BasicBlock  *currentBB;
-
-    static const char *TargetTriple;
-    static const char *TargetLayout;
+    //void generateCode(NBlock& root);
+    //llvm::GenericValue runCode();
+    std::map<std::string, llvm::Value*>& locals() { return blocks.top()->locals; }
+    llvm::BasicBlock *currentBlock() { return blocks.top()->block; }
+    void pushBlock(llvm::BasicBlock *block) { blocks.push(new CodeGenBlock()); blocks.top()->block = block; }
+    void popBlock() { CodeGenBlock *top = blocks.top(); blocks.pop(); delete top; }
 };
    
 #endif

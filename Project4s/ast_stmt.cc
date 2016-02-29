@@ -25,7 +25,7 @@ IRGenerator Program::irgen; // define irgen
 
 void Program::Emit() {
 
-    llvm::Module *mod = Program::irgen.GetOrCreateModule("Program");
+    llvm::Module *mod = Program::irgen.GetOrCreateModule("main");
 
     for (int i = 0; i < decls->NumElements(); i++) {
 
@@ -179,7 +179,7 @@ void StmtBlock::Emit() {
     llvm::LLVMContext *context = Program::irgen.GetContext();
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
 
-    Program::irgen.SetBasicBlock(bb);
+    Program::irgen.pushBlock(bb);
 
     //todo - create local variables for parameters if this is the stmt block for a function
     llvm::Function::arg_iterator args = f->arg_begin();
@@ -196,7 +196,7 @@ void StmtBlock::Emit() {
     }
 
     //todo - delete scope
-    Program::irgen.ExitBlock();
+    Program::irgen.popBlock();
 }
 
 void DeclStmt::Emit() {
