@@ -127,4 +127,11 @@ llvm::Value * FloatConstant::EmitVal() {
 llvm::Value * BoolConstant::EmitVal() { 
   return llvm::ConstantInt::get(llvm::Type::getInt1Ty(llvm::getGlobalContext()), value);
 }
+
+llvm::Value * VarExpr::EmitVal() {
+    if (Program::irgen.locals().find(string(id->GetName())) == Program::irgen.locals().end()) {
+        return NULL;
+    }
+    return new llvm::LoadInst(Program::irgen.locals()[string(id->GetName())], "", false, Program::irgen.currentBlock());
+}
  
