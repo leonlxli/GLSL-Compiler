@@ -41,6 +41,12 @@
 
 #include <string>
 
+// LLVM headers
+#include "llvm/IR/Module.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/Constants.h"
+
 class Node  {
   protected:
     yyltype *location;
@@ -76,6 +82,8 @@ class Identifier : public Node
     void PrintChildren(int indentLevel);
 
     char * GetName() { return name; }
+
+    llvm::Value * EmitVal();
 };
 
 

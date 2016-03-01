@@ -8,6 +8,8 @@
 #include <string.h> // strdup
 #include <stdio.h>  // printf
 
+#include "ast_stmt.h"
+
 Node::Node(yyltype loc) {
     location = new yyltype(loc);
     parent = NULL;
@@ -44,4 +46,11 @@ Identifier::Identifier(yyltype loc, const char *n) : Node(loc) {
 
 void Identifier::PrintChildren(int indentLevel) {
     printf("%s", name);
+}
+
+llvm::Value * Identifier::EmitVal() {
+    if (Program::irgen.locals().find(name) == Program::irgen.locals().end()) {
+        return NULL;
+    }
+    return new llvm::LoadInst(Program::irgen.locals()[string(GetName())], "", false, Program::irgen.currentBlock());
 }
