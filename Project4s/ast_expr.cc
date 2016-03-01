@@ -115,4 +115,16 @@ Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     if (field) field->Print(indentLevel+1);
     if (actuals) actuals->PrintAll(indentLevel+1, "(actuals) ");
   }
+
+llvm::Value * IntConstant::EmitVal() { 
+  return llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), value, true);
+}
+
+llvm::Value * FloatConstant::EmitVal() { 
+  return llvm::ConstantFP::get(llvm::Type::getFloatTy(llvm::getGlobalContext()), value);
+}
+
+llvm::Value * BoolConstant::EmitVal() { 
+  return llvm::ConstantInt::get(llvm::Type::getInt1Ty(llvm::getGlobalContext()), value);
+}
  

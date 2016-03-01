@@ -52,6 +52,8 @@ class IntConstant : public Expr
     IntConstant(yyltype loc, int val);
     const char *GetPrintNameForNode() { return "IntConstant"; }
     void PrintChildren(int indentLevel);
+
+    llvm::Value * EmitVal();
 };
 
 class FloatConstant: public Expr 
@@ -63,6 +65,8 @@ class FloatConstant: public Expr
     FloatConstant(yyltype loc, double val);
     const char *GetPrintNameForNode() { return "FloatConstant"; }
     void PrintChildren(int indentLevel);
+
+    llvm::Value * EmitVal();
 };
 
 class BoolConstant : public Expr 
@@ -74,6 +78,8 @@ class BoolConstant : public Expr
     BoolConstant(yyltype loc, bool val);
     const char *GetPrintNameForNode() { return "BoolConstant"; }
     void PrintChildren(int indentLevel);
+
+    llvm::Value * EmitVal();
 };
 
 class VarExpr : public Expr
