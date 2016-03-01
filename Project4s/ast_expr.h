@@ -24,7 +24,9 @@ class Expr : public Stmt
   public:
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
-    // llvm::Value *Emit(){ return new llvm::Value(Program::irgen.GetVoidType(), 1); } // Need to look at this
+    
+    llvm::Value * EmitVal(){ return NULL; } // Need to look at this
+
 };
 
 class ExprError : public Expr
@@ -104,6 +106,8 @@ class Operator : public Node
     Operator(yyltype loc, const char *tok);
     const char *GetPrintNameForNode() { return "Operator"; }
     void PrintChildren(int indentLevel);
+
+    string getToken() { return tokenString; }
  };
  
 class CompoundExpr : public Expr
@@ -125,6 +129,8 @@ class ArithmeticExpr : public CompoundExpr
     ArithmeticExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     ArithmeticExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
     const char *GetPrintNameForNode() { return "ArithmeticExpr"; }
+    
+    llvm::Value * EmitVal();
 };
 
 class RelationalExpr : public CompoundExpr 
