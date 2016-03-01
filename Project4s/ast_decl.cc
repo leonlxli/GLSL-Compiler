@@ -87,17 +87,20 @@ void FnDecl::Emit() {
     llvm::Module *mod = Program::irgen.GetOrCreateModule(NULL);
     llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction(id->GetName(), funcTy));
 
-    llvm::Function::arg_iterator args = f->arg_begin();
-
-    for(int i = 0; args != f->arg_end(); args++, i++) {
-        args->setName(formals->Nth(i)->GetIdentifier()->GetName());
-    }
-
+    llvm::LLVMContext *context = Program::irgen.GetContext();
+    llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
+    
+    Program::irgen.pushBlock(bb);
     Program::irgen.SetFunction(f); // set function
+
+    for(int i = 0; i < formals->NumElements(); i++) {
+        formals->Nth(i)->Emit();
+    }
 
     body->Emit();
 
     Program::irgen.ExitFunction();
+    Program::irgen.popBlock();
 }
 
 
