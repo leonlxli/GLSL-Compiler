@@ -135,55 +135,163 @@ llvm::Value * VarExpr::EmitVal() {
     return new llvm::LoadInst(Program::irgen.locals()[string(id->GetName())], "", false, Program::irgen.currentBlock());
 }
 
-llvm::Value * RelationalExpr::EmitVal() {
-    char* o = op->getToken();
-    llvm::Value* l = left->EmitVal();
-    llvm::Value* r = right->EmitVal();
-    
-    if(strcmp(o, "<") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT,
-            l, r, "", Program::irgen.currentBlock());
-    } else if(strcmp(o, "<=") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLE,
-            l, r, "", Program::irgen.currentBlock());
-    } else if(strcmp(o, ">") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGT,
-            l, r, "", Program::irgen.currentBlock());
-    } else if(strcmp(o, ">=") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGE,
-            l, r, "", Program::irgen.currentBlock());
-    }
-    else if(strcmp(o, "!=") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE,
-            l, r, "", Program::irgen.currentBlock());
-    }
-    else if(strcmp(o, "==") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ,
-            l, r, "", Program::irgen.currentBlock());
-    }
-    else{
-      return NULL;
-    }
-}
-
 llvm::Value * ArithmeticExpr::EmitVal() {
+  llvm::Value * l = left->EmitVal();
+  llvm::Value * r = right->EmitVal();
+
   llvm::Instruction::BinaryOps instr;
 
-  string tok = string(op->getToken());
+  string o = string(op->getToken());
+  llvm::Type * type = l->getType();
 
-  if(tok == "+") {
-    instr = llvm::Instruction::Add;
-  } else if(tok == "-") {
-    instr = llvm::Instruction::Sub;
-  } else if(tok == "*") {
-    instr = llvm::Instruction::Mul;
-  } else if(tok == "/") {
-    instr = llvm::Instruction::SDiv;
+  if(o == "+") {
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Add;
+    } else { // float
+      instr = llvm::Instruction::FAdd;
+    }
+    
+  } else if(o == "-") {
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Sub;
+    } else {
+      instr = llvm::Instruction::FSub;
+    }
+
+  } else if(o == "*") {
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Mul;
+    } else {
+      instr = llvm::Instruction::FMul;
+    }
+  } else if(o == "/") {
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::SDiv;
+    } else {
+      instr = llvm::Instruction::FDiv;
+    }
   } else {
     return NULL;
   }
   
-  return llvm::BinaryOperator::Create(instr, left->EmitVal(), 
-    right->EmitVal(), "", Program::irgen.currentBlock());
+  return llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
+}
+
+llvm::Value * RelationalExpr::EmitVal() {
+    llvm::Value * l = left->EmitVal();
+    llvm::Value * r = right->EmitVal();
+
+    llvm::CmpInst::Predicate instr;
+
+    string o = string(op->getToken());
+    
+    if(o == "<") {
+      instr = llvm::CmpInst::ICMP_SLT;
+    } else if(o == "<=") {
+      instr = llvm::CmpInst::ICMP_SLE;
+    } else if(o == ">") {
+      instr = llvm::CmpInst::ICMP_SGT;
+    } else if(o == ">=") {
+      instr = llvm::CmpInst::ICMP_SGE;
+    } else{
+      return NULL;
+    }
+
+    return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
+      l, r, "", Program::irgen.currentBlock());
+}
+
+llvm::Value * EqualityExpr::EmitVal() {
+    llvm::Value * l = left->EmitVal();
+    llvm::Value * r = right->EmitVal();
+
+    llvm::CmpInst::Predicate instr;
+
+    string o = string(op->getToken());
+    
+    if(o == "!=") {
+        instr = llvm::CmpInst::ICMP_NE;
+    }
+    else if(o == "==") {
+        instr = llvm::CmpInst::ICMP_EQ;
+    }
+    else{
+      return NULL;
+    }
+
+    return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
+      l, r, "", Program::irgen.currentBlock());
+}
+
+llvm::Value * LogicalExpr::EmitVal() {
+    llvm::Value * l = left->EmitVal();
+    llvm::Value * r = right->EmitVal();
+
+    llvm::Instruction::BinaryOps instr;
+
+    string o = string(op->getToken());
+    
+    if(o == "&&") {
+        instr = llvm::Instruction::And;
+    }
+    else if(o == "||") {
+        instr = llvm::Instruction::Or;
+    }
+    else{
+      return NULL;
+    }
+
+    return llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
+}
+
+llvm::Value * AssignExpr::EmitVal() {
+  llvm::Value * r = right->EmitVal();
+
+  if (Program::irgen.locals().find(string(((VarExpr * ) left)->GetName())) == Program::irgen.locals().end()) {
+   // std::cerr << "undeclared variable " << lhs.name << std::endl;
+    return NULL;
+  }
+
+  llvm::Instruction::BinaryOps instr;
+  string o = string(op->getToken());
+  llvm::Value * lval = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
+
+  llvm::Type * type = lval->getType();
+
+  if(o == "=") {
+    return new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
+
+  } else if(o == "+=") {
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Add;
+    } else { // float
+      instr = llvm::Instruction::FAdd;
+    }
+    
+  } else if(o == "-=") {
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Sub;
+    } else {
+      instr = llvm::Instruction::FSub;
+    }
+
+  } else if(o == "*=") {
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Mul;
+    } else {
+      instr = llvm::Instruction::FMul;
+    }
+  } else if(o == "/=") {
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::SDiv;
+    } else {
+      instr = llvm::Instruction::FDiv;
+    }
+  } else {
+    return NULL;
+  }
+
+  llvm::BinaryOperator::Create(instr, lval, r, "", Program::irgen.currentBlock());
+  return new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
 }
  
