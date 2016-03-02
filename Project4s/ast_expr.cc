@@ -216,4 +216,14 @@ llvm::Value * LogicalExpr::EmitVal() {
     return llvm::BinaryOperator::Create(instr, left->EmitVal(), 
     right->EmitVal(), "", Program::irgen.currentBlock());
 }
+
+llvm::Value * AssignExpr::EmitVal() {
+  if (Program::irgen.locals().find(string(((VarExpr * ) left)->GetName())) == Program::irgen.locals().end()) {
+   // std::cerr << "undeclared variable " << lhs.name << std::endl;
+    return NULL;
+  }
+  return new llvm::StoreInst(right->EmitVal(), 
+    Program::irgen.locals()[string(((VarExpr * ) left)->GetName())], false, 
+    Program::irgen.currentBlock());
+}
  

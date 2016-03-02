@@ -95,6 +95,7 @@ class VarExpr : public Expr
     void PrintChildren(int indentLevel);
 
     llvm::Value * EmitVal();
+    char * GetName() { return id->GetName(); }
 };
 
 class Operator : public Node 
@@ -166,6 +167,8 @@ class AssignExpr : public CompoundExpr
   public:
     AssignExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "AssignExpr"; }
+
+    llvm::Value * EmitVal();
 };
 
 class PostfixExpr : public CompoundExpr
