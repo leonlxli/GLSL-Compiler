@@ -135,6 +135,27 @@ llvm::Value * VarExpr::EmitVal() {
     return new llvm::LoadInst(Program::irgen.locals()[string(id->GetName())], "", false, Program::irgen.currentBlock());
 }
 
+llvm::Value * ArithmeticExpr::EmitVal() {
+  llvm::Instruction::BinaryOps instr;
+
+  string tok = string(op->getToken());
+
+  if(tok == "+") {
+    instr = llvm::Instruction::Add;
+  } else if(tok == "-") {
+    instr = llvm::Instruction::Sub;
+  } else if(tok == "*") {
+    instr = llvm::Instruction::Mul;
+  } else if(tok == "/") {
+    instr = llvm::Instruction::SDiv;
+  } else {
+    return NULL;
+  }
+  
+  return llvm::BinaryOperator::Create(instr, left->EmitVal(), 
+    right->EmitVal(), "", Program::irgen.currentBlock());
+}
+
 llvm::Value * RelationalExpr::EmitVal() {
     char* o = op->getToken();
     llvm::Value* l = left->EmitVal();
@@ -164,26 +185,5 @@ llvm::Value * RelationalExpr::EmitVal() {
     else{
       return NULL;
     }
-}
-
-llvm::Value * ArithmeticExpr::EmitVal() {
-  llvm::Instruction::BinaryOps instr;
-
-  string tok = string(op->getToken());
-
-  if(tok == "+") {
-    instr = llvm::Instruction::Add;
-  } else if(tok == "-") {
-    instr = llvm::Instruction::Sub;
-  } else if(tok == "*") {
-    instr = llvm::Instruction::Mul;
-  } else if(tok == "/") {
-    instr = llvm::Instruction::SDiv;
-  } else {
-    return NULL;
-  }
-  
-  return llvm::BinaryOperator::Create(instr, left->EmitVal(), 
-    right->EmitVal(), "", Program::irgen.currentBlock());
 }
  
