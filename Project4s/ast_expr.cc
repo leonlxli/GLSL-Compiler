@@ -138,15 +138,15 @@ llvm::Value * VarExpr::EmitVal() {
 llvm::Value * ArithmeticExpr::EmitVal() {
   llvm::Instruction::BinaryOps instr;
 
-  string tok = string(op->getToken());
+  string o = string(op->getToken());
 
-  if(tok == "+") {
+  if(o == "+") {
     instr = llvm::Instruction::Add;
-  } else if(tok == "-") {
+  } else if(o == "-") {
     instr = llvm::Instruction::Sub;
-  } else if(tok == "*") {
+  } else if(o == "*") {
     instr = llvm::Instruction::Mul;
-  } else if(tok == "/") {
+  } else if(o == "/") {
     instr = llvm::Instruction::SDiv;
   } else {
     return NULL;
@@ -157,33 +157,43 @@ llvm::Value * ArithmeticExpr::EmitVal() {
 }
 
 llvm::Value * RelationalExpr::EmitVal() {
-    char* o = op->getToken();
-    llvm::Value* l = left->EmitVal();
-    llvm::Value* r = right->EmitVal();
+    llvm::CmpInst::Predicate instr;
+
+    string o = string(op->getToken());
     
-    if(strcmp(o, "<") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT,
-            l, r, "", Program::irgen.currentBlock());
-    } else if(strcmp(o, "<=") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLE,
-            l, r, "", Program::irgen.currentBlock());
-    } else if(strcmp(o, ">") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGT,
-            l, r, "", Program::irgen.currentBlock());
-    } else if(strcmp(o, ">=") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGE,
-            l, r, "", Program::irgen.currentBlock());
+    if(o == "<") {
+      instr = llvm::CmpInst::ICMP_SLT;
+    } else if(o == "<=") {
+      instr = llvm::CmpInst::ICMP_SLE;
+    } else if(o == ">") {
+      instr = llvm::CmpInst::ICMP_SGT;
+    } else if(o == ">=") {
+      instr = llvm::CmpInst::ICMP_SGE;
+    } else{
+      return NULL;
     }
-    else if(strcmp(o, "!=") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE,
-            l, r, "", Program::irgen.currentBlock());
+
+    return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
+      left->EmitVal(), right->EmitVal(), "", Program::irgen.currentBlock());
+}
+
+llvm::Value * EqualityExpr::EmitVal() {
+
+    llvm::CmpInst::Predicate instr;
+
+    string o = string(op->getToken());
+    
+    if(o == "!=") {
+        instr = llvm::CmpInst::ICMP_NE;
     }
-    else if(strcmp(o, "==") == 0) {
-        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ,
-            l, r, "", Program::irgen.currentBlock());
+    else if(o == "==") {
+        instr = llvm::CmpInst::ICMP_EQ;
     }
     else{
       return NULL;
     }
+
+    return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
+      left->EmitVal(), right->EmitVal(), "", Program::irgen.currentBlock());
 }
  
