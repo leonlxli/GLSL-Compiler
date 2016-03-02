@@ -136,6 +136,9 @@ llvm::Value * VarExpr::EmitVal() {
 }
 
 llvm::Value * ArithmeticExpr::EmitVal() {
+  llvm::Value * l = left->EmitVal();
+  llvm::Value * r = right->EmitVal();
+
   llvm::Instruction::BinaryOps instr;
 
   string o = string(op->getToken());
@@ -152,11 +155,13 @@ llvm::Value * ArithmeticExpr::EmitVal() {
     return NULL;
   }
   
-  return llvm::BinaryOperator::Create(instr, left->EmitVal(), 
-    right->EmitVal(), "", Program::irgen.currentBlock());
+  return llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
 }
 
 llvm::Value * RelationalExpr::EmitVal() {
+    llvm::Value * l = left->EmitVal();
+    llvm::Value * r = right->EmitVal();
+
     llvm::CmpInst::Predicate instr;
 
     string o = string(op->getToken());
@@ -174,10 +179,12 @@ llvm::Value * RelationalExpr::EmitVal() {
     }
 
     return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
-      left->EmitVal(), right->EmitVal(), "", Program::irgen.currentBlock());
+      l, r, "", Program::irgen.currentBlock());
 }
 
 llvm::Value * EqualityExpr::EmitVal() {
+    llvm::Value * l = left->EmitVal();
+    llvm::Value * r = right->EmitVal();
 
     llvm::CmpInst::Predicate instr;
 
@@ -194,10 +201,12 @@ llvm::Value * EqualityExpr::EmitVal() {
     }
 
     return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
-      left->EmitVal(), right->EmitVal(), "", Program::irgen.currentBlock());
+      l, r, "", Program::irgen.currentBlock());
 }
 
 llvm::Value * LogicalExpr::EmitVal() {
+    llvm::Value * l = left->EmitVal();
+    llvm::Value * r = right->EmitVal();
 
     llvm::Instruction::BinaryOps instr;
 
@@ -213,17 +222,37 @@ llvm::Value * LogicalExpr::EmitVal() {
       return NULL;
     }
 
-    return llvm::BinaryOperator::Create(instr, left->EmitVal(), 
-    right->EmitVal(), "", Program::irgen.currentBlock());
+    return llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
 }
 
 llvm::Value * AssignExpr::EmitVal() {
+  llvm::Value * r = right->EmitVal();
+
   if (Program::irgen.locals().find(string(((VarExpr * ) left)->GetName())) == Program::irgen.locals().end()) {
    // std::cerr << "undeclared variable " << lhs.name << std::endl;
     return NULL;
   }
-  return new llvm::StoreInst(right->EmitVal(), 
-    Program::irgen.locals()[string(((VarExpr * ) left)->GetName())], false, 
-    Program::irgen.currentBlock());
+
+  llvm::Instruction::BinaryOps instr;
+  string o = string(op->getToken());
+  llvm::Value * lval = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
+
+  if(o == "=") {
+    return new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
+
+  } else if(o == "+=") {
+    instr = llvm::Instruction::Add;
+  } else if(o == "-=") {
+    instr = llvm::Instruction::Sub;
+  } else if(o == "*=") {
+    instr = llvm::Instruction::Mul;
+  } else if(o == "/=") {
+    instr = llvm::Instruction::SDiv;
+  } else {
+    return NULL;
+  }
+
+  llvm::BinaryOperator::Create(instr, lval, r, "", Program::irgen.currentBlock());
+  return new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
 }
  
