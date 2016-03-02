@@ -142,15 +142,34 @@ llvm::Value * ArithmeticExpr::EmitVal() {
   llvm::Instruction::BinaryOps instr;
 
   string o = string(op->getToken());
+  llvm::Type * type = l->getType();
 
   if(o == "+") {
-    instr = llvm::Instruction::Add;
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Add;
+    } else { // float
+      instr = llvm::Instruction::FAdd;
+    }
+    
   } else if(o == "-") {
-    instr = llvm::Instruction::Sub;
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Sub;
+    } else {
+      instr = llvm::Instruction::FSub;
+    }
+
   } else if(o == "*") {
-    instr = llvm::Instruction::Mul;
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Mul;
+    } else {
+      instr = llvm::Instruction::FMul;
+    }
   } else if(o == "/") {
-    instr = llvm::Instruction::SDiv;
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::SDiv;
+    } else {
+      instr = llvm::Instruction::FDiv;
+    }
   } else {
     return NULL;
   }
@@ -237,17 +256,37 @@ llvm::Value * AssignExpr::EmitVal() {
   string o = string(op->getToken());
   llvm::Value * lval = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
 
+  llvm::Type * type = lval->getType();
+
   if(o == "=") {
     return new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
 
   } else if(o == "+=") {
-    instr = llvm::Instruction::Add;
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Add;
+    } else { // float
+      instr = llvm::Instruction::FAdd;
+    }
+    
   } else if(o == "-=") {
-    instr = llvm::Instruction::Sub;
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Sub;
+    } else {
+      instr = llvm::Instruction::FSub;
+    }
+
   } else if(o == "*=") {
-    instr = llvm::Instruction::Mul;
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::Mul;
+    } else {
+      instr = llvm::Instruction::FMul;
+    }
   } else if(o == "/=") {
-    instr = llvm::Instruction::SDiv;
+    if(type->isIntegerTy()) {
+      instr = llvm::Instruction::SDiv;
+    } else {
+      instr = llvm::Instruction::FDiv;
+    }
   } else {
     return NULL;
   }
