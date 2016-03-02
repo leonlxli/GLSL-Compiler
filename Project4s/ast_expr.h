@@ -56,6 +56,7 @@ class IntConstant : public Expr
     void PrintChildren(int indentLevel);
 
     llvm::Value * EmitVal();
+    void Emit() { EmitVal(); }
 };
 
 class FloatConstant: public Expr 
@@ -69,6 +70,7 @@ class FloatConstant: public Expr
     void PrintChildren(int indentLevel);
 
     llvm::Value * EmitVal();
+    void Emit() { EmitVal(); }
 };
 
 class BoolConstant : public Expr 
@@ -82,6 +84,7 @@ class BoolConstant : public Expr
     void PrintChildren(int indentLevel);
 
     llvm::Value * EmitVal();
+    void Emit() { EmitVal(); }
 };
 
 class VarExpr : public Expr
@@ -96,6 +99,7 @@ class VarExpr : public Expr
 
     llvm::Value * EmitVal();
     char * GetName() { return id->GetName(); }
+    void Emit() { EmitVal(); }
 };
 
 class Operator : public Node 
@@ -132,6 +136,7 @@ class ArithmeticExpr : public CompoundExpr
     const char *GetPrintNameForNode() { return "ArithmeticExpr"; }
     
     llvm::Value * EmitVal();
+    void Emit() { EmitVal(); }
 };
 
 class RelationalExpr : public CompoundExpr 
@@ -141,6 +146,7 @@ class RelationalExpr : public CompoundExpr
     const char *GetPrintNameForNode() { return "RelationalExpr"; }
     
     llvm::Value * EmitVal();
+    void Emit() { EmitVal(); }
 };
 
 class EqualityExpr : public CompoundExpr 
@@ -150,6 +156,7 @@ class EqualityExpr : public CompoundExpr
     const char *GetPrintNameForNode() { return "EqualityExpr"; }
 
     llvm::Value * EmitVal();
+    void Emit() { EmitVal(); }
 };
 
 class LogicalExpr : public CompoundExpr 
@@ -160,6 +167,7 @@ class LogicalExpr : public CompoundExpr
     const char *GetPrintNameForNode() { return "LogicalExpr"; }
 
     llvm::Value * EmitVal();
+    void Emit() { EmitVal(); }
 };
 
 class AssignExpr : public CompoundExpr 
@@ -169,6 +177,7 @@ class AssignExpr : public CompoundExpr
     const char *GetPrintNameForNode() { return "AssignExpr"; }
 
     llvm::Value * EmitVal();
+    void Emit() { EmitVal(); }
 };
 
 class PostfixExpr : public CompoundExpr
