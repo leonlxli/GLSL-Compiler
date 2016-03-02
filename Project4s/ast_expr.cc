@@ -135,6 +135,37 @@ llvm::Value * VarExpr::EmitVal() {
     return new llvm::LoadInst(Program::irgen.locals()[string(id->GetName())], "", false, Program::irgen.currentBlock());
 }
 
+llvm::Value * RelationalExpr::EmitVal() {
+    char* o = op->getToken();
+    llvm::Value* l = left->EmitVal();
+    llvm::Value* r = right->EmitVal();
+    
+    if(strcmp(o, "<") == 0) {
+        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLT,
+            l, r, "", Program::irgen.currentBlock());
+    } else if(strcmp(o, "<=") == 0) {
+        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SLE,
+            l, r, "", Program::irgen.currentBlock());
+    } else if(strcmp(o, ">") == 0) {
+        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGT,
+            l, r, "", Program::irgen.currentBlock());
+    } else if(strcmp(o, ">=") == 0) {
+        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_SGE,
+            l, r, "", Program::irgen.currentBlock());
+    }
+    else if(strcmp(o, "!=") == 0) {
+        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE,
+            l, r, "", Program::irgen.currentBlock());
+    }
+    else if(strcmp(o, "==") == 0) {
+        return llvm::CmpInst::Create( llvm::Instruction::ICmp, llvm::CmpInst::ICMP_EQ,
+            l, r, "", Program::irgen.currentBlock());
+    }
+    else{
+      return NULL;
+    }
+}
+
 llvm::Value * ArithmeticExpr::EmitVal() {
   llvm::Instruction::BinaryOps instr;
 

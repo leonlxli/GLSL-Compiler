@@ -107,7 +107,7 @@ class Operator : public Node
     const char *GetPrintNameForNode() { return "Operator"; }
     void PrintChildren(int indentLevel);
 
-    string getToken() { return tokenString; }
+    char * getToken() { return tokenString; }
  };
  
 class CompoundExpr : public Expr
@@ -138,6 +138,7 @@ class RelationalExpr : public CompoundExpr
   public:
     RelationalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "RelationalExpr"; }
+    llvm::Value * EmitVal();
 };
 
 class EqualityExpr : public CompoundExpr 
