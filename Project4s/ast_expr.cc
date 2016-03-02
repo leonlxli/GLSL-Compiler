@@ -196,4 +196,24 @@ llvm::Value * EqualityExpr::EmitVal() {
     return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
       left->EmitVal(), right->EmitVal(), "", Program::irgen.currentBlock());
 }
+
+llvm::Value * LogicalExpr::EmitVal() {
+
+    llvm::Instruction::BinaryOps instr;
+
+    string o = string(op->getToken());
+    
+    if(o == "&&") {
+        instr = llvm::Instruction::And;
+    }
+    else if(o == "||") {
+        instr = llvm::Instruction::Or;
+    }
+    else{
+      return NULL;
+    }
+
+    return llvm::BinaryOperator::Create(instr, left->EmitVal(), 
+    right->EmitVal(), "", Program::irgen.currentBlock());
+}
  
