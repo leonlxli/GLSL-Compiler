@@ -134,10 +134,11 @@ void ReturnStmt::Emit(){
     if( expr ){
         //look at this
         // llvm::Value *rval = expr->Emit();
-        // llvm::ReturnInst::Create(*context, rval, Program::irgen.GetBasicBlock());
+        llvm::Value * rval = expr->EmitVal();  
+        llvm::ReturnInst::Create(*context, rval, Program::irgen.currentBlock());
     }
     else{
-         llvm::ReturnInst::Create(*context, Program::irgen.GetBasicBlock());
+         llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
     }
 }
   
