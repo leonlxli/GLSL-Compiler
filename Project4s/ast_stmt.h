@@ -16,12 +16,11 @@
 #include "list.h"
 #include "ast.h"
 #include "irgen.h"
-
 class Decl;
 class VarDecl;
 class Expr;
 class IntConstant;
-  
+
 void yyerror(const char *msg);
 
 class Program : public Node

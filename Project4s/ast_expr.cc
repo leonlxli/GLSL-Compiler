@@ -135,6 +135,10 @@ llvm::Value * VarExpr::EmitVal() {
     return new llvm::LoadInst(Program::irgen.locals()[string(id->GetName())], "", false, Program::irgen.currentBlock());
 }
 
+llvm::Value * PostfixExpr::EmitVal(){
+
+}
+
 llvm::Value * ArithmeticExpr::EmitVal() {
   llvm::Value * l = left->EmitVal();
   llvm::Value * r = right->EmitVal();
@@ -244,6 +248,11 @@ llvm::Value * LogicalExpr::EmitVal() {
     return llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
 }
 
+llvm::Value * PostfixExpr::EmitVal(){
+  //TODO
+  return NULL;
+}
+
 llvm::Value * AssignExpr::EmitVal() {
   llvm::Value * r = right->EmitVal();
 
@@ -294,4 +303,6 @@ llvm::Value * AssignExpr::EmitVal() {
   llvm::BinaryOperator::Create(instr, lval, r, "", Program::irgen.currentBlock());
   return new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
 }
+
+
  

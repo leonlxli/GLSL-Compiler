@@ -10,6 +10,7 @@
 #include "irgen.h"
 #include "llvm/Bitcode/ReaderWriter.h"
 #include "llvm/Support/raw_ostream.h"
+#include<iostream> using namespace std;
 
 Program::Program(List<Decl*> *d) {
     Assert(d != NULL);
@@ -24,11 +25,9 @@ void Program::PrintChildren(int indentLevel) {
 IRGenerator Program::irgen; // define irgen
 
 void Program::Emit() {
-
     llvm::Module *mod = Program::irgen.GetOrCreateModule("main");
 
     for (int i = 0; i < decls->NumElements(); i++) {
-
         decls->Nth(i)->Emit();
     }
 
@@ -131,7 +130,7 @@ void ReturnStmt::PrintChildren(int indentLevel) {
 
 void ReturnStmt::Emit(){
     llvm::LLVMContext *context = Program::irgen.GetContext();
-    if( expr ){
+    if( expr!=NULL ){
         //look at this
         // llvm::Value *rval = expr->Emit();
         llvm::Value * rval = expr->EmitVal();  
