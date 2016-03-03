@@ -10,7 +10,6 @@
 #include "irgen.h"
 #include "llvm/Bitcode/ReaderWriter.h"
 #include "llvm/Support/raw_ostream.h"
-#include<iostream> using namespace std;
 
 Program::Program(List<Decl*> *d) {
     Assert(d != NULL);
