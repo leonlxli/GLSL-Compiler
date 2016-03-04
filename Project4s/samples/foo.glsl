@@ -1,6 +1,8 @@
 
 int foo(int x)
 {
-  return x + 1;
+	int i;
+	int p;
+  return x;
 }
 

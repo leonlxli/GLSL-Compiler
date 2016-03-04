@@ -6,7 +6,7 @@
 #include "ast_type.h"
 #include "ast_decl.h"
 #include "ast_expr.h"
-
+// #include <raw_ostream.h>
 #include "irgen.h"
 #include "llvm/Bitcode/ReaderWriter.h"
 #include "llvm/Support/raw_ostream.h"
@@ -25,35 +25,38 @@ IRGenerator Program::irgen; // define irgen
 
 void Program::Emit() {
     llvm::Module *mod = Program::irgen.GetOrCreateModule("main");
+   //  FILE * fp;
 
+   // fp = fopen (stderr, "w+");
+   
     for (int i = 0; i < decls->NumElements(); i++) {
         decls->Nth(i)->Emit();
     }
 
-    // write the BC into standard output
+
+    
+    // // create a function signature
+    // std::vector<llvm::Type *> argTypes;
+    // llvm::Type *intTy = irgen.GetIntType();
+    // argTypes.push_back(intTy);
+    // llvm::ArrayRef<llvm::Type *> argArray(argTypes);
+    // llvm::FunctionType *funcTy = llvm::FunctionType::get(intTy, argArray, false);
+
+    // // llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction("foo", intTy, intTy, (Type *)0));
+    // llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction("foo", funcTy));
+    // llvm::Argument *arg = f->arg_begin();
+    // arg->setName("x");
+
+    // // insert a block into the runction
+    // llvm::LLVMContext *context = irgen.GetContext();
+    // llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
+
+    // // create a return instruction
+    // llvm::Value *val = llvm::ConstantInt::get(intTy, 1);
+    // llvm::Value *sum = llvm::BinaryOperator::CreateAdd(arg, val, "", bb);
+    // llvm::ReturnInst::Create(*context, sum, bb);
+        // write the BC into standard output
     llvm::WriteBitcodeToFile(mod, llvm::outs());
-
-    /*
-    // create a function signature
-    std::vector<llvm::Type *> argTypes;
-    llvm::Type *intTy = irgen.GetIntType();
-    argTypes.push_back(intTy);
-    llvm::ArrayRef<llvm::Type *> argArray(argTypes);
-    llvm::FunctionType *funcTy = llvm::FunctionType::get(intTy, argArray, false);
-
-    // llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction("foo", intTy, intTy, (Type *)0));
-    llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction("foo", funcTy));
-    llvm::Argument *arg = f->arg_begin();
-    arg->setName("x");
-
-    // insert a block into the runction
-    llvm::LLVMContext *context = irgen.GetContext();
-    llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
-
-    // create a return instruction
-    llvm::Value *val = llvm::ConstantInt::get(intTy, 1);
-    llvm::Value *sum = llvm::BinaryOperator::CreateAdd(arg, val, "", bb);
-    llvm::ReturnInst::Create(*context, sum, bb);*/
 
 }
 
@@ -206,12 +209,16 @@ void IfStmt::Emit() {
 void ReturnStmt::Emit(){
     llvm::LLVMContext *context = Program::irgen.GetContext();
     if( expr!=NULL ){
+        // fprintf(stderr, "Hello It's me\n");
+        fprintf(stderr, expr->GetPrintNameForNode());
         //look at this
-        // llvm::Value *rval = expr->Emit();
+        // llvm::Value * rval = llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 1, true);  
         llvm::Value * rval = expr->EmitVal();  
         llvm::ReturnInst::Create(*context, rval, Program::irgen.currentBlock());
     }
     else{
          llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
+
+
     }
 }

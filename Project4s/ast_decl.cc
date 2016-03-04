@@ -77,6 +77,7 @@ void FnDecl::Emit() {
     std::vector<llvm::Type *> argTypes;
 
     for (int i = 0; i < formals->NumElements(); i++) {
+
         llvm::Type *t = Program::irgen.ConvertType(formals->Nth(i)->GetType());
         argTypes.push_back(t);
     }

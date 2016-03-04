@@ -129,7 +129,10 @@ llvm::Value * BoolConstant::EmitVal() {
 }
 
 llvm::Value * VarExpr::EmitVal() {
+
     if (Program::irgen.locals().find(string(id->GetName())) == Program::irgen.locals().end()) {
+        fprintf(stderr,"dskafjakldfjasklfjklsjflsjldksf");
+
         return NULL;
     }
     return new llvm::LoadInst(Program::irgen.locals()[string(id->GetName())], "", false, Program::irgen.currentBlock());
