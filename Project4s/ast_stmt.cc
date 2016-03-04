@@ -255,6 +255,14 @@ void ReturnStmt::Emit(){
     }
 }
 
+void SwitchLabel::Emit() {
+
+}
+
+void Case::Emit() {
+
+}
+
 void SwitchStmt::Emit(){
     llvm::LLVMContext *context = Program::irgen.GetContext();
 

@@ -175,9 +175,10 @@ class Case : public SwitchLabel
 {
   public:
     Case() : SwitchLabel() {}
-    void Emit();
     Case(Expr *label, Stmt *stmt) : SwitchLabel(label, stmt) {}
     const char *GetPrintNameForNode() { return "Case"; }
+
+    void Emit();
 };
 
 class Default : public SwitchLabel
