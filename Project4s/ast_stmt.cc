@@ -170,6 +170,43 @@ void DeclStmt::Emit() {
     decl->Emit();
 }
 
+void ForStmt::Emit() {
+// Create BB for footer, step, body and header
+    llvm::LLVMContext *context = Program::irgen.GetContext();
+
+    llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer");
+    llvm::BasicBlock *stepBB = llvm::BasicBlock::Create(*context, "step");
+    llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(*context, "body");
+    llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(*context, "loop");
+
+    init->Emit();
+
+// Emit for initialization
+    Program::irgen.pushBlock(headerBB);
+
+    llvm::Value * cond = test->EmitVal();
+
+// create a branch to terminate current BB and start loop header
+    llvm::BranchInst::Create(headerBB, footerBB, cond, Program::irgen.currentBlock());
+
+    Program::irgen.popBlock(); // pop header
+    Program::irgen.pushBlock(bodyBB);
+
+// Emit for body
+    body->Emit();
+    llvm::BranchInst::Create(stepBB, bodyBB);
+
+// Emit for step
+    Program::irgen.popBlock(); // pop header
+    Program::irgen.pushBlock(stepBB);
+
+    step->Emit();
+    llvm::BranchInst::Create(headerBB, stepBB);
+
+    Program::irgen.popBlock();
+    Program::irgen.pushBlock(footerBB);
+}
+
 void IfStmt::Emit() {
     llvm::LLVMContext *context = Program::irgen.GetContext();
     
