@@ -25,7 +25,7 @@ class Expr : public Stmt
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
     
-    llvm::Value * EmitVal(){ return NULL; } // Need to look at this
+    virtual llvm::Value * EmitVal(){ return NULL; } // Need to look at this
 
 };
 
