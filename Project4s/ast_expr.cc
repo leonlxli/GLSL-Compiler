@@ -296,7 +296,21 @@ llvm::Value * AssignExpr::EmitVal() {
 }
 
 llvm::Value * PostfixExpr::EmitVal(){
-  //TODO
+  if(left){
+    string o = string(op->getToken());
+    llvm::Instruction::BinaryOps instr;
+    llvm::Value * lval = left->EmitVal();
+    if(o == "++"){
+      instr = llvm::Instruction::Add;
+    }
+    else if( o == "--"){
+      instr = llvm::Instruction::Sub;
+
+    }
+    llvm::ConstantInt * one =  llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 1, true);
+    llvm::BinaryOperator::Create(instr, lval, one, "", Program::irgen.currentBlock());
+    return lval;
+  }
   return NULL;
 }
 
