@@ -319,9 +319,6 @@ llvm::Value * PostfixExpr::EmitVal(){
     llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
     llvm::BranchInst::Create(footerBB, postBB);
 
-
-    Program::irgen.pushBlock(postBB);
-
     Program::irgen.pushBlock(footerBB);
 
     return lval;

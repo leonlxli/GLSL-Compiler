@@ -176,31 +176,26 @@ void IfStmt::Emit() {
     llvm::Value * cond = test->EmitVal();
 
     llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footer");
-    Program::irgen.pushBlock(footBB);
 
     llvm::BasicBlock *elseBB = NULL;
 
     if (elseBody) {
         elseBB = llvm::BasicBlock::Create(*context, "else");
-        Program::irgen.pushBlock(elseBB);
     }
 
     llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(*context, "then");
-    Program::irgen.pushBlock(thenBB);
 
     llvm::BranchInst::Create(thenBB, elseBody ? elseBB : footBB, cond, Program::irgen.currentBlock());
 
     body->Emit();
     llvm::BranchInst::Create(footBB, thenBB);
-    Program::irgen.popBlock();
 
     if (elseBody) {
         elseBody->Emit();
         llvm::BranchInst::Create(footBB, elseBB);
-        Program::irgen.popBlock();
     }
 
-    //Program::irgen.popBlock(); // don't think we should pop the footer
+    Program::irgen.pushBlock(footBB);
 }
 
 void ReturnStmt::Emit(){
