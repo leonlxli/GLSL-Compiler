@@ -168,12 +168,14 @@ class SwitchLabel : public Stmt
     SwitchLabel(Expr *label, Stmt *stmt);
     SwitchLabel(Stmt *stmt);
     void PrintChildren(int indentLevel);
+    void Emit();
 };
 
 class Case : public SwitchLabel
 {
   public:
     Case() : SwitchLabel() {}
+    void Emit();
     Case(Expr *label, Stmt *stmt) : SwitchLabel(label, stmt) {}
     const char *GetPrintNameForNode() { return "Case"; }
 };
@@ -197,6 +199,7 @@ class SwitchStmt : public Stmt
     SwitchStmt(Expr *expr, List<Stmt*> *cases, Default *def);
     virtual const char *GetPrintNameForNode() { return "SwitchStmt"; }
     void PrintChildren(int indentLevel);
+    void Emit();
 };
 
 class SwitchStmtError : public SwitchStmt

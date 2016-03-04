@@ -254,3 +254,21 @@ void ReturnStmt::Emit(){
 
     }
 }
+
+void SwitchStmt::Emit(){
+    llvm::LLVMContext *context = Program::irgen.GetContext();
+
+    llvm::Value * exprV = expr->EmitVal();
+    llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footBB");
+    Program::irgen.pushBlock(footBB);
+
+    for(int i =0; i < cases->NumElements();i++){
+        llvm::BasicBlock *caseBB = llvm::BasicBlock::Create(*context, "caseBB");
+        Program::irgen.pushBlock(caseBB);
+        cases->Nth(i)->Emit();//add thenBB param?
+        llvm::BranchInst::Create(footBB, caseBB);
+    }
+    Program::irgen.pushBlock(footBB);
+
+
+}
