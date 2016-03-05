@@ -30,6 +30,7 @@ void Program::Emit() {
    // fp = fopen (stderr, "w+");
    
     for (int i = 0; i < decls->NumElements(); i++) {
+        fprintf(stderr, "decl %d\n", i);
         decls->Nth(i)->Emit();
     }
 
@@ -56,7 +57,9 @@ void Program::Emit() {
     // llvm::Value *sum = llvm::BinaryOperator::CreateAdd(arg, val, "", bb);
     // llvm::ReturnInst::Create(*context, sum, bb);
         // write the BC into standard output
+    fprintf(stderr, "%s\n", "writing Bitcode");
     llvm::WriteBitcodeToFile(mod, llvm::outs());
+    fprintf(stderr, "%s\n", "done writing Bitcode");
 
 }
 
@@ -241,14 +244,15 @@ void IfStmt::Emit() {
 void ReturnStmt::Emit(){
     llvm::LLVMContext *context = Program::irgen.GetContext();
     if( expr!=NULL ){
-        // fprintf(stderr, "Hello It's me\n");
-        fprintf(stderr, expr->GetPrintNameForNode());
-        //look at this
-        // llvm::Value * rval = llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 1, true);  
+        
         llvm::Value * rval = expr->EmitVal();  
+
+        fprintf(stderr, "returning: %s\n", expr->GetPrintNameForNode());
         llvm::ReturnInst::Create(*context, rval, Program::irgen.currentBlock());
     }
     else{
+
+        fprintf(stderr, "%s\n", "returning void");
          llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
 
 

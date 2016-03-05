@@ -90,18 +90,32 @@ void FnDecl::Emit() {
 
     llvm::LLVMContext *context = Program::irgen.GetContext();
     llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
-    
+
     Program::irgen.pushBlock(bb);
     Program::irgen.SetFunction(f); // set function
 
-    for(int i = 0; i < formals->NumElements(); i++) {
-        formals->Nth(i)->Emit();
+    llvm::Function::arg_iterator args = f->arg_begin();
+
+    for(int i = 0; i < formals->NumElements(); args++, i++) {
+        string param = string(formals->Nth(i)->GetIdentifier()->GetName());
+        args->setName(param);
+
+        llvm::AllocaInst * alloc = new llvm::AllocaInst (
+            argTypes[i], 
+            param, 
+            Program::irgen.currentBlock()); // insert at end of basic block
+
+        Program::irgen.locals()[param] = alloc; // add to symbol table 
+        //llvm::StoreInst(args, alloc, false, Program::irgen.currentBlock());
+        fprintf(stderr, "%s %s\n", "stored param: ", formals->Nth(i)->GetIdentifier()->GetName());
     }
 
     body->Emit();
 
     Program::irgen.ExitFunction();
     Program::irgen.popBlock();
+
+    fprintf(stderr, "%s\n", "done with function");
 }
 
 

@@ -1,8 +1,10 @@
 
 int foo(int x)
 {
-	int i;
-	int p;
+	//x = 0;
   return x;
+  //int y;
+  //y = 5;
+  //return y;
 }
 
