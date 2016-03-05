@@ -337,7 +337,7 @@ void PostfixExpr::Emit(){
   if(left){
     string o = string(op->getToken());
     llvm::Instruction::BinaryOps instr;
-    llvm::Value * lval = left->EmitVal();
+    llvm::Value * lval = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
     if(o == "++"){
       instr = llvm::Instruction::Add;
     }
@@ -345,24 +345,11 @@ void PostfixExpr::Emit(){
       instr = llvm::Instruction::Sub;
 
     }
-    llvm::ConstantInt * one =  llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 10, true);
-
-    llvm::BinaryOperator::Create(instr, lval, one, "HELLLLLO", Program::irgen.currentBlock());
-    fprintf(stderr, " Helllllllooooo \n ");
-    // llvm::StoreInst(res, lval, false, Program::irgen.currentBlock());
-    // llvm::LLVMContext *context = Program::irgen.GetContext();
-
-    // llvm::BasicBlock *postBB = llvm::BasicBlock::Create(*context, "postBB");
-    // llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer");
-
-    //     //increatment l by one
-    // llvm::ConstantInt * one =  llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 1, true);
-    // llvm::BinaryOperator::Create(instr, lval, one, "", postBB);
-
-    // llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
-    // llvm::BranchInst::Create(footerBB, postBB);
-
-    // Program::irgen.pushBlock(footerBB);
+    llvm::Value *alloc = new llvm::AllocaInst(llvm::Type::getInt32Ty(llvm::getGlobalContext()),"one", Program::irgen.currentBlock());
+    llvm::Value * val = llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 2, true);
+    new llvm::StoreInst(val, alloc, false, Program::irgen.currentBlock());
+    llvm::Value * res = llvm::BinaryOperator::Create(instr, lval, alloc, "adding", Program::irgen.currentBlock());
+    new llvm::StoreInst(res, lval, false, Program::irgen.currentBlock());
   }
 }
  
