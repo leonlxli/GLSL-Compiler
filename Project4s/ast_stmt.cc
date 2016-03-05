@@ -229,10 +229,12 @@ void IfStmt::Emit() {
     }
 
     llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(*context, "then");
+    llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
+    Program::irgen.pushBlock(footBB);
+    body->Emit();
 
     llvm::BranchInst::Create(thenBB, elseBody ? elseBB : footBB, cond, Program::irgen.currentBlock());
 
-    body->Emit();
     llvm::BranchInst::Create(footBB, thenBB);
 
     if (elseBody) {

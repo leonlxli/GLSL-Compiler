@@ -102,11 +102,11 @@ void FnDecl::Emit() {
 
         llvm::AllocaInst * alloc = new llvm::AllocaInst (
             argTypes[i], 
-            param, 
+            "Test", 
             Program::irgen.currentBlock()); // insert at end of basic block
-
+        
         Program::irgen.locals()[param] = alloc; // add to symbol table 
-        //llvm::StoreInst(args, alloc, false, Program::irgen.currentBlock());
+        // llvm::StoreInst(args, alloc, false, Program::irgen.currentBlock());
         fprintf(stderr, "%s %s\n", "stored param: ", formals->Nth(i)->GetIdentifier()->GetName());
     }
 
