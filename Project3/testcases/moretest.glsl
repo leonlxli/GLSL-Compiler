@@ -1,4 +1,4 @@
-int a;
-void a() {
+void foo(int x)
+{
+	x++;
 }
-

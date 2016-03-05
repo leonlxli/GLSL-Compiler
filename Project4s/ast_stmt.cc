@@ -165,14 +165,16 @@ void SwitchStmt::PrintChildren(int indentLevel) {
 }
 
 void StmtBlock::Emit() {
-
+    fprintf(stderr,"Entering StmtBlock\n");
     for (int i = 0; i < stmts->NumElements(); i++) {
+
+        fprintf(stderr,stmts->Nth(i)->GetPrintNameForNode());
         stmts->Nth(i)->Emit(); 
     }
-
 }
 
 void DeclStmt::Emit() {
+    fprintf(stderr, "declstmt");
     decl->Emit();
 }
 

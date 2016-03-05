@@ -188,6 +188,7 @@ class PostfixExpr : public CompoundExpr
 
 
     llvm::Value * EmitVal();
+    void Emit();
 };
 
 class LValue : public Expr 

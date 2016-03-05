@@ -156,6 +156,8 @@ void StmtBlock::Check(){
         decls->Nth(i)->Check();
     }
     for (int i = 0; i < stmts->NumElements(); i++) {
+        printf("statementblock");
+        printf(stmts->Nth(i)->GetPrintNameForNode());
         if(strcmp(stmts->Nth(i)->GetPrintNameForNode(), "StmtBlock")==0){
             Program::symbolTable->EnterScope(Scope::block);
             stmts->Nth(i)->Check();

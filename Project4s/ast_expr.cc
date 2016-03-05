@@ -301,6 +301,7 @@ llvm::Value * AssignExpr::EmitVal() {
 }
 
 llvm::Value * PostfixExpr::EmitVal(){
+  fprintf(stderr, "fasdjflkajksdflakjsdlkfalkjskljalkjsfl\n\n");
   if(left){
     string o = string(op->getToken());
     llvm::Instruction::BinaryOps instr;
@@ -331,4 +332,37 @@ llvm::Value * PostfixExpr::EmitVal(){
   return NULL;
 }
 
+void PostfixExpr::Emit(){
+  fprintf(stderr, "Postfix no Val\n\n");
+  if(left){
+    string o = string(op->getToken());
+    llvm::Instruction::BinaryOps instr;
+    llvm::Value * lval = left->EmitVal();
+    if(o == "++"){
+      instr = llvm::Instruction::Add;
+    }
+    else if( o == "--"){
+      instr = llvm::Instruction::Sub;
+
+    }
+    llvm::ConstantInt * one =  llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 10, true);
+
+    llvm::BinaryOperator::Create(instr, lval, one, "HELLLLLO", Program::irgen.currentBlock());
+    fprintf(stderr, " Helllllllooooo \n ");
+    // llvm::StoreInst(res, lval, false, Program::irgen.currentBlock());
+    // llvm::LLVMContext *context = Program::irgen.GetContext();
+
+    // llvm::BasicBlock *postBB = llvm::BasicBlock::Create(*context, "postBB");
+    // llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer");
+
+    //     //increatment l by one
+    // llvm::ConstantInt * one =  llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 1, true);
+    // llvm::BinaryOperator::Create(instr, lval, one, "", postBB);
+
+    // llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
+    // llvm::BranchInst::Create(footerBB, postBB);
+
+    // Program::irgen.pushBlock(footerBB);
+  }
+}
  
