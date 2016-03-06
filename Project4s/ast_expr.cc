@@ -309,47 +309,25 @@ llvm::Value * PostfixExpr::EmitVal(){
     if(o == "++"){
       instr = llvm::Instruction::Add;
     }
-    else if( o == "--"){
+    else { // --
       instr = llvm::Instruction::Sub;
 
     }
     llvm::LLVMContext *context = Program::irgen.GetContext();
+    llvm::Function * f = Program::irgen.GetFunction();
 
-    llvm::BasicBlock *postBB = llvm::BasicBlock::Create(*context, "postBB");
-    llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer");
+    llvm::BasicBlock *postBB = llvm::BasicBlock::Create(*context, "postBB", f);
 
         //increatment l by one
     llvm::ConstantInt * one =  llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 1, true);
     llvm::BinaryOperator::Create(instr, lval, one, "", postBB);
 
     llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
-    llvm::BranchInst::Create(footerBB, postBB);
 
-    Program::irgen.pushBlock(footerBB);
+    Program::irgen.pushBlock(postBB);
 
     return lval;
   }
   return NULL;
-}
-
-void PostfixExpr::Emit(){
-  fprintf(stderr, "Postfix no Val\n\n");
-  if(left){
-    string o = string(op->getToken());
-    llvm::Instruction::BinaryOps instr;
-    llvm::Value * lval = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
-    if(o == "++"){
-      instr = llvm::Instruction::Add;
-    }
-    else if( o == "--"){
-      instr = llvm::Instruction::Sub;
-
-    }
-
-    llvm::Value *val = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
-    llvm::Value * lvalue = new llvm::LoadInst(Program::irgen.locals()[string(((VarExpr * ) left)->GetName())], "", false, Program::irgen.currentBlock());
-    llvm::Value * r = llvm::BinaryOperator::Create(instr, lvalue, val, "binOp", Program::irgen.currentBlock());
-    new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
-  }
 }
  
