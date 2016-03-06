@@ -345,13 +345,11 @@ void PostfixExpr::Emit(){
       instr = llvm::Instruction::Sub;
 
     }
-    llvm::Type *intTy = Program::irgen.GetIntType();
-    llvm::Value * val = llvm::ConstantInt::get(intTy, 1);
 
-    // llvm::Value *alloc = new llvm::AllocaInst(llvm::Type::getInt32Ty(llvm::getGlobalContext()),"one", Program::irgen.currentBlock());
-    // new llvm::StoreInst(val, alloc, false, Program::irgen.currentBlock());
-    llvm::Value *sum = llvm::BinaryOperator::CreateAdd(val, lval, "", Program::irgen.currentBlock());
-    new llvm::StoreInst(sum, lval, false, Program::irgen.currentBlock());
+    llvm::Value *val = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
+    llvm::Value * lvalue = new llvm::LoadInst(Program::irgen.locals()[string(((VarExpr * ) left)->GetName())], "", false, Program::irgen.currentBlock());
+    llvm::Value * r = llvm::BinaryOperator::Create(instr, lvalue, val, "binOp", Program::irgen.currentBlock());
+    new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
   }
 }
  
