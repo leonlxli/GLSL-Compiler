@@ -337,7 +337,7 @@ void PostfixExpr::Emit(){
   if(left){
     string o = string(op->getToken());
     llvm::Instruction::BinaryOps instr;
-    llvm::Value * lval = left->EmitVal();
+    llvm::Value * lval = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
     if(o == "++"){
       instr = llvm::Instruction::Add;
     }
@@ -345,11 +345,13 @@ void PostfixExpr::Emit(){
       instr = llvm::Instruction::Sub;
 
     }
+    llvm::Type *intTy = Program::irgen.GetIntType();
+    llvm::Value * val = llvm::ConstantInt::get(intTy, 1);
+
     // llvm::Value *alloc = new llvm::AllocaInst(llvm::Type::getInt32Ty(llvm::getGlobalContext()),"one", Program::irgen.currentBlock());
-    llvm::Value * val = llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 2, true);
     // new llvm::StoreInst(val, alloc, false, Program::irgen.currentBlock());
-    llvm::Value * res = llvm::BinaryOperator::Create(instr, lval, lval, "adding", Program::irgen.currentBlock());
-    new llvm::StoreInst(res, lval, false, Program::irgen.currentBlock());
+    llvm::Value *sum = llvm::BinaryOperator::CreateAdd(val, lval, "", Program::irgen.currentBlock());
+    new llvm::StoreInst(sum, lval, false, Program::irgen.currentBlock());
   }
 }
  
