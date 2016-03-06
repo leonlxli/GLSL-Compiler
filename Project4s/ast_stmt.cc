@@ -58,6 +58,7 @@ void Program::Emit() {
     // llvm::ReturnInst::Create(*context, sum, bb);
         // write the BC into standard output
     fprintf(stderr, "%s\n", "writing Bitcode");
+    mod->dump();
     llvm::WriteBitcodeToFile(mod, llvm::outs());
     fprintf(stderr, "%s\n", "done writing Bitcode");
 
@@ -216,27 +217,32 @@ void ForStmt::Emit() {
 }
 
 void IfStmt::Emit() {
+    llvm::Function * f = Program::irgen.GetFunction();
     llvm::LLVMContext *context = Program::irgen.GetContext();
     
     llvm::Value * cond = test->EmitVal();
 
-    llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footer");
+    llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(*context, "then", f);
+    llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footer", f);
 
     llvm::BasicBlock *elseBB = NULL;
 
     if (elseBody) {
-        elseBB = llvm::BasicBlock::Create(*context, "else");
+        elseBB = llvm::BasicBlock::Create(*context, "else", f);
     }
 
-    llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(*context, "then");
-    llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
     Program::irgen.pushBlock(thenBB);
+
     body->Emit();
+    llvm::Instruction * last = &thenBB->back();
+
+    if(!last->isTerminator()) {
+        llvm::BranchInst::Create(footBB, thenBB);
+    }
+    
     Program::irgen.popBlock();
 
     llvm::BranchInst::Create(thenBB, elseBody ? elseBB : footBB, cond, Program::irgen.currentBlock());
-
-    llvm::BranchInst::Create(footBB, thenBB);
 
     if (elseBody) {
         Program::irgen.pushBlock(elseBB);

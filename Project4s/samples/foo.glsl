@@ -1,9 +1,13 @@
 
 int foo(int x)
 {	
+ 	bool b;
+ 	b = true;
+	if(b) {
+		return x;
+	}
 	int i;
-	i=3;
-	i+=5;
+	i = 0;
 	return i;
 }
 
