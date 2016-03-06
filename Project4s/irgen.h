@@ -70,8 +70,22 @@ class IRGenerator {
     //llvm::GenericValue runCode();
     std::map<std::string, llvm::Value*>& locals() { return blocks.top()->locals; }
     llvm::BasicBlock *currentBlock() { return blocks.top()->block; }
-    void pushBlock(llvm::BasicBlock *block) { blocks.push(new CodeGenBlock()); blocks.top()->block = block; }
-    void popBlock() { CodeGenBlock *top = blocks.top(); blocks.pop(); delete top; }
+    void pushBlock(llvm::BasicBlock *block) { 
+        CodeGenBlock * cgb = new CodeGenBlock();
+
+        if(!blocks.empty()) {
+            std::map<std::string, llvm::Value*> parentLocals = blocks.top()->locals;
+            cgb->locals = parentLocals;
+        }
+
+        cgb->block = block;
+        blocks.push(cgb); 
+    }
+    void popBlock() { 
+        CodeGenBlock *top = blocks.top(); 
+        blocks.pop(); 
+        delete top; 
+    }
 };
    
 #endif
