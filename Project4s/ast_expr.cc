@@ -295,9 +295,9 @@ llvm::Value * AssignExpr::EmitVal() {
   } else {
     return NULL;
   }
-
-  llvm::BinaryOperator::Create(instr, lval, r, "", Program::irgen.currentBlock());
-  return new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
+  llvm::Value * lvalue = new llvm::LoadInst(Program::irgen.locals()[string(((VarExpr * ) left)->GetName())], "", false, Program::irgen.currentBlock());
+  llvm::Value * res = llvm::BinaryOperator::Create(instr, lvalue, r, "", Program::irgen.currentBlock());
+  return new llvm::StoreInst(res, lval, false, Program::irgen.currentBlock());
 }
 
 llvm::Value * PostfixExpr::EmitVal(){

@@ -1,7 +1,9 @@
 
 int foo(int x)
 {	
-	x--;
-	return x;
+	int i;
+	i=3;
+	i+=5;
+	return i;
 }
 
