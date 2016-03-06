@@ -230,16 +230,19 @@ void IfStmt::Emit() {
 
     llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(*context, "then");
     llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
-    Program::irgen.pushBlock(footBB);
+    Program::irgen.pushBlock(thenBB);
     body->Emit();
+    Program::irgen.popBlock();
 
     llvm::BranchInst::Create(thenBB, elseBody ? elseBB : footBB, cond, Program::irgen.currentBlock());
 
     llvm::BranchInst::Create(footBB, thenBB);
 
     if (elseBody) {
+        Program::irgen.pushBlock(elseBB);
         elseBody->Emit();
         llvm::BranchInst::Create(footBB, elseBB);
+        Program::irgen.popBlock();
     }
 
     Program::irgen.pushBlock(footBB);
