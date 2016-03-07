@@ -206,7 +206,7 @@ void ForStmt::Emit() {
 // Emit for body
     body->Emit();
     if(bodyBB->getTerminator() == NULL) {
-        llvm::BranchInst::Create(stepBB, bodyBB);
+        llvm::BranchInst::Create(stepBB, Program::irgen.currentBlock());
     }
 
 // Emit for step
@@ -214,7 +214,7 @@ void ForStmt::Emit() {
     Program::irgen.pushBlock(stepBB);
 
     step->Emit();
-    llvm::BranchInst::Create(headerBB, stepBB);
+    llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
 
     Program::irgen.popBlock();
     Program::irgen.pushBlock(footerBB);
@@ -240,7 +240,7 @@ void IfStmt::Emit() {
     body->Emit();
 
     if(thenBB->getTerminator() == NULL) {
-        llvm::BranchInst::Create(footBB, thenBB);
+        llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
     }
     
     Program::irgen.popBlock();
@@ -252,7 +252,7 @@ void IfStmt::Emit() {
         elseBody->Emit();
 
         if(elseBB->getTerminator() == NULL) {
-            llvm::BranchInst::Create(footBB, elseBB);
+            llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
         }
 
         Program::irgen.popBlock();
