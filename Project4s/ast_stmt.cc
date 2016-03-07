@@ -168,8 +168,11 @@ void SwitchStmt::PrintChildren(int indentLevel) {
 void StmtBlock::Emit() {
     fprintf(stderr,"Entering StmtBlock\n");
     for (int i = 0; i < stmts->NumElements(); i++) {
-
-        fprintf(stderr,stmts->Nth(i)->GetPrintNameForNode());
+        llvm::BasicBlock * bb = Program::irgen.currentBlock();
+        if(bb->getTerminator() != NULL) {
+            break;
+        }
+        //fprintf(stderr,stmts->Nth(i)->GetPrintNameForNode());
         stmts->Nth(i)->Emit(); 
     }
 }
@@ -188,6 +191,9 @@ void ForStmt::Emit() {
     llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(*context, "body", f);
     llvm::BasicBlock *stepBB = llvm::BasicBlock::Create(*context, "step", f);
     llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer", f);
+
+    Program::irgen.currentLoopHeader = stepBB;
+    Program::irgen.currentLoopFooter = footerBB;
 
     init->Emit();
 
@@ -218,6 +224,9 @@ void ForStmt::Emit() {
 
     Program::irgen.popBlock();
     Program::irgen.pushBlock(footerBB);
+
+    Program::irgen.currentLoopHeader = NULL;
+    Program::irgen.currentLoopFooter = NULL;
 }
 
 void WhileStmt::Emit() {
@@ -228,6 +237,9 @@ void WhileStmt::Emit() {
     llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(*context, "loop", f);
     llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(*context, "body", f);
     llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer", f);
+
+    Program::irgen.currentLoopHeader = headerBB;
+    Program::irgen.currentLoopFooter = footerBB;
 
     llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
     Program::irgen.pushBlock(headerBB);
@@ -247,6 +259,9 @@ void WhileStmt::Emit() {
     Program::irgen.popBlock(); // pop body
 
     Program::irgen.pushBlock(footerBB);
+
+    Program::irgen.currentLoopHeader = NULL;
+    Program::irgen.currentLoopFooter = NULL;
 }
 
 void IfStmt::Emit() {
@@ -288,6 +303,14 @@ void IfStmt::Emit() {
     }
 
     Program::irgen.pushBlock(footBB);
+}
+
+void BreakStmt::Emit() {
+    llvm::BranchInst::Create(Program::irgen.currentLoopFooter, Program::irgen.currentBlock());
+}
+
+void ContinueStmt::Emit() {
+    llvm::BranchInst::Create(Program::irgen.currentLoopHeader, Program::irgen.currentBlock());
 }
 
 void ReturnStmt::Emit(){

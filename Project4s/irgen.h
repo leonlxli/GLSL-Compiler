@@ -68,6 +68,9 @@ class IRGenerator {
 
     //void generateCode(NBlock& root);
     //llvm::GenericValue runCode();
+    llvm::BasicBlock * currentLoopFooter;
+    llvm::BasicBlock * currentLoopHeader;
+    
     std::map<std::string, llvm::Value*>& locals() { return blocks.top()->locals; }
     llvm::BasicBlock *currentBlock() { return blocks.top()->block; }
     void pushBlock(llvm::BasicBlock *block) { 
