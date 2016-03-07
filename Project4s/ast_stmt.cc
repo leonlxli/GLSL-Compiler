@@ -192,6 +192,7 @@ void ForStmt::Emit() {
     init->Emit();
 
 // Emit for initialization
+    llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
     Program::irgen.pushBlock(headerBB);
 
     llvm::Value * cond = test->EmitVal();
