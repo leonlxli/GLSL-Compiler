@@ -220,6 +220,35 @@ void ForStmt::Emit() {
     Program::irgen.pushBlock(footerBB);
 }
 
+void WhileStmt::Emit() {
+// Create BB for footer, step, body and header
+    llvm::LLVMContext *context = Program::irgen.GetContext();
+    llvm::Function * f = Program::irgen.GetFunction();
+
+    llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(*context, "loop", f);
+    llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(*context, "body", f);
+    llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer", f);
+
+    llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
+    Program::irgen.pushBlock(headerBB);
+
+    llvm::Value * cond = test->EmitVal();
+
+// create a branch to terminate current BB and start loop header
+    llvm::BranchInst::Create(bodyBB, footerBB, cond, Program::irgen.currentBlock());
+
+    Program::irgen.popBlock(); // pop header
+    Program::irgen.pushBlock(bodyBB);
+
+// Emit for body
+    body->Emit();
+
+    llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
+    Program::irgen.popBlock(); // pop body
+
+    Program::irgen.pushBlock(footerBB);
+}
+
 void IfStmt::Emit() {
     llvm::Function * f = Program::irgen.GetFunction();
     llvm::LLVMContext *context = Program::irgen.GetContext();

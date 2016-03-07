@@ -2,11 +2,11 @@
 int foo(int x)
 {	
 	int i;
-	int j;
-	for( i = 0; i < x; i++) {
-		j = i;
+	i = 0;
+	while( i < 3) {
+		i++;
 	}
 
-	return j;
+	return i;
 }
 
