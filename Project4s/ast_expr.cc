@@ -317,14 +317,14 @@ llvm::Value * PostfixExpr::EmitVal(){
     llvm::Function * f = Program::irgen.GetFunction();
 
     llvm::BasicBlock *postBB = llvm::BasicBlock::Create(*context, "postBB", f);
+    llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
+    Program::irgen.pushBlock(postBB);
 
         //increatment l by one
     llvm::ConstantInt * one =  llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 1, true);
-    llvm::BinaryOperator::Create(instr, lval, one, "", postBB);
-
-    llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
-
-    Program::irgen.pushBlock(postBB);
+    llvm::Value * res = llvm::BinaryOperator::Create(instr, lval, one, "", Program::irgen.currentBlock());
+    llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
+    new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
 
     return lval;
   }
