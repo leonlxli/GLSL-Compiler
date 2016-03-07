@@ -238,9 +238,8 @@ void IfStmt::Emit() {
     Program::irgen.pushBlock(thenBB);
 
     body->Emit();
-    llvm::Instruction * last = &thenBB->back();
 
-    if(!last->isTerminator()) {
+    if(thenBB->getTerminator() == NULL) {
         llvm::BranchInst::Create(footBB, thenBB);
     }
     
@@ -251,7 +250,11 @@ void IfStmt::Emit() {
     if (elseBody) {
         Program::irgen.pushBlock(elseBB);
         elseBody->Emit();
-        llvm::BranchInst::Create(footBB, elseBB);
+
+        if(elseBB->getTerminator() == NULL) {
+            llvm::BranchInst::Create(footBB, elseBB);
+        }
+
         Program::irgen.popBlock();
     }
 
