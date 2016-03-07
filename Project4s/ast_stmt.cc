@@ -25,43 +25,14 @@ IRGenerator Program::irgen; // define irgen
 
 void Program::Emit() {
     llvm::Module *mod = Program::irgen.GetOrCreateModule("main");
-   //  FILE * fp;
-
-   // fp = fopen (stderr, "w+");
    
     for (int i = 0; i < decls->NumElements(); i++) {
-        fprintf(stderr, "decl %d\n", i);
         decls->Nth(i)->Emit();
     }
 
-
-    
-    // // create a function signature
-    // std::vector<llvm::Type *> argTypes;
-    // llvm::Type *intTy = irgen.GetIntType();
-    // argTypes.push_back(intTy);
-    // llvm::ArrayRef<llvm::Type *> argArray(argTypes);
-    // llvm::FunctionType *funcTy = llvm::FunctionType::get(intTy, argArray, false);
-
-    // // llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction("foo", intTy, intTy, (Type *)0));
-    // llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction("foo", funcTy));
-    // llvm::Argument *arg = f->arg_begin();
-    // arg->setName("x");
-
-    // // insert a block into the runction
-    // llvm::LLVMContext *context = irgen.GetContext();
-    // llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
-
-    // // create a return instruction
-    // llvm::Value *val = llvm::ConstantInt::get(intTy, 1);
-    // llvm::Value *sum = llvm::BinaryOperator::CreateAdd(arg, val, "", bb);
-    // llvm::ReturnInst::Create(*context, sum, bb);
-        // write the BC into standard output
-    fprintf(stderr, "%s\n", "writing Bitcode");
     mod->dump();
-    llvm::WriteBitcodeToFile(mod, llvm::outs());
-    fprintf(stderr, "%s\n", "done writing Bitcode");
 
+    llvm::WriteBitcodeToFile(mod, llvm::outs());
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
@@ -166,19 +137,17 @@ void SwitchStmt::PrintChildren(int indentLevel) {
 }
 
 void StmtBlock::Emit() {
-    fprintf(stderr,"Entering StmtBlock\n");
     for (int i = 0; i < stmts->NumElements(); i++) {
         llvm::BasicBlock * bb = Program::irgen.currentBlock();
         if(bb->getTerminator() != NULL) {
             break;
         }
-        //fprintf(stderr,stmts->Nth(i)->GetPrintNameForNode());
+
         stmts->Nth(i)->Emit(); 
     }
 }
 
 void DeclStmt::Emit() {
-    fprintf(stderr, "declstmt");
     decl->Emit();
 }
 
@@ -319,15 +288,10 @@ void ReturnStmt::Emit(){
         
         llvm::Value * rval = expr->EmitVal();  
 
-        fprintf(stderr, "returning: %s\n", expr->GetPrintNameForNode());
         llvm::ReturnInst::Create(*context, rval, Program::irgen.currentBlock());
     }
     else{
-
-        fprintf(stderr, "%s\n", "returning void");
          llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
-
-
     }
 }
 

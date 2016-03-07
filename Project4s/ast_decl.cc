@@ -106,19 +106,15 @@ void FnDecl::Emit() {
             Program::irgen.currentBlock()); // insert at end of basic block
         
         Program::irgen.locals()[param] = alloc; // add to symbol table 
-        // llvm::Value * val = llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 2, true);
+
         new llvm::StoreInst(args, alloc, false, bb);
-        fprintf(stderr, "%s %s\n", "stored param: ", formals->Nth(i)->GetIdentifier()->GetName());
     }
-    // llvm::Value *alloc = new llvm::AllocaInst(llvm::Type::getInt32Ty(llvm::getGlobalContext()),"one", Program::irgen.currentBlock());
 
 
     body->Emit();
 
     Program::irgen.ExitFunction();
     Program::irgen.popBlock();
-
-    fprintf(stderr, "%s\n", "done with function");
 }
 
 
