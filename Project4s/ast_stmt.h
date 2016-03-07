@@ -189,6 +189,7 @@ class Default : public SwitchLabel
   public:
     Default(Stmt *stmt) : SwitchLabel(stmt) {}
     const char *GetPrintNameForNode() { return "Default"; }
+    void Emit();
 };
 
 class SwitchStmt : public Stmt

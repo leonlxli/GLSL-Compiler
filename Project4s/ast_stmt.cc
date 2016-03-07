@@ -309,6 +309,7 @@ void ReturnStmt::Emit(){
 }
 
 void SwitchLabel::Emit() {
+    stmt->Emit();
 
 }
 
@@ -316,43 +317,49 @@ void Case::Emit() {
     // llvm::Value * targeLabel = label->EmitVal();
     stmt->Emit();
 }
-
+void Default::Emit() {
+    // llvm::Value * targeLabel = label->EmitVal();
+    stmt->Emit();
+}
 
 void SwitchStmt::Emit(){
     llvm::Function * f = Program::irgen.GetFunction();
     llvm::LLVMContext *context = Program::irgen.GetContext();
     llvm::Value * exprV = expr->EmitVal();
+    llvm::BasicBlock *baseBlock = Program::irgen.currentBlock();
     llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footBB", f);
-    llvm::BasicBlock *defaultBB;
+    // llvm::BasicBlock *defaultBB = footBB;
+
+
     int numCases = 0;
     for(int i =0; i < cases->NumElements();i++){
-        if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")){
+        if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")==0){
             numCases++;
         }
-        if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")){
-            llvm::BasicBlock *defBB = llvm::BasicBlock::Create(*context, "Default", f);
-            defaultBB = defBB;
-            llvm::BranchInst::Create(footBB, defBB);
-        }
-
     }
-
-    llvm::SwitchInst * Switcher = llvm::SwitchInst::Create(exprV,defaultBB,numCases,Program::irgen.currentBlock());    
+    llvm::SwitchInst * Switcher = llvm::SwitchInst::Create(exprV,footBB,numCases+1,Program::irgen.currentBlock());    
 
     for(int i =0; i < cases->NumElements();i++){
-        if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")){
-            llvm::BasicBlock *caseBB = llvm::BasicBlock::Create(*context, "", f);
+        if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")==0){
+            llvm::BasicBlock *caseBB = llvm::BasicBlock::Create(*context, "case", f);
             Program::irgen.pushBlock(caseBB);
             Case * c = (Case *) (cases->Nth(i));
             llvm::Value * targetLabelVal = c->label->EmitVal();
             llvm::ConstantInt * targetLabel = dynamic_cast<llvm::ConstantInt *>(targetLabelVal);
             Switcher->addCase(targetLabel,caseBB);
-            llvm::BranchInst::Create(footBB, caseBB);
+            cases->Nth(i)->Emit();
+            if(caseBB->getTerminator() == NULL) {
+                llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
+            }
+        }
+        if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")==0){
+            llvm::BasicBlock *defaultBB = llvm::BasicBlock::Create(*context, "Default", f);
+            Program::irgen.pushBlock(defaultBB);
+            cases->Nth(i)->Emit();
+            llvm::BranchInst::Create(footBB, defaultBB);
+            Switcher->setDefaultDest(defaultBB);
         }
     }
 
-
     Program::irgen.pushBlock(footBB);
-
-
 }
