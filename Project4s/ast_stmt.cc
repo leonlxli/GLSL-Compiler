@@ -205,7 +205,9 @@ void ForStmt::Emit() {
 
 // Emit for body
     body->Emit();
-    llvm::BranchInst::Create(stepBB, bodyBB);
+    if(bodyBB->getTerminator() == NULL) {
+        llvm::BranchInst::Create(stepBB, bodyBB);
+    }
 
 // Emit for step
     Program::irgen.popBlock(); // pop header
