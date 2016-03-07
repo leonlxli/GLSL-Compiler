@@ -160,13 +160,14 @@ class ReturnStmt : public Stmt
 class SwitchLabel : public Stmt
 {
   protected:
-    Expr     *label;
-    Stmt     *stmt;
 
   public:
+    Expr     *label;
+    Stmt     *stmt;
     SwitchLabel() { label = NULL; stmt = NULL; }
     SwitchLabel(Expr *label, Stmt *stmt);
     SwitchLabel(Stmt *stmt);
+    // Expr * getLabel(){return label;}
     void PrintChildren(int indentLevel);
     void Emit();
 };
@@ -174,10 +175,10 @@ class SwitchLabel : public Stmt
 class Case : public SwitchLabel
 {
   public:
+
     Case() : SwitchLabel() {}
     Case(Expr *label, Stmt *stmt) : SwitchLabel(label, stmt) {}
     const char *GetPrintNameForNode() { return "Case"; }
-
     void Emit();
 };
 

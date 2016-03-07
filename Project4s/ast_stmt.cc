@@ -277,22 +277,45 @@ void SwitchLabel::Emit() {
 }
 
 void Case::Emit() {
-
+    // llvm::Value * targeLabel = label->EmitVal();
+    stmt->Emit();
 }
 
-void SwitchStmt::Emit(){
-    llvm::LLVMContext *context = Program::irgen.GetContext();
 
+void SwitchStmt::Emit(){
+    llvm::Function * f = Program::irgen.GetFunction();
+    llvm::LLVMContext *context = Program::irgen.GetContext();
     llvm::Value * exprV = expr->EmitVal();
-    llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footBB");
-    Program::irgen.pushBlock(footBB);
+    llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footBB", f);
+    llvm::BasicBlock *defaultBB;
+    int numCases = 0;
+    for(int i =0; i < cases->NumElements();i++){
+        if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")){
+            numCases++;
+        }
+        if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")){
+            llvm::BasicBlock *defBB = llvm::BasicBlock::Create(*context, "Default", f);
+            defaultBB = defBB;
+            llvm::BranchInst::Create(footBB, defBB);
+        }
+
+    }
+
+    llvm::SwitchInst * Switcher = llvm::SwitchInst::Create(exprV,defaultBB,numCases,Program::irgen.currentBlock());    
 
     for(int i =0; i < cases->NumElements();i++){
-        llvm::BasicBlock *caseBB = llvm::BasicBlock::Create(*context, "caseBB");
-        Program::irgen.pushBlock(caseBB);
-        cases->Nth(i)->Emit();//add thenBB param?
-        llvm::BranchInst::Create(footBB, caseBB);
+        if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")){
+            llvm::BasicBlock *caseBB = llvm::BasicBlock::Create(*context, "", f);
+            Program::irgen.pushBlock(caseBB);
+            Case * c = (Case *) (cases->Nth(i));
+            llvm::Value * targetLabelVal = c->label->EmitVal();
+            llvm::ConstantInt * targetLabel = dynamic_cast<llvm::ConstantInt *>(targetLabelVal);
+            Switcher->addCase(targetLabel,caseBB);
+            llvm::BranchInst::Create(footBB, caseBB);
+        }
     }
+
+
     Program::irgen.pushBlock(footBB);
 
 

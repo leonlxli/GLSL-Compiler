@@ -2,7 +2,9 @@
 int foo(int x)
 {	
 	int i;
-	i = x++;
+	i=0;
+	i++;
 	return i;
+
 }
 
