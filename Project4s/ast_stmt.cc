@@ -25,47 +25,16 @@ IRGenerator Program::irgen; // define irgen
 
 void Program::Emit() {
     llvm::Module *mod = Program::irgen.GetOrCreateModule("main");
-   //  FILE * fp;
+
     llvm::LLVMContext *context = Program::irgen.GetContext();
 
-   // // fp = fopen (stderr, "w+");
-   //  llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "Class");
-    // fprintf(stderr, "pushing first block\n" );
-    // Program::irgen.pushBlock(bb);  
-
     for (int i = 0; i < decls->NumElements(); i++) {
-        fprintf(stderr, "decl %d\n", i);
         decls->Nth(i)->Emit();
     }
 
-
-    
-    // // create a function signature
-    // std::vector<llvm::Type *> argTypes;
-    // llvm::Type *intTy = irgen.GetIntType();
-    // argTypes.push_back(intTy);
-    // llvm::ArrayRef<llvm::Type *> argArray(argTypes);
-    // llvm::FunctionType *funcTy = llvm::FunctionType::get(intTy, argArray, false);
-
-    // // llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction("foo", intTy, intTy, (Type *)0));
-    // llvm::Function *f = llvm::cast<llvm::Function>(mod->getOrInsertFunction("foo", funcTy));
-    // llvm::Argument *arg = f->arg_begin();
-    // arg->setName("x");
-
-    // // insert a block into the runction
-    // llvm::LLVMContext *context = irgen.GetContext();
-    // llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "entry", f);
-
-    // // create a return instruction
-    // llvm::Value *val = llvm::ConstantInt::get(intTy, 1);
-    // llvm::Value *sum = llvm::BinaryOperator::CreateAdd(arg, val, "", bb);
-    // llvm::ReturnInst::Create(*context, sum, bb);
-        // write the BC into standard output
-    fprintf(stderr, "%s\n", "writing Bitcode");
     mod->dump();
-    llvm::WriteBitcodeToFile(mod, llvm::outs());
-    fprintf(stderr, "%s\n", "done writing Bitcode");
 
+    llvm::WriteBitcodeToFile(mod, llvm::outs());
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
@@ -170,16 +139,17 @@ void SwitchStmt::PrintChildren(int indentLevel) {
 }
 
 void StmtBlock::Emit() {
-    fprintf(stderr,"Entering StmtBlock\n");
     for (int i = 0; i < stmts->NumElements(); i++) {
+        llvm::BasicBlock * bb = Program::irgen.currentBlock();
+        if(bb->getTerminator() != NULL) {
+            break;
+        }
 
-        fprintf(stderr,stmts->Nth(i)->GetPrintNameForNode());
         stmts->Nth(i)->Emit(); 
     }
 }
 
 void DeclStmt::Emit() {
-    fprintf(stderr, "declstmt");
     decl->Emit();
 }
 
@@ -192,6 +162,9 @@ void ForStmt::Emit() {
     llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(*context, "body", f);
     llvm::BasicBlock *stepBB = llvm::BasicBlock::Create(*context, "step", f);
     llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer", f);
+
+    Program::irgen.currentLoopHeader = stepBB;
+    Program::irgen.currentLoopFooter = footerBB;
 
     init->Emit();
 
@@ -222,6 +195,9 @@ void ForStmt::Emit() {
 
     Program::irgen.popBlock();
     Program::irgen.pushBlock(footerBB);
+
+    Program::irgen.currentLoopHeader = NULL;
+    Program::irgen.currentLoopFooter = NULL;
 }
 
 void WhileStmt::Emit() {
@@ -232,6 +208,9 @@ void WhileStmt::Emit() {
     llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(*context, "loop", f);
     llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(*context, "body", f);
     llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer", f);
+
+    Program::irgen.currentLoopHeader = headerBB;
+    Program::irgen.currentLoopFooter = footerBB;
 
     llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
     Program::irgen.pushBlock(headerBB);
@@ -251,6 +230,9 @@ void WhileStmt::Emit() {
     Program::irgen.popBlock(); // pop body
 
     Program::irgen.pushBlock(footerBB);
+
+    Program::irgen.currentLoopHeader = NULL;
+    Program::irgen.currentLoopFooter = NULL;
 }
 
 void IfStmt::Emit() {
@@ -294,21 +276,24 @@ void IfStmt::Emit() {
     Program::irgen.pushBlock(footBB);
 }
 
+void BreakStmt::Emit() {
+    llvm::BranchInst::Create(Program::irgen.currentLoopFooter, Program::irgen.currentBlock());
+}
+
+void ContinueStmt::Emit() {
+    llvm::BranchInst::Create(Program::irgen.currentLoopHeader, Program::irgen.currentBlock());
+}
+
 void ReturnStmt::Emit(){
     llvm::LLVMContext *context = Program::irgen.GetContext();
     if( expr!=NULL ){
         
         llvm::Value * rval = expr->EmitVal();  
 
-        fprintf(stderr, "returning: %s\n", expr->GetPrintNameForNode());
         llvm::ReturnInst::Create(*context, rval, Program::irgen.currentBlock());
     }
     else{
-
-        fprintf(stderr, "%s\n", "returning void");
          llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
-
-
     }
 }
 

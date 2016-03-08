@@ -138,6 +138,8 @@ class BreakStmt : public Stmt
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
     const char *GetPrintNameForNode() { return "BreakStmt"; }
+
+    void Emit();
 };
 
 class ContinueStmt : public Stmt 
@@ -145,6 +147,8 @@ class ContinueStmt : public Stmt
   public:
     ContinueStmt(yyltype loc) : Stmt(loc) {}
     const char *GetPrintNameForNode() { return "ContinueStmt"; }
+
+    void Emit();
 };
 
 class ReturnStmt : public Stmt  

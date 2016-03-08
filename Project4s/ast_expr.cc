@@ -131,12 +131,11 @@ llvm::Value * BoolConstant::EmitVal() {
 llvm::Value * VarExpr::EmitVal() {
 
     if (Program::irgen.locals().find(string(id->GetName())) == Program::irgen.locals().end()) {
-        fprintf(stderr,"couldn't find %s in locals\n", id->GetName());
+        //fprintf(stderr,"couldn't find %s in locals\n", id->GetName());
 
         return NULL;
     }
 
-    fprintf(stderr,"loading: %s\n", id->GetName());
     return new llvm::LoadInst(Program::irgen.locals()[string(id->GetName())], "", false, Program::irgen.currentBlock());
 }
 
@@ -301,7 +300,6 @@ llvm::Value * AssignExpr::EmitVal() {
 }
 
 llvm::Value * PostfixExpr::EmitVal(){
-  fprintf(stderr, "fasdjflkajksdflakjsdlkfalkjskljalkjsfl\n\n");
   if(left){
     string o = string(op->getToken());
     llvm::Instruction::BinaryOps instr;
