@@ -1,7 +1,6 @@
-int x;
-int foo(int p) {
 
-	++x;
-    return ++x;
-
+int foo(int x)
+{
+  return x + 1;
 }
+
