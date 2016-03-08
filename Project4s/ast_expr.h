@@ -27,6 +27,7 @@ class Expr : public Stmt
     
     virtual llvm::Value * EmitVal(){ return NULL; } // Need to look at this
 
+    llvm::Constant * getSwizzleIndex(char c);
 };
 
 class ExprError : public Expr
@@ -172,10 +173,13 @@ class LogicalExpr : public CompoundExpr
 
 class AssignExpr : public CompoundExpr 
 {
+  private:
+    llvm::Value * SwizzleAssign();
+    llvm::Value * VariableAssign();
   public:
     AssignExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "AssignExpr"; }
-    // char * GetLeftName() { return (VarExpr *)left->GetName(); }
+    
     llvm::Value * EmitVal();
     void Emit() { EmitVal(); }
 };
@@ -185,7 +189,6 @@ class PostfixExpr : public CompoundExpr
   public:
     PostfixExpr(Expr *lhs, Operator *op) : CompoundExpr(lhs,op) {}
     const char *GetPrintNameForNode() { return "PostfixExpr"; }
-
 
     llvm::Value * EmitVal();
     void Emit() { EmitVal(); }
@@ -216,12 +219,11 @@ class ArrayAccess : public LValue
 class FieldAccess : public LValue 
 {
   protected:
-    Expr *base;	// will be NULL if no explicit base
-    Identifier *field;
-
-    llvm::Constant * getSwizzleIndex(char c);
     
   public:
+    Expr *base; // will be NULL if no explicit base
+    Identifier *field;
+
     FieldAccess(Expr *base, Identifier *field); //ok to pass NULL base
     const char *GetPrintNameForNode() { return "FieldAccess"; }
     void PrintChildren(int indentLevel);

@@ -129,9 +129,8 @@ llvm::Value * BoolConstant::EmitVal() {
 }
 
 llvm::Value * VarExpr::EmitVal() {
-
     if (Program::irgen.locals().find(string(id->GetName())) == Program::irgen.locals().end()) {
-        //fprintf(stderr,"couldn't find %s in locals\n", id->GetName());
+        fprintf(stderr,"couldn't find %s in locals\n", id->GetName());
 
         return NULL;
     }
@@ -140,20 +139,17 @@ llvm::Value * VarExpr::EmitVal() {
 }
 
 llvm::Value * ArithmeticExpr::EmitVal() {
-  fprintf(stderr, "%s\n", "ArithmeticExpr");
   llvm::Value * l = NULL;
   if(left) {
     l = left->EmitVal();
   }
   llvm::Value * r = right->EmitVal();
 
-  fprintf(stderr, "%s\n", "emitted right");
   llvm::Instruction::BinaryOps instr;
 
   string o = string(op->getToken());
-  fprintf(stderr, "%s\n", "got op");
   llvm::Type * type = r->getType();
-  fprintf(stderr, "%s\n", "checking operator");
+
   if(o == "+") {
     if(type->isIntegerTy()) {
       instr = llvm::Instruction::Add;
@@ -182,7 +178,6 @@ llvm::Value * ArithmeticExpr::EmitVal() {
     }
   } else {
     if(o == "++") {
-       fprintf(stderr, "%s\n", "++");
       if(type->isIntegerTy()) {
         instr = llvm::Instruction::Add;
       } else { // float
@@ -275,7 +270,109 @@ llvm::Value * LogicalExpr::EmitVal() {
 }
 
 llvm::Value * AssignExpr::EmitVal() {
+  string lNode = string(left->GetPrintNameForNode());
+
+  if(lNode == "FieldAccess") {
+    return SwizzleAssign();
+
+  } else { 
+    return VariableAssign();
+  }
+}
+
+llvm::Value * AssignExpr::SwizzleAssign() {
   llvm::Value * r = right->EmitVal();
+
+  llvm::Type * type = left->EmitVal()->getType();
+
+  string b = string(((FieldAccess*)left)->field->GetName());
+  int n = strlen(((FieldAccess*)left)->field->GetName());
+  int i = 0;
+
+  llvm::Value * vec = ((FieldAccess*)left)->base->EmitVal();
+
+  VarExpr * base = (VarExpr *)((FieldAccess*)left)->base;
+  llvm::Value * addr = Program::irgen.locals()[string(base->GetName())];
+
+  llvm::Instruction::BinaryOps instr;
+  string o = string(op->getToken());
+  
+  if(o == "=") {
+    if(type->isVectorTy()) {  //1. assign vec
+      llvm::Value * newVec = vec;
+      for(; i < n; i++) {
+        llvm::Constant * index1 = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
+        llvm::Constant * index2 = getSwizzleIndex(b.at(i));
+
+        llvm::Value * element = llvm::ExtractElementInst::Create(r, index1, "", Program::irgen.currentBlock());
+        llvm::Value * newVec = llvm::InsertElementInst::Create (vec, element, index2, "", Program::irgen.currentBlock());
+        
+        new llvm::StoreInst(newVec, addr, false, Program::irgen.currentBlock());
+        vec = newVec;
+      }
+
+    } else { //2. assign float
+      llvm::Constant * index = getSwizzleIndex(b.at(i));
+      llvm::Value * newVec = llvm::InsertElementInst::Create (vec, r, index, "", Program::irgen.currentBlock());
+
+      new llvm::StoreInst(newVec, addr, false, Program::irgen.currentBlock());
+    }
+
+    return left->EmitVal();
+
+  } else if(o == "+=") {
+    instr = llvm::Instruction::FAdd;
+    
+  } else if(o == "-=") {
+    instr = llvm::Instruction::FSub;
+
+  } else if(o == "*=") {
+    instr = llvm::Instruction::FMul;
+
+  } else if(o == "/=") {
+    instr = llvm::Instruction::FDiv;
+
+  } else {
+    return NULL;
+  }
+
+  if(type->isVectorTy()) {  //1. assign vec
+    llvm::Value * newVec = vec;
+    for(; i < n; i++) {
+      llvm::Constant * index1 = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
+      llvm::Constant * index2 = getSwizzleIndex(b.at(i));
+
+      llvm::Value * r_element = llvm::ExtractElementInst::Create(r, index1, "", Program::irgen.currentBlock());
+      llvm::Value * l_element = llvm::ExtractElementInst::Create(vec, index2, "", Program::irgen.currentBlock());
+      llvm::Value * res = llvm::BinaryOperator::Create(instr, l_element, r_element, "", Program::irgen.currentBlock());
+      
+      llvm::Value * newVec = llvm::InsertElementInst::Create (vec, res, index2, "", Program::irgen.currentBlock());
+      
+      new llvm::StoreInst(newVec, addr, false, Program::irgen.currentBlock());
+      vec = newVec;
+    }
+
+  } else { //2. assign float
+    llvm::Value * newVec = vec;
+    for(; i < n; i++) {
+      llvm::Constant * index = getSwizzleIndex(b.at(i));
+
+      llvm::Value * element = llvm::ExtractElementInst::Create(vec, index, "", Program::irgen.currentBlock());
+      llvm::Value * res = llvm::BinaryOperator::Create(instr, element, r, "", Program::irgen.currentBlock());
+
+      llvm::Value * newVec = llvm::InsertElementInst::Create (vec, res, index, "", Program::irgen.currentBlock());
+
+      new llvm::StoreInst(newVec, addr, false, Program::irgen.currentBlock());
+      vec = newVec;
+    }
+  }
+
+  return left->EmitVal();
+}
+
+llvm::Value * AssignExpr::VariableAssign() {
+  llvm::Value * r = right->EmitVal();
+
   if (Program::irgen.locals().find(string(((VarExpr * ) left)->GetName())) == Program::irgen.locals().end()) {
    // std::cerr << "undeclared variable " << lhs.name << std::endl;
     return NULL;
@@ -288,23 +385,13 @@ llvm::Value * AssignExpr::EmitVal() {
   llvm::Type * type = lval->getType();
 
   if(o == "=") {
-    // fprintf(stderr, "equals\n" );
-    if (llvm::dyn_cast<llvm::StoreInst>(r)) {
-        // fprintf(stderr, "equalsequals\n" );
-        // // llvm::Value * test = Program::irgen.locals()[string(((VarExpr * ) right)->GetName())];
-        // fprintf(stderr, ((VarExpr *)(((AssignExpr *)right)->left))->GetName());
-        //         fprintf(stderr, " is the name\n" );
-
-
-        r = new llvm::LoadInst(Program::irgen.locals()[((VarExpr *)(((AssignExpr *)right)->left))->GetName()], "", false, Program::irgen.currentBlock());
-        // return new llvm::StoreInst(rVal, lval, false, Program::irgen.currentBlock());
-    }
-    return new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
+    new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
+    return left->EmitVal();
 
   } else if(o == "+=") {
     if(type->isIntegerTy()) {
       instr = llvm::Instruction::Add;
-    } else { // float
+    } else { // float or vec
       instr = llvm::Instruction::FAdd;
     }
     
@@ -332,7 +419,9 @@ llvm::Value * AssignExpr::EmitVal() {
   }
   llvm::Value * lvalue = new llvm::LoadInst(Program::irgen.locals()[string(((VarExpr * ) left)->GetName())], "", false, Program::irgen.currentBlock());
   llvm::Value * res = llvm::BinaryOperator::Create(instr, lvalue, r, "", Program::irgen.currentBlock());
-  return new llvm::StoreInst(res, lval, false, Program::irgen.currentBlock());
+  new llvm::StoreInst(res, lval, false, Program::irgen.currentBlock());
+
+  return left->EmitVal();
 }
 
 llvm::Value * PostfixExpr::EmitVal(){
@@ -377,12 +466,8 @@ llvm::Value * FieldAccess::EmitVal() {
 
   if(n == 1) { // float
     llvm::Constant * index = getSwizzleIndex(b.at(i));
-
-    if(!llvm::ExtractElementInst::isValidOperands(vec, index)) {
-      fprintf(stderr, "%s\n", "invalid llvm::ExtractElementInst");
-    }
-
     return llvm::ExtractElementInst::Create(vec, index, "", Program::irgen.currentBlock());
+
   } else { // vec2,3,4
     std::vector<llvm::Constant *> indices;
     for(; i < n; i++) {
@@ -394,7 +479,7 @@ llvm::Value * FieldAccess::EmitVal() {
   }
 }
 
-llvm::Constant * FieldAccess::getSwizzleIndex(char c) {
+llvm::Constant * Expr::getSwizzleIndex(char c) {
   if(c == 'x') {
     return llvm::ConstantInt::get(Program::irgen.GetIntType(), 0);
   } else if(c == 'y') {
