@@ -32,7 +32,8 @@ void Program::Emit() {
         decls->Nth(i)->Emit();
     }
 
-    mod->dump();
+    // mod->dump();
+    //
 
     llvm::WriteBitcodeToFile(mod, llvm::outs());
 }

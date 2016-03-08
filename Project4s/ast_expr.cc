@@ -218,17 +218,30 @@ llvm::Value * RelationalExpr::EmitVal() {
     llvm::CmpInst::Predicate instr;
 
     string o = string(op->getToken());
-    
-    if(o == "<") {
-      instr = llvm::CmpInst::ICMP_SLT;
-    } else if(o == "<=") {
-      instr = llvm::CmpInst::ICMP_SLE;
-    } else if(o == ">") {
-      instr = llvm::CmpInst::ICMP_SGT;
-    } else if(o == ">=") {
-      instr = llvm::CmpInst::ICMP_SGE;
-    } else{
-      return NULL;
+    if(l->getType()==Program::irgen.GetIntType()||r->getType()==Program::irgen.GetIntType()){
+      if(o == "<") {
+        instr = llvm::CmpInst::ICMP_SLT;
+      } else if(o == "<=") {
+        instr = llvm::CmpInst::ICMP_SLE;
+      } else if(o == ">") {
+        instr = llvm::CmpInst::ICMP_SGT;
+      } else if(o == ">=") {
+        instr = llvm::CmpInst::ICMP_SGE;
+      } else{
+        return NULL;
+      }
+    }else{
+      if(o == "<") {
+        instr = llvm::CmpInst::FCMP_OLT;
+      } else if(o == "<=") {
+        instr = llvm::CmpInst::FCMP_OLE;
+      } else if(o == ">") {
+        instr = llvm::CmpInst::FCMP_OGT;
+      } else if(o == ">=") {
+        instr = llvm::CmpInst::FCMP_OGE;
+      } else{
+        return NULL;
+      }
     }
 
     return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
