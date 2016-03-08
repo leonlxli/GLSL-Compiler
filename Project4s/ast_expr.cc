@@ -140,14 +140,20 @@ llvm::Value * VarExpr::EmitVal() {
 }
 
 llvm::Value * ArithmeticExpr::EmitVal() {
-  llvm::Value * l = left->EmitVal();
+  fprintf(stderr, "%s\n", "ArithmeticExpr");
+  llvm::Value * l = NULL;
+  if(left) {
+    l = left->EmitVal();
+  }
   llvm::Value * r = right->EmitVal();
 
+  fprintf(stderr, "%s\n", "emitted right");
   llvm::Instruction::BinaryOps instr;
 
   string o = string(op->getToken());
-  llvm::Type * type = l->getType();
-
+  fprintf(stderr, "%s\n", "got op");
+  llvm::Type * type = r->getType();
+  fprintf(stderr, "%s\n", "checking operator");
   if(o == "+") {
     if(type->isIntegerTy()) {
       instr = llvm::Instruction::Add;
@@ -175,9 +181,29 @@ llvm::Value * ArithmeticExpr::EmitVal() {
       instr = llvm::Instruction::FDiv;
     }
   } else {
-    return NULL;
+    if(o == "++") {
+       fprintf(stderr, "%s\n", "++");
+      if(type->isIntegerTy()) {
+        instr = llvm::Instruction::Add;
+      } else { // float
+        instr = llvm::Instruction::FAdd;
+      }
+    } else { // --
+      if(type->isIntegerTy()) {
+        instr = llvm::Instruction::Sub;
+      } else {
+        instr = llvm::Instruction::FSub;
+      }
+    } 
+
+    l = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
+      llvm::Value * res = llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
+      llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) right)->GetName())];
+
+    new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
+    return new llvm::LoadInst(var, "", false, Program::irgen.currentBlock());
   }
-  
+
   return llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
 }
 
@@ -327,21 +353,9 @@ llvm::Value * PostfixExpr::EmitVal(){
     new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
 
     return lval;
-  } else { // prefix expression
-    llvm::Value * rval = right->EmitVal();
-    if(o == "++"){
-      instr = llvm::Instruction::Add;
-    }
-    else { // --
-      instr = llvm::Instruction::Sub;
+  } 
 
-    }
-
-    llvm::ConstantInt * one =  llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 1, true);
-    llvm::Value * res = llvm::BinaryOperator::Create(instr, rval, one, "", Program::irgen.currentBlock());
-    llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) right)->GetName())];
-    return new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
-  }
+  return NULL; 
 }
 
 llvm::Value * FieldAccess::EmitVal() {
