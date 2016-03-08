@@ -300,9 +300,13 @@ llvm::Value * AssignExpr::EmitVal() {
 }
 
 llvm::Value * PostfixExpr::EmitVal(){
+  string o = string(op->getToken());
+  llvm::Instruction::BinaryOps instr;
+
+  llvm::LLVMContext *context = Program::irgen.GetContext();
+  llvm::Function * f = Program::irgen.GetFunction();
+
   if(left){
-    string o = string(op->getToken());
-    llvm::Instruction::BinaryOps instr;
     llvm::Value * lval = left->EmitVal();
     if(o == "++"){
       instr = llvm::Instruction::Add;
@@ -311,8 +315,6 @@ llvm::Value * PostfixExpr::EmitVal(){
       instr = llvm::Instruction::Sub;
 
     }
-    llvm::LLVMContext *context = Program::irgen.GetContext();
-    llvm::Function * f = Program::irgen.GetFunction();
 
     llvm::BasicBlock *postBB = llvm::BasicBlock::Create(*context, "postBB", f);
     llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
@@ -325,8 +327,21 @@ llvm::Value * PostfixExpr::EmitVal(){
     new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
 
     return lval;
+  } else { // prefix expression
+    llvm::Value * rval = right->EmitVal();
+    if(o == "++"){
+      instr = llvm::Instruction::Add;
+    }
+    else { // --
+      instr = llvm::Instruction::Sub;
+
+    }
+
+    llvm::ConstantInt * one =  llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 1, true);
+    llvm::Value * res = llvm::BinaryOperator::Create(instr, rval, one, "", Program::irgen.currentBlock());
+    llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) right)->GetName())];
+    return new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
   }
-  return NULL;
 }
 
 llvm::Value * FieldAccess::EmitVal() {
