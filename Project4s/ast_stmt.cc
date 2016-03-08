@@ -26,9 +26,13 @@ IRGenerator Program::irgen; // define irgen
 void Program::Emit() {
     llvm::Module *mod = Program::irgen.GetOrCreateModule("main");
    //  FILE * fp;
+    llvm::LLVMContext *context = Program::irgen.GetContext();
 
-   // fp = fopen (stderr, "w+");
-   
+   // // fp = fopen (stderr, "w+");
+   //  llvm::BasicBlock *bb = llvm::BasicBlock::Create(*context, "Class");
+    // fprintf(stderr, "pushing first block\n" );
+    // Program::irgen.pushBlock(bb);  
+
     for (int i = 0; i < decls->NumElements(); i++) {
         fprintf(stderr, "decl %d\n", i);
         decls->Nth(i)->Emit();
@@ -326,7 +330,7 @@ void SwitchStmt::Emit(){
     llvm::Function * f = Program::irgen.GetFunction();
     llvm::LLVMContext *context = Program::irgen.GetContext();
     llvm::Value * exprV = expr->EmitVal();
-    llvm::BasicBlock *baseBlock = Program::irgen.currentBlock();
+    // llvm::BasicBlock *baseBlock = Program::irgen.currentBlock();
     llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footBB", f);
     // llvm::BasicBlock *defaultBB = footBB;
 

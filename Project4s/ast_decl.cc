@@ -48,14 +48,19 @@ void VarDecl::Emit() {
 
     if(currentFunc == NULL) { // global var
 
-        llvm::GlobalVariable * var = new llvm::GlobalVariable (
+        llvm::Value * memoryLocation = new llvm::GlobalVariable (
+            *Program::irgen.GetOrCreateModule(NULL),
             llvmType, 
             false, // is constant
-            llvm::GlobalValue::CommonLinkage, 
-            NULL, // initializer
+            llvm::GlobalValue::ExternalLinkage, 
+            llvm::Constant::getNullValue(llvmType), // initializer
             id->GetName());
 
-        (void) var; // useless line for getting rid of unused var warning
+        
+            Program::irgen.globals[string(id->GetName())] = memoryLocation;
+
+            // llvm::Value *datValue = new llvm::LoadInst(memoryLocation, id->GetName(), Program::irgen.currentBlock());
+
 
     } else { // local var
         // get insert position
@@ -67,7 +72,6 @@ void VarDecl::Emit() {
 
         Program::irgen.locals()[string(id->GetName())] = alloc; // add to symbol table 
 
-        (void) alloc; // useless line for getting rid of unused var warning
     }
 }
 

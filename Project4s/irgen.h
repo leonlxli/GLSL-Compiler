@@ -35,7 +35,6 @@ class IRGenerator {
 
     llvm::LLVMContext *context;
     llvm::Module      *module;
-
     // track which function or basic block is active
     llvm::Function    *currentFunc;
     llvm::BasicBlock  *currentBB;
@@ -44,6 +43,9 @@ class IRGenerator {
     static const char *TargetLayout;
 
   public:
+
+    std::map<std::string, llvm::Value*> globals;
+
     IRGenerator();
     ~IRGenerator();
 
@@ -69,12 +71,17 @@ class IRGenerator {
     //void generateCode(NBlock& root);
     //llvm::GenericValue runCode();
     std::map<std::string, llvm::Value*>& locals() { return blocks.top()->locals; }
+
     llvm::BasicBlock *currentBlock() { return blocks.top()->block; }
     void pushBlock(llvm::BasicBlock *block) { 
         CodeGenBlock * cgb = new CodeGenBlock();
 
         if(!blocks.empty()) {
             std::map<std::string, llvm::Value*> parentLocals = blocks.top()->locals;
+            cgb->locals = parentLocals;
+        }
+        if(blocks.empty()&&!globals.empty()){
+            std::map<std::string, llvm::Value*> parentLocals = globals;
             cgb->locals = parentLocals;
         }
 

@@ -4,6 +4,7 @@
  */
 
 #include "irgen.h"
+std::map<std::string, llvm::Value*> globals;
 
 IRGenerator::IRGenerator() : 
     context(NULL),
@@ -14,6 +15,7 @@ IRGenerator::IRGenerator() :
 }
 
 IRGenerator::~IRGenerator() {
+
 }
 
 llvm::Module *IRGenerator::GetOrCreateModule(const char *moduleID)

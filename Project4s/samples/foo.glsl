@@ -1,15 +1,5 @@
-int foo(int x) {
+int x;
+int foo(int p) {
 
-    switch( x+10 ){
-       case 1:
-          return x;
-       case 2:
-          return x;
-       case 3:
-          x=50;
-       default:
-       	  x = 25;
-
-    }
     return x;
 }

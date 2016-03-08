@@ -1,2 +1,3 @@
 funct: foo
 param: int, 3
+gin: x, int, 5
