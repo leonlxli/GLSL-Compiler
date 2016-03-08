@@ -190,10 +190,14 @@ llvm::Value * ArithmeticExpr::EmitVal() {
         instr = llvm::Instruction::FSub;
       }
     } 
-
-    l = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
-      llvm::Value * res = llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
-      llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) right)->GetName())];
+    if(r->getType()==Program::irgen.GetIntType()){
+      l = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
+    }
+    else{
+      l = llvm::ConstantFP::get(Program::irgen.GetFloatType(), 1);
+    }
+    llvm::Value * res = llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
+    llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) right)->GetName())];
 
     new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
     return new llvm::LoadInst(var, "", false, Program::irgen.currentBlock());
@@ -209,17 +213,30 @@ llvm::Value * RelationalExpr::EmitVal() {
     llvm::CmpInst::Predicate instr;
 
     string o = string(op->getToken());
-    
-    if(o == "<") {
-      instr = llvm::CmpInst::ICMP_SLT;
-    } else if(o == "<=") {
-      instr = llvm::CmpInst::ICMP_SLE;
-    } else if(o == ">") {
-      instr = llvm::CmpInst::ICMP_SGT;
-    } else if(o == ">=") {
-      instr = llvm::CmpInst::ICMP_SGE;
-    } else{
-      return NULL;
+    if(l->getType()==Program::irgen.GetIntType()||r->getType()==Program::irgen.GetIntType()){
+      if(o == "<") {
+        instr = llvm::CmpInst::ICMP_SLT;
+      } else if(o == "<=") {
+        instr = llvm::CmpInst::ICMP_SLE;
+      } else if(o == ">") {
+        instr = llvm::CmpInst::ICMP_SGT;
+      } else if(o == ">=") {
+        instr = llvm::CmpInst::ICMP_SGE;
+      } else{
+        return NULL;
+      }
+    }else{
+      if(o == "<") {
+        instr = llvm::CmpInst::FCMP_OLT;
+      } else if(o == "<=") {
+        instr = llvm::CmpInst::FCMP_OLE;
+      } else if(o == ">") {
+        instr = llvm::CmpInst::FCMP_OGT;
+      } else if(o == ">=") {
+        instr = llvm::CmpInst::FCMP_OGE;
+      } else{
+        return NULL;
+      }
     }
 
     return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
@@ -446,7 +463,13 @@ llvm::Value * PostfixExpr::EmitVal(){
     Program::irgen.pushBlock(postBB);
 
         //increatment l by one
-    llvm::ConstantInt * one =  llvm::ConstantInt::get(llvm::Type::getInt32Ty(llvm::getGlobalContext()), 1, true);
+    llvm::Value * one;
+    if(lval->getType()==Program::irgen.GetIntType()){
+      one = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
+    }
+    else{
+      one = llvm::ConstantFP::get(Program::irgen.GetFloatType(), 1);
+    }
     llvm::Value * res = llvm::BinaryOperator::Create(instr, lval, one, "", Program::irgen.currentBlock());
     llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
     new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
@@ -466,6 +489,7 @@ llvm::Value * FieldAccess::EmitVal() {
 
   if(n == 1) { // float
     llvm::Constant * index = getSwizzleIndex(b.at(i));
+
     return llvm::ExtractElementInst::Create(vec, index, "", Program::irgen.currentBlock());
 
   } else { // vec2,3,4
