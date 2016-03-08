@@ -377,7 +377,12 @@ llvm::Value * FieldAccess::EmitVal() {
 
   if(n == 1) { // float
     llvm::Constant * index = getSwizzleIndex(b.at(i));
-    return llvm::ExtractElementInst::Create(vec, index);
+
+    if(!llvm::ExtractElementInst::isValidOperands(vec, index)) {
+      fprintf(stderr, "%s\n", "invalid llvm::ExtractElementInst");
+    }
+
+    return llvm::ExtractElementInst::Create(vec, index, "", Program::irgen.currentBlock());
   } else { // vec2,3,4
     std::vector<llvm::Constant *> indices;
     for(; i < n; i++) {

@@ -44,7 +44,7 @@ void FnDecl::PrintChildren(int indentLevel) {
 
 void VarDecl::Emit() {
     llvm::Function * currentFunc = Program::irgen.GetFunction();
-    llvm::Type *llvmType = Program::irgen.ConvertType(type); // todo - get actual type
+    llvm::Type *llvmType = Program::irgen.ConvertType(type);
 
     if(currentFunc == NULL) { // global var
 
@@ -53,17 +53,12 @@ void VarDecl::Emit() {
             llvmType, 
             false, // is constant
             llvm::GlobalValue::ExternalLinkage, 
-            llvm::Constant::getNullValue(llvmType), // initializer
+            NULL, // initializer
             id->GetName());
-
         
             Program::irgen.globals[string(id->GetName())] = memoryLocation;
 
-            // llvm::Value *datValue = new llvm::LoadInst(memoryLocation, id->GetName(), Program::irgen.currentBlock());
-
     } else { // local var
-        // get insert position
-        // create local variable 
         llvm::AllocaInst * alloc = new llvm::AllocaInst (
             llvmType, 
             id->GetName(), 
