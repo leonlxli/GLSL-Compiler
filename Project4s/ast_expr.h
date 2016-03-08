@@ -119,9 +119,9 @@ class CompoundExpr : public Expr
 {
   protected:
     Operator *op;
-    Expr *left, *right; // left will be NULL if unary
     
   public:
+    Expr *left, *right; 
     CompoundExpr(Expr *lhs, Operator *op, Expr *rhs); // for binary
     CompoundExpr(Operator *op, Expr *rhs);             // for unary
     CompoundExpr(Expr *lhs, Operator *op);             // for unary
@@ -175,7 +175,7 @@ class AssignExpr : public CompoundExpr
   public:
     AssignExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "AssignExpr"; }
-
+    // char * GetLeftName() { return (VarExpr *)left->GetName(); }
     llvm::Value * EmitVal();
     void Emit() { EmitVal(); }
 };

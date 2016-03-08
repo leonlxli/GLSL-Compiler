@@ -276,7 +276,6 @@ llvm::Value * LogicalExpr::EmitVal() {
 
 llvm::Value * AssignExpr::EmitVal() {
   llvm::Value * r = right->EmitVal();
-
   if (Program::irgen.locals().find(string(((VarExpr * ) left)->GetName())) == Program::irgen.locals().end()) {
    // std::cerr << "undeclared variable " << lhs.name << std::endl;
     return NULL;
@@ -289,6 +288,17 @@ llvm::Value * AssignExpr::EmitVal() {
   llvm::Type * type = lval->getType();
 
   if(o == "=") {
+    // fprintf(stderr, "equals\n" );
+    if (llvm::dyn_cast<llvm::StoreInst>(r)) {
+        // fprintf(stderr, "equalsequals\n" );
+        // // llvm::Value * test = Program::irgen.locals()[string(((VarExpr * ) right)->GetName())];
+        // fprintf(stderr, ((VarExpr *)(((AssignExpr *)right)->left))->GetName());
+        //         fprintf(stderr, " is the name\n" );
+
+
+        llvm::Value * rVal = new llvm::LoadInst(Program::irgen.locals()[((VarExpr *)(((AssignExpr *)right)->left))->GetName()], "", false, Program::irgen.currentBlock());
+        return new llvm::StoreInst(rVal, lval, false, Program::irgen.currentBlock());
+    }
     return new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
 
   } else if(o == "+=") {

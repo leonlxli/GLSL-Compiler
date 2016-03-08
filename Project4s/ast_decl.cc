@@ -61,7 +61,6 @@ void VarDecl::Emit() {
 
             // llvm::Value *datValue = new llvm::LoadInst(memoryLocation, id->GetName(), Program::irgen.currentBlock());
 
-
     } else { // local var
         // get insert position
         // create local variable 
