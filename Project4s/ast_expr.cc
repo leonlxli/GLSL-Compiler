@@ -296,8 +296,8 @@ llvm::Value * AssignExpr::EmitVal() {
         //         fprintf(stderr, " is the name\n" );
 
 
-        llvm::Value * rVal = new llvm::LoadInst(Program::irgen.locals()[((VarExpr *)(((AssignExpr *)right)->left))->GetName()], "", false, Program::irgen.currentBlock());
-        return new llvm::StoreInst(rVal, lval, false, Program::irgen.currentBlock());
+        r = new llvm::LoadInst(Program::irgen.locals()[((VarExpr *)(((AssignExpr *)right)->left))->GetName()], "", false, Program::irgen.currentBlock());
+        // return new llvm::StoreInst(rVal, lval, false, Program::irgen.currentBlock());
     }
     return new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
 
