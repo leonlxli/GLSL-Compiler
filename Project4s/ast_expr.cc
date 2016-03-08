@@ -328,4 +328,37 @@ llvm::Value * PostfixExpr::EmitVal(){
   }
   return NULL;
 }
+
+llvm::Value * FieldAccess::EmitVal() {
+  string b = string(field->GetName());
+  int n = strlen(field->GetName());
+  int i = 0;
+
+  llvm::Value * vec = base->EmitVal();
+
+  if(n == 1) { // float
+    llvm::Constant * index = getSwizzleIndex(b.at(i));
+    return llvm::ExtractElementInst::Create(vec, index);
+  } else { // vec2,3,4
+    std::vector<llvm::Constant *> indices;
+    for(; i < n; i++) {
+      llvm::Constant * index = getSwizzleIndex(b.at(i));
+      indices.push_back(index);
+    }
+    llvm::Constant * mask = llvm::ConstantVector::get(indices);
+    return new llvm::ShuffleVectorInst(vec, vec, mask, "", Program::irgen.currentBlock());
+  }
+}
+
+llvm::Constant * FieldAccess::getSwizzleIndex(char c) {
+  if(c == 'x') {
+    return llvm::ConstantInt::get(Program::irgen.GetIntType(), 0);
+  } else if(c == 'y') {
+    return llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
+  } else if(c == 'z') {
+    return llvm::ConstantInt::get(Program::irgen.GetIntType(), 2);
+  } else { //w
+    return llvm::ConstantInt::get(Program::irgen.GetIntType(), 3);
+  }
+}
  

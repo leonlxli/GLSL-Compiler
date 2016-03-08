@@ -218,11 +218,16 @@ class FieldAccess : public LValue
   protected:
     Expr *base;	// will be NULL if no explicit base
     Identifier *field;
+
+    llvm::Constant * getSwizzleIndex(char c);
     
   public:
     FieldAccess(Expr *base, Identifier *field); //ok to pass NULL base
     const char *GetPrintNameForNode() { return "FieldAccess"; }
     void PrintChildren(int indentLevel);
+
+    llvm::Value * EmitVal();
+    void Emit() { EmitVal(); }
 };
 
 /* Like field access, call is used both for qualified base.field()
