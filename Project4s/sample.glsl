@@ -1,17 +1,8 @@
-int sample(){
+bool sample(){
 	int x;
-	x = 1;
-	int y;
-	y=4;
-	switch ( x ) {
-
-	  case 1: {
-	  y=21;
+	x=0;
+	while(x<10){
+		x=x+1;
 	}
-
-	 default: {y = 8;}
-
-	}
-	return y;
-
+	return true;
 }

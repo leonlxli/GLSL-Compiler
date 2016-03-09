@@ -130,8 +130,6 @@ llvm::Value * BoolConstant::EmitVal() {
 
 llvm::Value * VarExpr::EmitVal() {
     if (Program::irgen.locals().find(string(id->GetName())) == Program::irgen.locals().end()) {
-        fprintf(stderr,"couldn't find %s in locals\n", id->GetName());
-
         return NULL;
     }
 
@@ -213,7 +211,8 @@ llvm::Value * RelationalExpr::EmitVal() {
     llvm::CmpInst::Predicate instr;
 
     string o = string(op->getToken());
-    if(l->getType()==Program::irgen.GetIntType()||r->getType()==Program::irgen.GetIntType()){
+    if(l->getType()==Program::irgen.GetIntType()||r->getType()==Program::irgen.GetIntType()
+      ||l->getType()==llvm::Type::getInt32Ty(llvm::getGlobalContext())){
       if(o == "<") {
         instr = llvm::CmpInst::ICMP_SLT;
       } else if(o == "<=") {

@@ -30,7 +30,7 @@ void Program::Emit() {
         decls->Nth(i)->Emit();
     }
 
-    mod->dump();
+    // mod->dump();
     //
 
     llvm::WriteBitcodeToFile(mod, llvm::outs());
@@ -147,7 +147,6 @@ void StmtBlock::Emit() {
         if(bb->getTerminator() != NULL) {
             break;
         }
-        // fprintf(stderr, stmts->Nth(i)->GetPrintNameForNode());
         stmts->Nth(i)->Emit(); 
     }
 
@@ -305,15 +304,10 @@ void SwitchLabel::Emit() {
 }
 
 void Case::Emit() {
-    // llvm::Value * targeLabel = label->EmitVal();
-     fprintf(stderr, "inside case   \n");
-                                    fprintf(stderr, stmt->GetPrintNameForNode());
-
     stmt->Emit();
 }
 void Default::Emit() {
     // llvm::Value * targeLabel = label->EmitVal();
-     fprintf(stderr, "inside Default\n");
     stmt->Emit();
 }
 
@@ -337,31 +331,21 @@ void SwitchStmt::Emit(){
 
     for(int i =0; i < cases->NumElements();i++){
         if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")==0){
-            fprintf(stderr, "case\n");
 
             llvm::BasicBlock *caseBB = llvm::BasicBlock::Create(*context, "case", f);
             Program::irgen.pushBlock(caseBB);
             Case * c = (Case *) (cases->Nth(i));
-                        fprintf(stderr, "case ppp\n");
 
             llvm::Value * targetLabelVal = c->label->EmitVal();
             llvm::ConstantInt * targetLabel = dynamic_cast<llvm::ConstantInt *>(targetLabelVal);
-                        fprintf(stderr, "not yet added\n");
 
             Switcher->addCase(targetLabel,caseBB);
-                        fprintf(stderr, "added case\n");
-                                    fprintf(stderr, cases->Nth(i)->GetPrintNameForNode());
-
             cases->Nth(i)->Emit();
-                        fprintf(stderr, "emitted\n");
-
             if(caseBB->getTerminator() == NULL||Program::irgen.currentBlock()==NULL) {
                 llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
             }
         }
         if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")==0){
-            fprintf(stderr, "Default");
-
             llvm::BasicBlock *defaultBB = llvm::BasicBlock::Create(*context, "Default", f);
             Program::irgen.pushBlock(defaultBB);
             cases->Nth(i)->Emit();
