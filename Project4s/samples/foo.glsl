@@ -1,7 +1,8 @@
+vec2 a;
 
-int foo(int x)
+float foo(int x)
 {
-   ++v2;
+   a++;
 
-   return v2.y;
+   return a.x;
 }

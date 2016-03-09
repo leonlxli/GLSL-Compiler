@@ -537,36 +537,62 @@ llvm::Value * PostfixExpr::EmitVal(){
   llvm::LLVMContext *context = Program::irgen.GetContext();
   llvm::Function * f = Program::irgen.GetFunction();
 
-  if(left){
-    llvm::Value * lval = left->EmitVal();
-    if(o == "++"){
-      instr = llvm::Instruction::Add;
-    }
-    else { // --
-      instr = llvm::Instruction::Sub;
+  llvm::Value * lval = left->EmitVal();
+  if(o == "++"){
+    instr = llvm::Instruction::Add;
+  }
+  else { // --
+    instr = llvm::Instruction::Sub;
 
+  }
+
+  llvm::BasicBlock *postBB = llvm::BasicBlock::Create(*context, "postBB", f);
+  llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
+  Program::irgen.pushBlock(postBB);
+
+      //increatment l by one
+  llvm::Value * one;
+  if(lval->getType()==Program::irgen.GetIntType()){
+    one = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
+  }
+  else{
+    one = llvm::ConstantFP::get(Program::irgen.GetFloatType(), 1);
+  }
+
+  llvm::Type * type = lval->getType();
+
+  if(type->isVectorTy()) {
+
+    int n = ((llvm::VectorType*)type)->getNumElements();
+    int i = 0;
+
+    llvm::Value * vec = ((VarExpr*)left)->EmitVal();
+
+    llvm::Value * addr = Program::irgen.locals()[string(((VarExpr*)left)->GetName())];
+
+    llvm::Value * newVec = vec;
+
+    for(; i < n; i++) {
+      llvm::Constant * index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
+
+      llvm::Value * element = llvm::ExtractElementInst::Create(vec, index, "", Program::irgen.currentBlock());
+      llvm::Value * res = llvm::BinaryOperator::Create(instr, element, one, "", Program::irgen.currentBlock());
+
+      llvm::Value * newVec = llvm::InsertElementInst::Create (vec, res, index, "", Program::irgen.currentBlock());
+
+      new llvm::StoreInst(newVec, addr, false, Program::irgen.currentBlock());
+      vec = newVec;
     }
 
-    llvm::BasicBlock *postBB = llvm::BasicBlock::Create(*context, "postBB", f);
-    llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
-    Program::irgen.pushBlock(postBB);
+    return left->EmitVal();
 
-        //increatment l by one
-    llvm::Value * one;
-    if(lval->getType()==Program::irgen.GetIntType()){
-      one = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
-    }
-    else{
-      one = llvm::ConstantFP::get(Program::irgen.GetFloatType(), 1);
-    }
+  } else {
     llvm::Value * res = llvm::BinaryOperator::Create(instr, lval, one, "", Program::irgen.currentBlock());
     llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
     new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
 
     return lval;
   } 
-
-  return NULL; 
 }
 
 llvm::Value * FieldAccess::EmitVal() {
