@@ -1,16 +1,17 @@
 int sample(){
-	int i;
 	int x;
-	x=0;
-	i=0;
-	while(i<5){
-		int j;
-		j=0;
-		while(j<5){
-			x++;
-			j++;
-		}
-		i++;
+	x = 1;
+	int y;
+	y=4;
+	switch ( x ) {
+
+	  case 1: {
+	  y=21;
 	}
-	return x;
+
+	 default: {y = 8;}
+
+	}
+	return y;
+
 }
