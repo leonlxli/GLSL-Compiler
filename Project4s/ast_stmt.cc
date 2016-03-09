@@ -26,13 +26,11 @@ IRGenerator Program::irgen; // define irgen
 void Program::Emit() {
     llvm::Module *mod = Program::irgen.GetOrCreateModule("main");
 
-    llvm::LLVMContext *context = Program::irgen.GetContext();
-
     for (int i = 0; i < decls->NumElements(); i++) {
         decls->Nth(i)->Emit();
     }
 
-    // mod->dump();
+    mod->dump();
     //
 
     llvm::WriteBitcodeToFile(mod, llvm::outs());
@@ -241,24 +239,22 @@ void IfStmt::Emit() {
     llvm::LLVMContext *context = Program::irgen.GetContext();
     
     llvm::Value * cond = test->EmitVal();
-
-    llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(*context, "then", f);
-    llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footer", f);
-
     llvm::BasicBlock *elseBB = NULL;
 
-    if (elseBody) {
+    llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(*context, "then", f);
+        if (elseBody) {
         elseBB = llvm::BasicBlock::Create(*context, "else", f);
     }
 
+    llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footer", f);
     Program::irgen.pushBlock(thenBB);
-
     body->Emit();
-
     if(thenBB->getTerminator() == NULL) {
         llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
     }
-    
+    if(Program::irgen.currentBlock()->getTerminator() == NULL){
+        llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
+    }
     Program::irgen.popBlock();
 
     llvm::BranchInst::Create(thenBB, elseBody ? elseBB : footBB, cond, Program::irgen.currentBlock());
@@ -270,7 +266,9 @@ void IfStmt::Emit() {
         if(elseBB->getTerminator() == NULL) {
             llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
         }
-
+        if(Program::irgen.currentBlock()->getTerminator() == NULL){
+            llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
+        }
         Program::irgen.popBlock();
     }
 
