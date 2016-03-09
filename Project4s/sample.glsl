@@ -4,5 +4,5 @@ bool sample(){
 	while(x<10){
 		x=x+1;
 	}
-	return true;
+	return 1>2;
 }
