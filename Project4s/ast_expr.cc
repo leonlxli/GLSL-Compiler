@@ -174,7 +174,7 @@ llvm::Value * ArithmeticExpr::EmitVal() {
     } else {
       instr = llvm::Instruction::FDiv;
     }
-  } else {
+  } else { // prefix instructions 
     if(o == "++") {
       if(type->isIntegerTy()) {
         instr = llvm::Instruction::Add;
@@ -191,17 +191,77 @@ llvm::Value * ArithmeticExpr::EmitVal() {
     if(r->getType()==Program::irgen.GetIntType()){
       l = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
     }
-    else{
+    else{ // vector or float
       l = llvm::ConstantFP::get(Program::irgen.GetFloatType(), 1);
     }
-    llvm::Value * res = llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
-    llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) right)->GetName())];
 
-    new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
-    return new llvm::LoadInst(var, "", false, Program::irgen.currentBlock());
+    llvm::Type * rType = r->getType();
+
+    if(rType->isVectorTy()) {
+
+      int n = ((llvm::VectorType*)rType)->getNumElements();
+      int i = 0;
+
+      llvm::Value * vec = ((VarExpr*)right)->EmitVal();
+
+      llvm::Value * addr = Program::irgen.locals()[string(((VarExpr*)right)->GetName())];
+
+      llvm::Value * newVec = vec;
+
+      for(; i < n; i++) {
+        llvm::Constant * index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
+
+        llvm::Value * element = llvm::ExtractElementInst::Create(vec, index, "", Program::irgen.currentBlock());
+        llvm::Value * res = llvm::BinaryOperator::Create(instr, element, l, "", Program::irgen.currentBlock());
+
+        llvm::Value * newVec = llvm::InsertElementInst::Create (vec, res, index, "", Program::irgen.currentBlock());
+
+        new llvm::StoreInst(newVec, addr, false, Program::irgen.currentBlock());
+        vec = newVec;
+      }
+
+      return right->EmitVal();
+
+    } else {
+      llvm::Value * res = llvm::BinaryOperator::Create(instr, r, l, "", Program::irgen.currentBlock());
+      llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) right)->GetName())];
+
+      new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
+      return new llvm::LoadInst(var, "", false, Program::irgen.currentBlock());
+    }
+  } // end prefix instructions
+
+  llvm::Type * rType = r->getType();
+
+  if(type->isVectorTy() && rType->isFloatTy()) {
+
+    int n = ((llvm::VectorType*)type)->getNumElements();
+    int i = 0;
+
+    llvm::Value * vec = ((VarExpr*)left)->EmitVal();
+
+    llvm::Value * addr = Program::irgen.locals()[string(((VarExpr*)left)->GetName())];
+
+    llvm::Value * newVec = vec;
+
+    for(; i < n; i++) {
+      llvm::Constant * index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
+
+      llvm::Value * element = llvm::ExtractElementInst::Create(vec, index, "", Program::irgen.currentBlock());
+      llvm::Value * res = llvm::BinaryOperator::Create(instr, element, r, "", Program::irgen.currentBlock());
+
+      llvm::Value * newVec = llvm::InsertElementInst::Create (vec, res, index, "", Program::irgen.currentBlock());
+
+      new llvm::StoreInst(newVec, addr, false, Program::irgen.currentBlock());
+      vec = newVec;
+    }
+
+    return left->EmitVal();
+
+  } else {
+
+    return llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
   }
-
-  return llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
 }
 
 llvm::Value * RelationalExpr::EmitVal() {
@@ -398,7 +458,7 @@ llvm::Value * AssignExpr::VariableAssign() {
   string o = string(op->getToken());
   llvm::Value * lval = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
 
-  llvm::Type * type = lval->getType();
+  llvm::Type * type = left->EmitVal()->getType();
 
   if(o == "=") {
     new llvm::StoreInst(r, lval, false, Program::irgen.currentBlock());
@@ -433,9 +493,38 @@ llvm::Value * AssignExpr::VariableAssign() {
   } else {
     return NULL;
   }
-  llvm::Value * lvalue = new llvm::LoadInst(Program::irgen.locals()[string(((VarExpr * ) left)->GetName())], "", false, Program::irgen.currentBlock());
-  llvm::Value * res = llvm::BinaryOperator::Create(instr, lvalue, r, "", Program::irgen.currentBlock());
-  new llvm::StoreInst(res, lval, false, Program::irgen.currentBlock());
+
+  llvm::Type * rType = r->getType();
+
+  if(type->isVectorTy() && rType->isFloatTy()) {
+
+    int n = ((llvm::VectorType*)type)->getNumElements();
+    int i = 0;
+
+    llvm::Value * vec = ((VarExpr*)left)->EmitVal();
+
+    llvm::Value * addr = Program::irgen.locals()[string(((VarExpr*)left)->GetName())];
+
+    llvm::Value * newVec = vec;
+
+    for(; i < n; i++) {
+      llvm::Constant * index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
+
+      llvm::Value * element = llvm::ExtractElementInst::Create(vec, index, "", Program::irgen.currentBlock());
+      llvm::Value * res = llvm::BinaryOperator::Create(instr, element, r, "", Program::irgen.currentBlock());
+
+      llvm::Value * newVec = llvm::InsertElementInst::Create (vec, res, index, "", Program::irgen.currentBlock());
+
+      fprintf(stderr, "%s\n", "sploot was here");
+      new llvm::StoreInst(newVec, addr, false, Program::irgen.currentBlock());
+      vec = newVec;
+    }
+
+  } else {
+    llvm::Value * lvalue = new llvm::LoadInst(Program::irgen.locals()[string(((VarExpr * ) left)->GetName())], "", false, Program::irgen.currentBlock());
+    llvm::Value * res = llvm::BinaryOperator::Create(instr, lvalue, r, "", Program::irgen.currentBlock());
+    new llvm::StoreInst(res, lval, false, Program::irgen.currentBlock());
+  }
 
   return left->EmitVal();
 }
@@ -447,36 +536,62 @@ llvm::Value * PostfixExpr::EmitVal(){
   llvm::LLVMContext *context = Program::irgen.GetContext();
   llvm::Function * f = Program::irgen.GetFunction();
 
-  if(left){
-    llvm::Value * lval = left->EmitVal();
-    if(o == "++"){
-      instr = llvm::Instruction::Add;
-    }
-    else { // --
-      instr = llvm::Instruction::Sub;
+  llvm::Value * lval = left->EmitVal();
+  if(o == "++"){
+    instr = llvm::Instruction::Add;
+  }
+  else { // --
+    instr = llvm::Instruction::Sub;
 
+  }
+
+  llvm::BasicBlock *postBB = llvm::BasicBlock::Create(*context, "postBB", f);
+  llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
+  Program::irgen.pushBlock(postBB);
+
+      //increatment l by one
+  llvm::Value * one;
+  if(lval->getType()==Program::irgen.GetIntType()){
+    one = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
+  }
+  else{
+    one = llvm::ConstantFP::get(Program::irgen.GetFloatType(), 1);
+  }
+
+  llvm::Type * type = lval->getType();
+
+  if(type->isVectorTy()) {
+
+    int n = ((llvm::VectorType*)type)->getNumElements();
+    int i = 0;
+
+    llvm::Value * vec = ((VarExpr*)left)->EmitVal();
+
+    llvm::Value * addr = Program::irgen.locals()[string(((VarExpr*)left)->GetName())];
+
+    llvm::Value * newVec = vec;
+
+    for(; i < n; i++) {
+      llvm::Constant * index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
+
+      llvm::Value * element = llvm::ExtractElementInst::Create(vec, index, "", Program::irgen.currentBlock());
+      llvm::Value * res = llvm::BinaryOperator::Create(instr, element, one, "", Program::irgen.currentBlock());
+
+      llvm::Value * newVec = llvm::InsertElementInst::Create (vec, res, index, "", Program::irgen.currentBlock());
+
+      new llvm::StoreInst(newVec, addr, false, Program::irgen.currentBlock());
+      vec = newVec;
     }
 
-    llvm::BasicBlock *postBB = llvm::BasicBlock::Create(*context, "postBB", f);
-    llvm::BranchInst::Create(postBB, Program::irgen.currentBlock());
-    Program::irgen.pushBlock(postBB);
+    return left->EmitVal();
 
-        //increatment l by one
-    llvm::Value * one;
-    if(lval->getType()==Program::irgen.GetIntType()){
-      one = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
-    }
-    else{
-      one = llvm::ConstantFP::get(Program::irgen.GetFloatType(), 1);
-    }
+  } else {
     llvm::Value * res = llvm::BinaryOperator::Create(instr, lval, one, "", Program::irgen.currentBlock());
     llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
     new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
 
     return lval;
   } 
-
-  return NULL; 
 }
 
 llvm::Value * FieldAccess::EmitVal() {
