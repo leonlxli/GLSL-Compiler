@@ -1,4 +1,2 @@
 funct: foo
-param: float, 2.5
-gin: v2, vec2, 0.5, 1.5
-
+param: int, 3

@@ -1,10 +1,5 @@
 
-vec2 v2;
-
-float foo(float f)
+int foo(int x)
 {
-   v2.y += 0.5;
-
-   return v2.y;
+  return x + 1;
 }
-
