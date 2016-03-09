@@ -55,7 +55,7 @@ void VarDecl::Emit() {
             llvm::GlobalValue::ExternalLinkage, 
             NULL, // initializer
             id->GetName());
-        
+            
             Program::irgen.globals[string(id->GetName())] = memoryLocation;
 
     } else { // local var
