@@ -209,7 +209,7 @@ llvm::Value * ArithmeticExpr::EmitVal() {
       llvm::Value * addr = Program::irgen.locals()[string(((VarExpr*)right)->GetName())];
 
       llvm::Value * newVec = vec;
-fprintf(stderr, "%s\n", "sploot was here");
+
       for(; i < n; i++) {
         llvm::Constant * index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
 
@@ -225,7 +225,7 @@ fprintf(stderr, "%s\n", "sploot was here");
       return right->EmitVal();
 
     } else {
-      llvm::Value * res = llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
+      llvm::Value * res = llvm::BinaryOperator::Create(instr, r, l, "", Program::irgen.currentBlock());
       llvm::Value * var = Program::irgen.locals()[string(((VarExpr * ) right)->GetName())];
 
       new llvm::StoreInst(res, var, false, Program::irgen.currentBlock());
