@@ -147,17 +147,17 @@ llvm::Value * ArithmeticExpr::EmitVal() {
 
   string o = string(op->getToken());
   llvm::Type * type = r->getType();
-
   if(o == "+") {
     if(type->isIntegerTy()) {
       instr = llvm::Instruction::Add;
     } else { // float
       instr = llvm::Instruction::FAdd;
     }
-    
   } else if(o == "-") {
     if(type->isIntegerTy()) {
+
       instr = llvm::Instruction::Sub;
+
     } else {
       instr = llvm::Instruction::FSub;
     }
@@ -175,6 +175,7 @@ llvm::Value * ArithmeticExpr::EmitVal() {
       instr = llvm::Instruction::FDiv;
     }
   } else { // prefix instructions 
+
     if(o == "++") {
       if(type->isIntegerTy()) {
         instr = llvm::Instruction::Add;
@@ -188,6 +189,7 @@ llvm::Value * ArithmeticExpr::EmitVal() {
         instr = llvm::Instruction::FSub;
       }
     } 
+
     if(r->getType()==Program::irgen.GetIntType()){
       l = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
     }
@@ -259,8 +261,11 @@ llvm::Value * ArithmeticExpr::EmitVal() {
     return left->EmitVal();
 
   } else {
-
+    if(left==NULL){
+      l = llvm::ConstantInt::get(Program::irgen.GetIntType(), 0);
+    }
     return llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
+
   }
 }
 
@@ -447,6 +452,7 @@ llvm::Value * AssignExpr::SwizzleAssign() {
 }
 
 llvm::Value * AssignExpr::VariableAssign() {
+
   llvm::Value * r = right->EmitVal();
 
   if (Program::irgen.locals().find(string(((VarExpr * ) left)->GetName())) == Program::irgen.locals().end()) {
@@ -455,7 +461,9 @@ llvm::Value * AssignExpr::VariableAssign() {
   }
 
   llvm::Instruction::BinaryOps instr;
+
   string o = string(op->getToken());
+
   llvm::Value * lval = Program::irgen.locals()[string(((VarExpr * ) left)->GetName())];
 
   llvm::Type * type = left->EmitVal()->getType();
@@ -515,7 +523,6 @@ llvm::Value * AssignExpr::VariableAssign() {
 
       llvm::Value * newVec = llvm::InsertElementInst::Create (vec, res, index, "", Program::irgen.currentBlock());
 
-      fprintf(stderr, "%s\n", "sploot was here");
       new llvm::StoreInst(newVec, addr, false, Program::irgen.currentBlock());
       vec = newVec;
     }

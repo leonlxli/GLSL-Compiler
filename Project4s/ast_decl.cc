@@ -45,6 +45,7 @@ void FnDecl::PrintChildren(int indentLevel) {
 void VarDecl::Emit() {
     llvm::Function * currentFunc = Program::irgen.GetFunction();
     llvm::Type *llvmType = Program::irgen.ConvertType(type);
+                fprintf(stderr, "%s\n", "sploot was here");
 
     if(currentFunc == NULL) { // global var
 
@@ -67,6 +68,8 @@ void VarDecl::Emit() {
         Program::irgen.locals()[string(id->GetName())] = alloc; // add to symbol table 
 
     }
+                fprintf(stderr, "%s\n", "finish var decl");
+
 }
 
 void FnDecl::Emit() {

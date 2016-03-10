@@ -24,13 +24,14 @@ void Program::PrintChildren(int indentLevel) {
 IRGenerator Program::irgen; // define irgen
 
 void Program::Emit() {
+
     llvm::Module *mod = Program::irgen.GetOrCreateModule("main");
 
     for (int i = 0; i < decls->NumElements(); i++) {
         decls->Nth(i)->Emit();
     }
 
-    mod->dump();
+    // mod->dump();
     //
 
     llvm::WriteBitcodeToFile(mod, llvm::outs());
@@ -149,7 +150,6 @@ void StmtBlock::Emit() {
         }
         stmts->Nth(i)->Emit(); 
     }
-
 }
 
 void DeclStmt::Emit() {
