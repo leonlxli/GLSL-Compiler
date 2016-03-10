@@ -1,7 +1,11 @@
-float sample() {
+void sample() {
   
-  float x;
-  x = -5.0;
+   int x;
 
-  return x;
+  for(x=0; x<10; x=x+1){
+    int j;
+    for(j=0;j<2;j++){
+    	int p;
+    }
+  }
 }

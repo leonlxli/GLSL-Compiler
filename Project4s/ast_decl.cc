@@ -111,7 +111,10 @@ void FnDecl::Emit() {
 
 
     body->Emit();
-
+    if(Program::irgen.currentBlock()->getTerminator()==NULL){
+        fprintf(stderr, "NULLL");
+        llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
+    }
     Program::irgen.ExitFunction();
     Program::irgen.popBlock();
 }

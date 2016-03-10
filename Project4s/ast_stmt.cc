@@ -30,8 +30,14 @@ void Program::Emit() {
     for (int i = 0; i < decls->NumElements(); i++) {
         decls->Nth(i)->Emit();
     }
-
-    // mod->dump();
+    llvm::LLVMContext *context = Program::irgen.GetContext();
+    
+    // fprintf(stderr, "done-----------\n");
+    // if(Program::irgen.currentBlock()->getTerminator()==NULL){
+    //     fprintf(stderr, "NULLL");
+    //     llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
+    // }
+    mod->dump();
     //
 
     llvm::WriteBitcodeToFile(mod, llvm::outs());
@@ -169,7 +175,9 @@ void ForStmt::Emit() {
     Program::irgen.currentLoopHeader = stepBB;
     Program::irgen.currentLoopFooter = footerBB;
 
-    init->Emit();
+    if(init != NULL){
+        init->Emit();
+    }
 
 // Emit for initialization
     llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
@@ -341,7 +349,7 @@ void SwitchStmt::Emit(){
 
             Switcher->addCase(targetLabel,caseBB);
             cases->Nth(i)->Emit();
-            if(caseBB->getTerminator() == NULL||Program::irgen.currentBlock()==NULL) {
+            if(caseBB->getTerminator() == NULL||Program::irgen.currentBlock()->getTerminator()==NULL) {
                 llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
             }
         }
@@ -349,7 +357,7 @@ void SwitchStmt::Emit(){
             llvm::BasicBlock *defaultBB = llvm::BasicBlock::Create(*context, "Default", f);
             Program::irgen.pushBlock(defaultBB);
             cases->Nth(i)->Emit();
-            if(defaultBB->getTerminator() == NULL||Program::irgen.currentBlock()==NULL) {
+            if(defaultBB->getTerminator() == NULL||Program::irgen.currentBlock()->getTerminator()==NULL) {
                 llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
             }
             Switcher->setDefaultDest(defaultBB);
