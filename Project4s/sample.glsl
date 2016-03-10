@@ -1,7 +1,7 @@
-int sample() {
+float sample() {
   
-  int x;
-  x = -1;
+  float x;
+  x = -5.0;
 
   return x;
 }

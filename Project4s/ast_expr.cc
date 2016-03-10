@@ -262,7 +262,13 @@ llvm::Value * ArithmeticExpr::EmitVal() {
 
   } else {
     if(left==NULL){
-      l = llvm::ConstantInt::get(Program::irgen.GetIntType(), 0);
+
+      if(r->getType()==Program::irgen.GetIntType()||r->getType()==llvm::Type::getInt32Ty(llvm::getGlobalContext())){
+        l = llvm::ConstantInt::get(Program::irgen.GetIntType(), 0);
+      }
+      else if (r->getType() == Program::irgen.GetFloatType()||r->getType() ==llvm::Type::getFloatTy(llvm::getGlobalContext())){
+        l = llvm::ConstantFP::get(Program::irgen.GetFloatType(), 0);
+      }
     }
     return llvm::BinaryOperator::Create(instr, l, r, "", Program::irgen.currentBlock());
 
