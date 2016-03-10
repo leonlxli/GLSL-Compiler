@@ -30,15 +30,7 @@ void Program::Emit() {
     for (int i = 0; i < decls->NumElements(); i++) {
         decls->Nth(i)->Emit();
     }
-    llvm::LLVMContext *context = Program::irgen.GetContext();
-    
-    // fprintf(stderr, "done-----------\n");
-    // if(Program::irgen.currentBlock()->getTerminator()==NULL){
-    //     fprintf(stderr, "NULLL");
-    //     llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
-    // }
-    mod->dump();
-    //
+
 
     llvm::WriteBitcodeToFile(mod, llvm::outs());
 }
