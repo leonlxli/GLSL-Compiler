@@ -194,8 +194,9 @@ void ForStmt::Emit() {
     Program::irgen.pushBlock(stepBB);
 
     step->Emit();
-    llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
-
+    if(stepBB->getTerminator() == NULL||Program::irgen.currentBlock()->getTerminator() == NULL) {
+        llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
+    }
     Program::irgen.popBlock();
     Program::irgen.pushBlock(footerBB);
 

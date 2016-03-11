@@ -1,0 +1,3 @@
+funct: test12
+param: x, int, 4
+gin: b, bool, false

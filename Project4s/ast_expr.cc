@@ -276,7 +276,9 @@ llvm::Value * RelationalExpr::EmitVal() {
     llvm::Value * r = right->EmitVal();
 
     llvm::CmpInst::Predicate instr;
-
+    if(l->getType()->isVectorTy()){
+      
+    }
     string o = string(op->getToken());
     if(l->getType()==Program::irgen.GetIntType()||r->getType()==Program::irgen.GetIntType()
       ||l->getType()==llvm::Type::getInt32Ty(llvm::getGlobalContext())){
