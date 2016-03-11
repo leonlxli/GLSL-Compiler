@@ -226,12 +226,9 @@ void WhileStmt::Emit() {
     Program::irgen.popBlock(); // pop header
     Program::irgen.pushBlock(bodyBB);
 // Emit for body
-
     body->Emit();
-
-     if(Program::irgen.currentBlock()->getTerminator() == NULL) {
-        llvm::BranchInst::Create(footerBB, Program::irgen.currentBlock());
-    }
+    llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
+    
     Program::irgen.popBlock(); // pop body
     Program::irgen.pushBlock(footerBB);
 

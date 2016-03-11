@@ -280,12 +280,8 @@ llvm::Value * RelationalExpr::EmitVal() {
     llvm::Value * r = right->EmitVal();
 
     llvm::CmpInst::Predicate instr;
-        // fprintf(stderr,"%B\n", l->getType()==Program::irgen.GetIntType());
-        // fprintf(stderr,"%B\n", r->getType()==Program::irgen.GetIntType());
-        // fprintf(stderr,"%B\n", l->getType()==llvm::Type::getInt32Ty(llvm::getGlobalContext()));
 
     string o = string(op->getToken());
-    l = Program::irgen.locals()[string(((VarExpr*)left)->GetName())];
     if(l->getType()==Program::irgen.GetIntType()||r->getType()==Program::irgen.GetIntType()
       ||l->getType()==llvm::Type::getInt32Ty(llvm::getGlobalContext())){
       if(o == "<") {
