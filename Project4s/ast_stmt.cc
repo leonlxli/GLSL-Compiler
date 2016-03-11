@@ -31,7 +31,7 @@ void Program::Emit() {
         decls->Nth(i)->Emit();
     }
 
-
+    // mod->dump();
     llvm::WriteBitcodeToFile(mod, llvm::outs());
 }
 
@@ -226,9 +226,12 @@ void WhileStmt::Emit() {
     Program::irgen.popBlock(); // pop header
     Program::irgen.pushBlock(bodyBB);
 // Emit for body
-    body->Emit();
-    llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
 
+    body->Emit();
+
+     if(Program::irgen.currentBlock()->getTerminator() == NULL) {
+        llvm::BranchInst::Create(footerBB, Program::irgen.currentBlock());
+    }
     Program::irgen.popBlock(); // pop body
     Program::irgen.pushBlock(footerBB);
 
