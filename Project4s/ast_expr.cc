@@ -208,8 +208,6 @@ llvm::Value * ArithmeticExpr::EmitVal() {
 
       llvm::Value * addr = Program::irgen.locals()[string(((VarExpr*)right)->GetName())];
 
-      llvm::Value * newVec = vec;
-
       for(; i < n; i++) {
         llvm::Constant * index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
 
@@ -243,8 +241,6 @@ llvm::Value * ArithmeticExpr::EmitVal() {
     llvm::Value * vec = ((VarExpr*)left)->EmitVal();
 
     llvm::Value * addr = Program::irgen.locals()[string(((VarExpr*)left)->GetName())];
-
-    llvm::Value * newVec = vec;
 
     for(; i < n; i++) {
       llvm::Constant * index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
@@ -309,7 +305,7 @@ llvm::Value * RelationalExpr::EmitVal() {
       } else{
         return NULL;
       }
-      return llvm::CmpInst::Create( llvm::Instruction::FCmp, instr,
+      return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
       l, r, "", Program::irgen.currentBlock());
     }
 
@@ -388,7 +384,6 @@ llvm::Value * AssignExpr::SwizzleAssign() {
   
   if(o == "=") {
     if(type->isVectorTy()) {  //1. assign vec
-      llvm::Value * newVec = vec;
       for(; i < n; i++) {
         llvm::Constant * index1 = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
         llvm::Constant * index2 = getSwizzleIndex(b.at(i));
@@ -426,7 +421,6 @@ llvm::Value * AssignExpr::SwizzleAssign() {
   }
 
   if(type->isVectorTy()) {  //1. assign vec
-    llvm::Value * newVec = vec;
     for(; i < n; i++) {
       llvm::Constant * index1 = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
       llvm::Constant * index2 = getSwizzleIndex(b.at(i));
@@ -442,7 +436,6 @@ llvm::Value * AssignExpr::SwizzleAssign() {
     }
 
   } else { //2. assign float
-    llvm::Value * newVec = vec;
     for(; i < n; i++) {
       llvm::Constant * index = getSwizzleIndex(b.at(i));
 
@@ -521,8 +514,6 @@ llvm::Value * AssignExpr::VariableAssign() {
 
     llvm::Value * addr = Program::irgen.locals()[string(((VarExpr*)left)->GetName())];
 
-    llvm::Value * newVec = vec;
-
     for(; i < n; i++) {
       llvm::Constant * index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
 
@@ -584,7 +575,6 @@ llvm::Value * PostfixExpr::EmitVal(){
 
     llvm::Value * addr = Program::irgen.locals()[string(((VarExpr*)left)->GetName())];
 
-    llvm::Value * newVec = vec;
 
     for(; i < n; i++) {
       llvm::Constant * index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);

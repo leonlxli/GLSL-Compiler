@@ -1,8 +1,5 @@
-vec2 a;
-
-float foo(int x)
+int foo(int x)
 {
-   a++;
-
-   return a.x;
+  return x + 1;
 }
+

@@ -1,3 +1,2 @@
 funct: foo
 param: int, 3
-gin: a, vec2, 0.0, 0.0
