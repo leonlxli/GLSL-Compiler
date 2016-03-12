@@ -275,13 +275,12 @@ llvm::Value * RelationalExpr::EmitVal() {
     llvm::Value * l = left->EmitVal();
     llvm::Value * r = right->EmitVal();
 
+    llvm::Type * type = left->getType();
+
     llvm::CmpInst::Predicate instr;
-    if(l->getType()->isVectorTy()){
-      
-    }
+
     string o = string(op->getToken());
-    if(l->getType()==Program::irgen.GetIntType()||r->getType()==Program::irgen.GetIntType()
-      ||l->getType()==llvm::Type::getInt32Ty(llvm::getGlobalContext())){
+    if(type->isIntegerTy){
       if(o == "<") {
         instr = llvm::CmpInst::ICMP_SLT;
       } else if(o == "<=") {
@@ -307,7 +306,7 @@ llvm::Value * RelationalExpr::EmitVal() {
       } else{
         return NULL;
       }
-      return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
+      return llvm::CmpInst::Create( llvm::Instruction::FCmp, instr,
       l, r, "", Program::irgen.currentBlock());
     }
 
