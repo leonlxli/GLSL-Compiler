@@ -31,7 +31,7 @@ void Program::Emit() {
         decls->Nth(i)->Emit();
     }
 
-    // mod->dump();
+    mod->dump();
     llvm::WriteBitcodeToFile(mod, llvm::outs());
 }
 
@@ -146,8 +146,10 @@ void StmtBlock::Emit() {
         if(bb->getTerminator() != NULL) {
             break;
         }
+
         stmts->Nth(i)->Emit(); 
     }
+
 }
 
 void DeclStmt::Emit() {
@@ -159,11 +161,10 @@ void ForStmt::Emit() {
     llvm::LLVMContext *context = Program::irgen.GetContext();
     llvm::Function * f = Program::irgen.GetFunction();
 
-    llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(*context, "loop", f);
-    llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(*context, "body", f);
-    llvm::BasicBlock *stepBB = llvm::BasicBlock::Create(*context, "step", f);
-    llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer", f);
-
+    llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(*context, "forLoop", f);
+    llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(*context, "forBody", f);
+    llvm::BasicBlock *stepBB = llvm::BasicBlock::Create(*context, "forStep", f);
+    llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "forFooter", f);
     Program::irgen.currentLoopHeader = stepBB;
     Program::irgen.currentLoopFooter = footerBB;
 
@@ -180,28 +181,28 @@ void ForStmt::Emit() {
 // create a branch to terminate current BB and start loop header
     llvm::BranchInst::Create(bodyBB, footerBB, cond, Program::irgen.currentBlock());
 
-    Program::irgen.popBlock(); // pop header
+    // Program::irgen.popBlock(); // pop header
     Program::irgen.pushBlock(bodyBB);
 
 // Emit for body
     body->Emit();
-    if(bodyBB->getTerminator() == NULL||Program::irgen.currentBlock()->getTerminator() == NULL) {
+    if(Program::irgen.currentBlock()->getTerminator() == NULL) {
         llvm::BranchInst::Create(stepBB, Program::irgen.currentBlock());
     }
 
 // Emit for step
-    Program::irgen.popBlock(); // pop header
+    // Program::irgen.popBlock(); // pop header
     Program::irgen.pushBlock(stepBB);
 
     step->Emit();
     if(stepBB->getTerminator() == NULL||Program::irgen.currentBlock()->getTerminator() == NULL) {
         llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
     }
-    Program::irgen.popBlock();
+    // Program::irgen.popBlock();
     Program::irgen.pushBlock(footerBB);
 
-    Program::irgen.currentLoopHeader = NULL;
-    Program::irgen.currentLoopFooter = NULL;
+    // Program::irgen.currentLoopHeader = NULL;
+    // Program::irgen.currentLoopFooter = NULL;
 }
 
 void WhileStmt::Emit() {
@@ -209,9 +210,9 @@ void WhileStmt::Emit() {
     llvm::LLVMContext *context = Program::irgen.GetContext();
     llvm::Function * f = Program::irgen.GetFunction();
 
-    llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(*context, "loop", f);
-    llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(*context, "body", f);
-    llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "footer", f);
+    llvm::BasicBlock *headerBB = llvm::BasicBlock::Create(*context, "whileLoop", f);
+    llvm::BasicBlock *bodyBB = llvm::BasicBlock::Create(*context, "whileBody", f);
+    llvm::BasicBlock *footerBB = llvm::BasicBlock::Create(*context, "whileFooter", f);
 
     Program::irgen.currentLoopHeader = headerBB;
     Program::irgen.currentLoopFooter = footerBB;
@@ -240,18 +241,24 @@ void WhileStmt::Emit() {
 void IfStmt::Emit() {
     llvm::Function * f = Program::irgen.GetFunction();
     llvm::LLVMContext *context = Program::irgen.GetContext();
-    
+    llvm::BasicBlock *start = llvm::BasicBlock::Create(*context, "ifStart", f);
+    llvm::BranchInst::Create(start, Program::irgen.currentBlock());
+    Program::irgen.pushBlock(start);
     llvm::Value * cond = test->EmitVal();
     llvm::BasicBlock *elseBB = NULL;
 
-    llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(*context, "then", f);
-        if (elseBody) {
+    llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(*context, "ifBody", f);
+    if (elseBody) {
         elseBB = llvm::BasicBlock::Create(*context, "else", f);
     }
 
-    llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footer", f);
+    llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "ifFooter", f);
+    llvm::BranchInst::Create(thenBB, elseBody ? elseBB : footBB, cond, Program::irgen.currentBlock());
+
     Program::irgen.pushBlock(thenBB);
     body->Emit();
+
+
     if(thenBB->getTerminator() == NULL) {
         llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
     }
@@ -260,7 +267,6 @@ void IfStmt::Emit() {
     }
     Program::irgen.popBlock();
 
-    llvm::BranchInst::Create(thenBB, elseBody ? elseBB : footBB, cond, Program::irgen.currentBlock());
 
     if (elseBody) {
         Program::irgen.pushBlock(elseBB);
