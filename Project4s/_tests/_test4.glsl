@@ -6,7 +6,7 @@ int test4(int y){
             y = 2;
             break;
           case 5:
-            x += 15;
+            x += 5;
             return x;
           default:
             y = 1;

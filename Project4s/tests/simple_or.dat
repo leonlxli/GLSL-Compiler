@@ -1,0 +1,3 @@
+funct: cmp
+param: bool, true
+param: bool, false

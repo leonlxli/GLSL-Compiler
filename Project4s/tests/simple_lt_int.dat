@@ -1,0 +1,3 @@
+funct: cmp
+param: int, 2
+param: int, 3

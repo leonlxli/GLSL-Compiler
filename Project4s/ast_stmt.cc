@@ -340,7 +340,9 @@ void SwitchStmt::Emit(){
 
     for(int i =0; i < cases->NumElements();i++){
         if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")==0){
-
+            if(Program::irgen.currentBlock()->getTerminator()==NULL) {
+                llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
+            }
             llvm::BasicBlock *caseBB = llvm::BasicBlock::Create(*context, "case", f);
             Program::irgen.pushBlock(caseBB);
             Case * c = (Case *) (cases->Nth(i));
@@ -350,19 +352,22 @@ void SwitchStmt::Emit(){
 
             Switcher->addCase(targetLabel,caseBB);
             cases->Nth(i)->Emit();
-            if(caseBB->getTerminator() == NULL||Program::irgen.currentBlock()->getTerminator()==NULL) {
+        }
+        else if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")==0){
+            if(Program::irgen.currentBlock()->getTerminator()==NULL) {
                 llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
             }
-        }
-        if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")==0){
             llvm::BasicBlock *defaultBB = llvm::BasicBlock::Create(*context, "Default", f);
             Program::irgen.pushBlock(defaultBB);
             cases->Nth(i)->Emit();
-            if(defaultBB->getTerminator() == NULL||Program::irgen.currentBlock()->getTerminator()==NULL) {
-                llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
-            }
             Switcher->setDefaultDest(defaultBB);
         }
+        else{
+            cases->Nth(i)->Emit();
+        }
+    }
+    if(Program::irgen.currentBlock()->getTerminator()==NULL) {
+        llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
     }
         Program::irgen.currentLoopFooter = NULL;
 
