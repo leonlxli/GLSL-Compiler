@@ -317,22 +317,58 @@ llvm::Value * EqualityExpr::EmitVal() {
     llvm::Value * l = left->EmitVal();
     llvm::Value * r = right->EmitVal();
 
+    llvm::Type * lType = l->getType();
+
+    llvm::Instruction::OtherOps predicate;
+
     llvm::CmpInst::Predicate instr;
 
     string o = string(op->getToken());
     
     if(o == "!=") {
+      if(lType->isIntegerTy()) {
+        predicate = llvm::Instruction::ICmp;
         instr = llvm::CmpInst::ICMP_NE;
+      } else {
+        predicate = llvm::Instruction::FCmp;
+        instr = llvm::CmpInst::FCMP_ONE;
+      }
     }
     else if(o == "==") {
+      if(lType->isIntegerTy()) {
+        predicate = llvm::Instruction::ICmp;
         instr = llvm::CmpInst::ICMP_EQ;
+      } else {
+        predicate = llvm::Instruction::FCmp;
+        instr = llvm::CmpInst::FCMP_OEQ;
+      }
     }
     else{
       return NULL;
     }
 
-    return llvm::CmpInst::Create( llvm::Instruction::ICmp, instr,
-      l, r, "", Program::irgen.currentBlock());
+    if (lType->isVectorTy())
+    {
+      llvm::Value * cmpVec = llvm::CmpInst::Create(predicate, instr,
+        l, r, "", Program::irgen.currentBlock());
+
+      llvm::Value *index = llvm::ConstantInt::get(Program::irgen.GetIntType(), 0);
+      llvm::Value *andResult = llvm::ExtractElementInst::Create(cmpVec, index, "", Program::irgen.currentBlock());
+
+      int n = ((llvm::VectorType*)lType)->getNumElements();
+
+      for (int i = 1; i < n; i++) {
+          llvm::Value *index = llvm::ConstantInt::get(Program::irgen.GetIntType(), i);
+          llvm::Value *nextElem = llvm::ExtractElementInst::Create(cmpVec, index, "", Program::irgen.currentBlock());
+          andResult = llvm::BinaryOperator::CreateAnd(andResult, nextElem, "", Program::irgen.currentBlock());
+      }
+
+      return llvm::CmpInst::Create(llvm::Instruction::ICmp, llvm::CmpInst::ICMP_NE, llvm::ConstantInt::get(Program::irgen.GetBoolType(), 0),
+        andResult, "", Program::irgen.currentBlock());
+    } else {
+      return llvm::CmpInst::Create(predicate, instr,
+        l, r, "", Program::irgen.currentBlock());
+    }
 }
 
 llvm::Value * LogicalExpr::EmitVal() {
