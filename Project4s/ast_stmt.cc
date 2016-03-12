@@ -31,7 +31,7 @@ void Program::Emit() {
         decls->Nth(i)->Emit();
     }
 
-    mod->dump();
+    // mod->dump();
     llvm::WriteBitcodeToFile(mod, llvm::outs());
 }
 
@@ -293,9 +293,11 @@ void ContinueStmt::Emit() {
 }
 
 void ReturnStmt::Emit(){
+    Program::irgen.foundReturn = true;
+
     llvm::LLVMContext *context = Program::irgen.GetContext();
     if( expr!=NULL ){
-        
+
         llvm::Value * rval = expr->EmitVal();  
 
         llvm::ReturnInst::Create(*context, rval, Program::irgen.currentBlock());

@@ -43,7 +43,7 @@ class IRGenerator {
     static const char *TargetLayout;
 
   public:
-
+    bool foundReturn;
     std::map<std::string, llvm::Value*> globals;
 
     IRGenerator();
@@ -65,7 +65,6 @@ class IRGenerator {
     llvm::Type *GetVoidType() const;
     llvm::Type *GetVecType(int n) const;
     llvm::Type *GetMatType(int n) const;
-
     llvm::Type * ConvertType(Type * Type);
 
     llvm::BasicBlock * currentLoopFooter;

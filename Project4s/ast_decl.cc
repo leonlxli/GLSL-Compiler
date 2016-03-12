@@ -111,8 +111,25 @@ void FnDecl::Emit() {
 
 
     body->Emit();
+    char * typeName = returnType->GetTypeName();
+
     if(Program::irgen.currentBlock()->getTerminator()==NULL){
-        llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
+        if(strcmp(typeName, "int") == 0) {
+            llvm::Value * val = llvm::ConstantInt::get(Program::irgen.GetIntType(), 1);
+            llvm::ReturnInst::Create(*context, val, Program::irgen.currentBlock());
+
+          } else if(strcmp(typeName, "float") == 0) {
+            llvm::Value * val = llvm::ConstantFP::get(Program::irgen.GetFloatType(), 0);
+            llvm::ReturnInst::Create(*context, val, Program::irgen.currentBlock());
+
+          } else if(strcmp(typeName, "bool") == 0) {
+            llvm::Value * val = llvm::ConstantInt::get(Program::irgen.GetIntType(), -1);
+            llvm::ReturnInst::Create(*context, val, Program::irgen.currentBlock());
+          } else if(strcmp(typeName, "void") == 0) {
+            llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
+          } else {
+            llvm::ReturnInst::Create(*context, Program::irgen.currentBlock());
+          }
     }
     Program::irgen.ExitFunction();
     Program::irgen.popBlock();
