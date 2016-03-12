@@ -1,0 +1,3 @@
+funct: nestedswitch
+param: int, 1
+gin: g, int, 5

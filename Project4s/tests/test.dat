@@ -1,0 +1,3 @@
+funct: test
+param: int, 5
+gin:   g, int, 5

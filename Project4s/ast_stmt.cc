@@ -30,6 +30,7 @@ void Program::Emit() {
     for (int i = 0; i < decls->NumElements(); i++) {
         decls->Nth(i)->Emit();
     }
+                // fprintf(stderr, "before dump\n");
 
     // mod->dump();
     llvm::WriteBitcodeToFile(mod, llvm::outs());
@@ -325,6 +326,10 @@ void SwitchStmt::Emit(){
     llvm::LLVMContext *context = Program::irgen.GetContext();
     llvm::Value * exprV = expr->EmitVal();
     // llvm::BasicBlock *baseBlock = Program::irgen.currentBlock();
+    llvm::BasicBlock *switchBB = llvm::BasicBlock::Create(*context, "switchStartBB", f);
+    llvm::BranchInst::Create(switchBB, Program::irgen.currentBlock());
+    Program::irgen.pushBlock(switchBB);
+
     llvm::BasicBlock *footBB = llvm::BasicBlock::Create(*context, "footBB", f);
     // llvm::BasicBlock *defaultBB = footBB;
 
@@ -346,30 +351,34 @@ void SwitchStmt::Emit(){
             llvm::BasicBlock *caseBB = llvm::BasicBlock::Create(*context, "case", f);
             Program::irgen.pushBlock(caseBB);
             Case * c = (Case *) (cases->Nth(i));
-
             llvm::Value * targetLabelVal = c->label->EmitVal();
             llvm::ConstantInt * targetLabel = dynamic_cast<llvm::ConstantInt *>(targetLabelVal);
 
             Switcher->addCase(targetLabel,caseBB);
             cases->Nth(i)->Emit();
+
         }
         else if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Default")==0){
             if(Program::irgen.currentBlock()->getTerminator()==NULL) {
                 llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
             }
+
             llvm::BasicBlock *defaultBB = llvm::BasicBlock::Create(*context, "Default", f);
             Program::irgen.pushBlock(defaultBB);
             cases->Nth(i)->Emit();
+
             Switcher->setDefaultDest(defaultBB);
+
         }
         else{
-            cases->Nth(i)->Emit();
+            if(switchBB!=Program::irgen.currentBlock()){
+                cases->Nth(i)->Emit();
+            }
         }
     }
     if(Program::irgen.currentBlock()->getTerminator()==NULL) {
         llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
     }
         Program::irgen.currentLoopFooter = NULL;
-
     Program::irgen.pushBlock(footBB);
 }

@@ -4,10 +4,10 @@
 
 LIST=
 if [ "$#" = "0" ]; then
-	LIST=`ls _tests/*.out`
+	LIST=`ls tests/*.out`
 else
 	for test in "$@"; do
-		LIST="$LIST _tests/$test.out"
+		LIST="$LIST tests/$test.out"
 	done
 fi
 

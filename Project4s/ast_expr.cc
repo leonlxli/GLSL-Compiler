@@ -573,6 +573,8 @@ llvm::Value * AssignExpr::VariableAssign() {
 }
 
 llvm::Value * PostfixExpr::EmitVal(){
+              fprintf(stderr, "pst\n");
+
   string o = string(op->getToken());
   llvm::Instruction::BinaryOps instr;
 
