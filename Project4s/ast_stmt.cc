@@ -32,7 +32,7 @@ void Program::Emit() {
     }
                 // fprintf(stderr, "before dump\n");
 
-    mod->dump();
+    // mod->dump();
     llvm::WriteBitcodeToFile(mod, llvm::outs());
 }
 
@@ -348,10 +348,12 @@ void SwitchStmt::Emit(){
 
     for(int i =0; i < cases->NumElements();i++){
         if(strcmp(cases->Nth(i)->GetPrintNameForNode(),"Case")==0){
-            if(Program::irgen.currentBlock()->getTerminator()==NULL) {
-                llvm::BranchInst::Create(footBB, Program::irgen.currentBlock());
-            }
             llvm::BasicBlock *caseBB = llvm::BasicBlock::Create(*context, "case", f);
+
+            if(Program::irgen.currentBlock()->getTerminator()==NULL) {
+
+                llvm::BranchInst::Create(caseBB, Program::irgen.currentBlock());
+            }
             Program::irgen.pushBlock(caseBB);
             Case * c = (Case *) (cases->Nth(i));
             llvm::Value * targetLabelVal = c->label->EmitVal();
