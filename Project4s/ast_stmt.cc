@@ -32,7 +32,7 @@ void Program::Emit() {
     }
                 // fprintf(stderr, "before dump\n");
 
-    // mod->dump();
+    mod->dump();
     llvm::WriteBitcodeToFile(mod, llvm::outs());
 }
 
@@ -196,7 +196,7 @@ void ForStmt::Emit() {
     Program::irgen.pushBlock(stepBB);
 
     step->Emit();
-    if(stepBB->getTerminator() == NULL||Program::irgen.currentBlock()->getTerminator() == NULL) {
+    if(Program::irgen.currentBlock()->getTerminator() == NULL) {
         llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
     }
     Program::irgen.popBlock();
@@ -230,7 +230,10 @@ void WhileStmt::Emit() {
     Program::irgen.pushBlock(bodyBB);
 // Emit for body
     body->Emit();
-    llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
+
+    if(Program::irgen.currentBlock()->getTerminator() == NULL) {
+        llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
+    }
     
     Program::irgen.popBlock(); // pop body
     Program::irgen.pushBlock(footerBB);
