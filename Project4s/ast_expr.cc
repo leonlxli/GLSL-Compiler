@@ -275,12 +275,12 @@ llvm::Value * RelationalExpr::EmitVal() {
     llvm::Value * l = left->EmitVal();
     llvm::Value * r = right->EmitVal();
 
-    llvm::Type * type = left->getType();
+    llvm::Type * type = l->getType();
 
     llvm::CmpInst::Predicate instr;
 
     string o = string(op->getToken());
-    if(type->isIntegerTy){
+    if(type->isIntegerTy()){
       if(o == "<") {
         instr = llvm::CmpInst::ICMP_SLT;
       } else if(o == "<=") {
