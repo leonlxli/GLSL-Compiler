@@ -31,7 +31,7 @@ void Program::Emit() {
         decls->Nth(i)->Emit();
     }
 
-    mod->dump();
+    // mod->dump();
     llvm::WriteBitcodeToFile(mod, llvm::outs());
 }
 
@@ -181,7 +181,7 @@ void ForStmt::Emit() {
 // create a branch to terminate current BB and start loop header
     llvm::BranchInst::Create(bodyBB, footerBB, cond, Program::irgen.currentBlock());
 
-    // Program::irgen.popBlock(); // pop header
+    Program::irgen.popBlock(); // pop header
     Program::irgen.pushBlock(bodyBB);
 
 // Emit for body
@@ -191,18 +191,18 @@ void ForStmt::Emit() {
     }
 
 // Emit for step
-    // Program::irgen.popBlock(); // pop header
+    Program::irgen.popBlock(); // pop header
     Program::irgen.pushBlock(stepBB);
 
     step->Emit();
     if(stepBB->getTerminator() == NULL||Program::irgen.currentBlock()->getTerminator() == NULL) {
         llvm::BranchInst::Create(headerBB, Program::irgen.currentBlock());
     }
-    // Program::irgen.popBlock();
+    Program::irgen.popBlock();
     Program::irgen.pushBlock(footerBB);
 
-    // Program::irgen.currentLoopHeader = NULL;
-    // Program::irgen.currentLoopFooter = NULL;
+    Program::irgen.currentLoopHeader = NULL;
+    Program::irgen.currentLoopFooter = NULL;
 }
 
 void WhileStmt::Emit() {
